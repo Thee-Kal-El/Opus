@@ -86,3 +86,19 @@ open spot/index.html                 # live preview
 ```
 
 The Spotify name and icon belong to Spotify AB. This film is a spec/portfolio piece and is not affiliated with or endorsed by Spotify.
+
+---
+
+# Visit ArcTown — poster breakout
+
+A 10s, 1920×1080, 60fps motion piece with an original synthwave score. A "Visit ArcTown" poster hangs on a neon skyscraper wall, and ArcTown breaks out of the frame.
+
+**Output:** `out/visit_arctown_breakout_1080p60.mp4`. The score alone is `out/visit_arctown_score.wav`.
+
+The poster is a real 3D window. Anything behind the wall plane is visible only through the frame, and anything that crosses in front of the plane is drawn unclipped. On the beat at 2.0s the city pushes through: the road spills out, neon shops burst past the frame edges, cubes fly at the viewer, and the sign lifts off the poster. The camera then flies through the frame and down the avenue to the ARC tower, ending on a "Visit ArcTown" end card.
+
+```sh
+node arc/synth.mjs && node arc/render.mjs     # score, then video
+node arc/render.mjs --stills 0.5,3,6          # spot-check frames
+open arc/index.html                           # live preview
+```
