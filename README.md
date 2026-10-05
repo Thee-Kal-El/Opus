@@ -55,3 +55,34 @@ node reel/synth.mjs     # score -> out/the_blockchain_rush_score.wav
 node reel/render.mjs    # video + score -> out/the_blockchain_rush_1080p60.mp4
 ```
 The score is built from oscillators, noise and filters only: kick, clap, snare roll, toms, hats, supersaw stabs, sub and saw bass, plucks, pads, risers, impacts, a delay and a reverb. It uses no samples, audio files or virtual instruments.
+
+---
+
+# Blockchain Records Presents — 18s Spotify-style product film
+
+An 18-second film at 1920×1080 and true 60 fps, with an original score and subtle sound design. Every frame is rendered from code.
+
+**Output:** `out/blockchain_records_presents_18s_1080p60.mp4`. The score alone is `out/blockchain_records_presents_score.wav`.
+
+- **Track:** BLOCKCHAIN RECORDS PRESENTS
+- **Artist:** Thee_Kal_El
+- **Album:** THE INTRO
+- **Hero artwork:** `assets/socials_card.jpg`
+
+The supporting covers are generated in `spot/art.js`: a procedural pearlescent "liquid silk" cover plus the designed sleeves (Late Nights, Good Energy, Deep Focus, Daily Mix 1–3, Chill Waves, Throwback, Run Mode).
+
+## Source
+- `spot/film.js`: the film. `await window.seek(t)` renders the frame at absolute time `t`. Every transform, opacity, mask and UI state is a pure function of `t`, so frames can be sought in any order. Each output frame averages 4 temporal subframes over a 180° shutter. Stationary text and artwork stay pixel-sharp, and only moving elements blur, most visibly in the fast zoom.
+- `spot/art.js`: procedural artwork and sleeves.
+- `spot/synth.mjs`: the score at 120 BPM in D major (Dmaj7–Bm7–Gmaj7–A6), built from oscillators, noise and filters. It uses no samples or audio files. Accents sit on the film's shot times.
+- `spot/render.mjs`: headless Chromium to ffmpeg, constant 60 fps, H.264 + AAC.
+
+```sh
+node spot/synth.mjs                  # score
+node spot/render.mjs                 # final MP4
+node spot/render.mjs --sheet         # contact sheet, every 0.25s -> out/spot_sheet.png
+node spot/render.mjs --stills 8.8,15 # individual frames
+open spot/index.html                 # live preview
+```
+
+The Spotify name and icon belong to Spotify AB. This film is a spec/portfolio piece and is not affiliated with or endorsed by Spotify.
