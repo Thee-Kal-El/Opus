@@ -48,10 +48,10 @@
   // ?shorts=1 adds the vertical Shorts cards (outer columns, partly cropped by the screen edge)
   const WITH_SHORTS = /[?&]shorts=1\b/.test(location.search);
   const SHORTS = WITH_SHORTS ? [
-    { k: 'short_solana_dapps', w: 2.2, x: -7.5, y: 1.05, z: -4.4, r: -0.07 },
-    { k: 'short_ags', w: 2.2, x: 7.5, y: 1.15, z: -4.4, r: 0.07 },
-    { k: 'short_solana_house', w: 2.2, x: -7.3, y: -2.55, z: -4.6, r: 0.05 },
-    { k: 'short_bumper', w: 2.2, x: 7.3, y: -2.45, z: -4.6, r: -0.05 },
+    { k: 'short_netflix', w: 2.2, x: -7.5, y: 1.05, z: -4.4, r: -0.07 },
+    { k: 'short_eminem', w: 2.2, x: 7.5, y: 1.15, z: -4.4, r: 0.07 },
+    { k: 'short_vibes', w: 2.2, x: -7.3, y: -2.55, z: -4.6, r: 0.05 },
+    { k: 'short_playabull', w: 2.2, x: 7.3, y: -2.45, z: -4.6, r: -0.05 },
   ] : [];
   const CHIPS = [['SOLANA', ['#9945FF', '#14F195'], -3.7, 4.35, -1.0], ['POLYGON', ['#7B3FE4', '#A46BFF'], 3.75, 4.05, -1.2], ['AVALANCHE', ['#E84142', '#FF7A6B'], -3.85, -4.15, -1.0], ['ETHEREUM', ['#3C3C9D', '#8A92B2'], 3.9, -3.95, -1.1]];
   function roundedCard(im, w) {
@@ -107,6 +107,12 @@
     const pi = IMG.portrait, pc = mk(pi.naturalWidth, pi.naturalHeight), pg = pc.getContext('2d');
     pg.drawImage(pi, 0, 0);
     TEX.portrait = pc;
+    if (IMG.portrait2) {
+      TEX.portrait2 = IMG.portrait2;
+      // match head size: the pointing pose is a closer, wider shot; meta comes from assets/portrait_point.json
+      TEX.p2scale = (window.__P2META && window.__P2META.scale) || 1;
+      TEX.p2anchor = (window.__P2META && window.__P2META.anchor) || 0.5;
+    }
     const sc = mk(pi.naturalWidth, pi.naturalHeight), sg = sc.getContext('2d'); sg.drawImage(pi, 0, 0); sg.globalCompositeOperation = 'source-in'; sg.fillStyle = '#12001A'; sg.fillRect(0, 0, sc.width, sc.height);
     TEX.shadow = sc;
   }
@@ -144,9 +150,36 @@
     const k = A(t, 2.0, 0.6);
     return { x: lerp(0, 0.15, k), y: lerp(-4.65, -3.15, k), z: lerp(0.8, -2.4, k), h: 7.0 * lerp(1, 1.1, k), k };
   }
+  // Two poses trade off like a shorting neon sign: A = original portrait, B = pointing pose (if provided).
+  // Each switch lands on a beat with a ~0.14s flicker; between switches the pose holds.
+  const SWITCHES = [[1.0, 'B'], [1.5, 'A'], [4.5, 'B'], [5.5, 'A'], [8.0, 'B']];
+  function poseAt(t) {
+    if (!TEX.portrait2) return { pose: 'A', glitch: 0 };
+    let pose = 'A';
+    for (const [ts, p] of SWITCHES) {
+      if (t >= ts + 0.14) pose = p;
+      else if (t >= ts) {
+        const f = Math.floor((t - ts) * 60);                     // frame-quantized flicker
+        const on = [1, 0, 1, 1, 0, 1, 0, 1, 1][f % 9];
+        return { pose: on ? p : pose, glitch: 1 - (t - ts) / 0.14, dark: [0, 1, 0, 0, 1, 0, 0, 0, 0][f % 9] };
+      }
+    }
+    return { pose, glitch: 0 };
+  }
   function drawPortrait(c, t, st, alpha = 1) {
-    const [px, py, s] = P(st.x, st.y, st.z), h = st.h * s, w = h * TEX.portrait.width / TEX.portrait.height;
-    c.save(); c.globalAlpha *= alpha; c.drawImage(TEX.portrait, px - w / 2, py - h, w, h); c.restore();
+    const ps = poseAt(t), tex = ps.pose === 'B' ? TEX.portrait2 : TEX.portrait;
+    const scale = ps.pose === 'B' ? TEX.p2scale : 1;
+    const [px, py, s] = P(st.x, st.y, st.z), h = st.h * s * scale, w = h * tex.width / tex.height;
+    const ax = ps.pose === 'B' ? TEX.p2anchor : 0.5;           // horizontal anchor = his head, not the image centre
+    c.save(); c.globalAlpha *= alpha * (ps.dark ? 0.15 : 1);
+    if (ps.glitch > 0) {
+      const j = (hash(Math.floor(t * 60), 9) - 0.5) * 30 * ps.glitch;
+      c.globalCompositeOperation = 'lighter'; c.globalAlpha *= 0.5;
+      c.filter = 'sepia(1) saturate(6) hue-rotate(260deg)'; c.drawImage(tex, px - w * ax - j - 8, py - h, w, h);
+      c.filter = 'sepia(1) saturate(6) hue-rotate(140deg)'; c.drawImage(tex, px - w * ax + j + 8, py - h, w, h);
+      c.filter = 'none'; c.globalCompositeOperation = 'source-over'; c.globalAlpha /= 0.5;
+    }
+    c.drawImage(tex, px - w * ax, py - h, w, h); c.restore();
   }
   function posterInside(c, t) {
     const [x, y, w, h] = windowRect(0);
@@ -302,6 +335,7 @@ function titleState(t) { const k = A(t, 2.2, 0.75); return { y: lerp(3.25, -1.95
   window.THK.ready = Promise.all([
     document.fonts.load(SANS(900, 40)), document.fonts.load(SANS(800, 40)),
     load('portrait', '../assets/portrait.png'),
+    fetch('../assets/portrait_point.json').then((r) => r.json()).then((m) => { window.__P2META = m; return load('portrait2', '../assets/portrait_point.png'); }).catch(() => {}),
     ...CARDS.map((cd) => load(cd.k, `../assets/yt/${cd.k}.png`)),
     ...SHORTS.map((cd) => load(cd.k, `../assets/yt/${cd.k}.png`)),
   ]).then(build);

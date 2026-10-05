@@ -120,14 +120,12 @@ for (let bar = 1; bar < 4 + 1 && bar * 2 < 8; bar++) {
   riff.forEach((d, i) => { if (d != null) cowbell(b0 + i * dt, R0 + d + tr, 1, (i % 2 ? 0.35 : -0.35)); });
   drone(b0, 2.0, [R0 - 24 + tr, R0 - 17 + tr, R0 - 12 + tr], 0.8, 0.014);
 }
-// film accents
-[2.5, 2.75, 3.0, 3.25, 3.5, 3.75].forEach((t, i) => whoosh(t, 0.35, 0.5, i % 2 === 0));
-whoosh(2.2, 0.6, 0.6, false);
-if (VARIANT === 'shorts') [4.0, 4.25, 4.5, 4.75].forEach((t, i) => whoosh(t, 0.35, 0.55, i % 2 === 1));
-[4.5, 4.75, 5.0, 5.25].forEach((t, i) => pop(t, 76 + i * 3, 1, (i % 2 ? 1 : -1) * 0.5));
-pop(6.0, 70, 1.4); whoosh(5.85, 0.3, 0.45, true);
-click(7.0, 2.2, 1400); [84, 91].forEach((m, i) => bell(7.06 + i * 0.09, m, 0.7, 0.2, 1.3));
-
+// film accents — kept cinematic and quiet so the beat carries the motion (no game-style pops, blips or dings)
+function air(t0, dur, g = 1) { let lp = 0; for (let n = 0; n < dur * SR; n++) { const k = n / (dur * SR); lp += 0.02 * (noise() - lp); const v = lp * Math.sin(Math.PI * k) ** 2 * g * 0.5; put(at(t0) + n, v * (1 - 0.4 * k), v * (0.6 + 0.4 * k), 0.4); } }
+air(2.35, 1.6, 0.8);                          // thumbnails leaving the poster: one soft air sweep, not a whoosh per card
+if (VARIANT === 'shorts') air(3.95, 1.0, 0.6);
+boom(6.0, 0.35);                              // subscribe button lands as a low thud
+click(7.0, 0.7, 900);                         // muted press
 // 8.0: outro — drums cut, 808 dives, cowbell echoes out
 boom(8.0, 0.8); kick(8.0, 1); clap(8.5, 0.6);
 e808(8.0, 1.3, R0 - 24, 1, R0 - 36);
