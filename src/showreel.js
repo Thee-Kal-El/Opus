@@ -85,9 +85,9 @@
   const CF = [[[0, 1, 2, 3], [0, 0, -1]], [[5, 4, 7, 6], [0, 0, 1]], [[4, 0, 3, 7], [-1, 0, 0]],
     [[1, 5, 6, 2], [1, 0, 0]], [[4, 5, 1, 0], [0, -1, 0]], [[3, 2, 6, 7], [0, 1, 0]]];
   const LIGHT = (() => { const v = [-0.45, -0.75, -0.5], l = Math.hypot(...v); return v.map((x) => x / l); })();
-  function cube(c, x, y, h, rx, ry, tone = 0, alpha = 1) {
+  function cube(c, x, y, h, rx, ry, tone = 0, alpha = 1, style = STYLE) {
     if (alpha <= 0.005 || h < 0.5) return;
-    if (STYLE !== 'solid') return styledCube(c, x, y, h, rx, ry, tone, alpha, STYLE);
+    if (style !== 'solid') return styledCube(c, x, y, h, rx, ry, tone, alpha, style);
     const cx = Math.cos(rx), sxn = Math.sin(rx), cy = Math.cos(ry), syn = Math.sin(ry);
     const rot = ([a, b, d]) => {
       const x1 = a * cy + d * syn, z1 = -a * syn + d * cy;
@@ -546,7 +546,7 @@
     for (const { b, rel } of vis) {
       const [x, y] = proj(b, rel);
       const fog = clamp((90 - rel) / 55) * clamp((rel - 2.5) / 2.5);
-      cube(c, x, y, 0.36 * FL / rel, 0.42, t * 0.6 + b.ph, clamp((22 - rel) / 8), fog * env);
+      cube(c, x, y, 0.36 * FL / rel, 0.42, t * 0.6 + b.ph, clamp((22 - rel) / 8), fog * env, 'solid'); // solid blocks for the fly-through
     }
     line(c, [['Leading you', F.sans(100, 700), C.ink, -3.5]], CX, 250, 100, t, { t0: 9.55, out: 12.15, align: 'center' });
     line(c, [['into the ', F.sans(100, 700), C.ink, -3.5], ['future.', F.serif(118), accentFill]], CX, 362, 100, t,
@@ -621,7 +621,7 @@
   }
 
   window.SHOWREEL = { W, H, DUR, FPS, renderAt, STYLES, setStyle: (s) => { STYLE = s; },
-    drawBlock: (c, x, y, h, rx, ry, tone, alpha, style, t) => { curT = t; const prev = STYLE; STYLE = style; cube(c, x, y, h, rx, ry, tone, alpha); STYLE = prev; } };
+    drawBlock: (c, x, y, h, rx, ry, tone, alpha, style, t) => { curT = t; const prev = STYLE; STYLE = style; cube(c, x, y, h, rx, ry, tone, alpha, style); STYLE = prev; } };
   window.SHOWREEL.ready = Promise.all([
     document.fonts.load(F.sans(100)), document.fonts.load(F.serif(100)), document.fonts.load(F.mono(20)),
   ]).then(() => document.fonts.ready);
