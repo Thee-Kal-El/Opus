@@ -111,6 +111,27 @@
         poly(f.idx); c.fillStyle = g; c.fill();
         c.strokeStyle = rgba('#CFE0FF', 0.15 + 0.5 * f.lit); c.lineWidth = Math.max(1, h / 70); c.stroke();
       }
+    } else if (style === 'holo') {
+      // iridescent see-through: faces shift cyan→blue→violet→pink with orientation and time
+      const w = Math.min(3.4, Math.max(1, h / 28)), tt = o.t || 0;
+      const PAL = [C.cyan, C.blue, C.violet, C.pink];
+      const hc = (k) => { k = frac(k) * 4; const i = Math.floor(k); return mix(PAL[i], PAL[(i + 1) % 4], k - i); };
+      c.globalCompositeOperation = 'lighter'; radial(c, x, y, h * 2.6, C.violet, 0.14 * glow);
+      for (const f of faces) {
+        const k = f.idx[0] * 0.13 + f.lit * 0.4 + tt * 0.12;
+        poly(f.idx);
+        const p0 = P[f.idx[0]], p2 = P[f.idx[2]];
+        const g = c.createLinearGradient(p0[0], p0[1], p2[0], p2[1]);
+        const a0 = f.front ? 0.22 + 0.25 * f.lit : 0.10;
+        g.addColorStop(0, rgba(hc(k), a0)); g.addColorStop(0.5, rgba(hc(k + 0.25), a0 * 0.8)); g.addColorStop(1, rgba(hc(k + 0.5), a0));
+        c.fillStyle = g; c.fill();
+      }
+      c.globalCompositeOperation = 'source-over';
+      for (const [a, b] of EDGES) {
+        const fr = faces.some((f) => f.front && f.idx.includes(a) && f.idx.includes(b));
+        c.beginPath(); c.moveTo(P[a][0], P[a][1]); c.lineTo(P[b][0], P[b][1]);
+        neonStroke(c, fr ? hc((a + b) * 0.07 + tt * 0.15) : C.violet, fr ? w * 0.9 : w * 0.6, fr ? glow : 0.35 * glow);
+      }
     } else {
       const w = Math.min(3.4, Math.max(1, h / 28));
       c.globalCompositeOperation = 'lighter'; radial(c, x, y, h * 2.6, col, 0.14 * glow); c.globalCompositeOperation = 'source-over';
@@ -466,10 +487,11 @@
     for (const { b, rel } of vis) {
       const x = CX + (b.x - camX) * FL / rel, y = HY + 1.3 * FL / rel;
       const fog = clamp((90 - rel) / 55) * clamp((rel - 2) / 2);
-      const solid = E.inOutCubic(clamp((10 - rel) / 3));
+      // far blocks are solid; the nearest one or two turn holographic as the camera reaches them
+      const holo = E.inOutCubic(clamp((10 - rel) / 3));
       const h = 0.4 * FL / rel;
-      if (solid < 1) cube(c, x, y, h, 0.42, lt * 1.5 + b.ph, { alpha: fog * (1 - solid), col: C.cyan, glow: 0.7 });
-      if (solid > 0) cube(c, x, y, h, 0.42, lt * 1.5 + b.ph, { alpha: fog * solid, style: 'solid' });
+      if (holo < 1) cube(c, x, y, h, 0.42, lt * 1.5 + b.ph, { alpha: fog * (1 - holo), style: 'solid' });
+      if (holo > 0) cube(c, x, y, h, 0.42, lt * 1.5 + b.ph, { alpha: fog * holo, style: 'holo', t, glow: 0.9 });
     }
     // copy: beat 0 headline, beats 1-3 countdown
     punch(c, 'THE RUSH IS ON.', CX, 250, F.sans(120, 800), C.ink, t, T(6, 0), { ls: -3 });
