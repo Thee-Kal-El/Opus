@@ -546,7 +546,11 @@
     for (const { b, rel } of vis) {
       const [x, y] = proj(b, rel);
       const fog = clamp((90 - rel) / 55) * clamp((rel - 2.5) / 2.5);
-      cube(c, x, y, 0.36 * FL / rel, 0.42, t * 0.6 + b.ph, clamp((22 - rel) / 8), fog * env, 'solid'); // solid blocks for the fly-through
+      // blocks stay in the reel's style down the line and turn solid only for the nearest ~2 before the camera passes
+      const solid = E.inOutCubic(clamp((10.5 - rel) / 3));
+      const h = 0.36 * FL / rel, ry = t * 0.6 + b.ph, tone = clamp((22 - rel) / 8);
+      if (solid < 1) cube(c, x, y, h, 0.42, ry, tone, fog * env * (1 - solid));
+      if (solid > 0) cube(c, x, y, h, 0.42, ry, tone, fog * env * solid, 'solid');
     }
     line(c, [['Leading you', F.sans(100, 700), C.ink, -3.5]], CX, 250, 100, t, { t0: 9.55, out: 12.15, align: 'center' });
     line(c, [['into the ', F.sans(100, 700), C.ink, -3.5], ['future.', F.serif(118), accentFill]], CX, 362, 100, t,
