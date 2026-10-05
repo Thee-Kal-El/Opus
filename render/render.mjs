@@ -19,7 +19,7 @@ const stillsArg = args.includes('--stills') ? args[args.indexOf('--stills') + 1]
 const block = args.includes('--block') ? args[args.indexOf('--block') + 1] : null; // e.g. glass | holo
 
 const browser = await chromium.launch({
-  args: ['--force-color-profile=srgb', '--disable-gpu-vsync'],
+  args: ['--force-color-profile=srgb', '--disable-gpu-vsync', '--allow-file-access-from-files'],
 });
 const page = await browser.newPage({ viewport: { width: 1080, height: 1080 }, deviceScaleFactor: 1 });
 page.on('console', (m) => console.log('[page]', m.text()));

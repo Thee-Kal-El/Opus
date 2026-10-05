@@ -146,7 +146,7 @@
   function styledCube(c, x, y, h, rx, ry, tone, alpha, style) {
     const { P, faces, edges, rot } = geom(x, y, h, rx, ry);
     const glow = 0.45 + 0.55 * tone;           // side/inactive blocks glow less
-    const w = Math.max(1, h / 28);
+    const w = Math.min(3.2, Math.max(1, h / 28));
     c.save(); c.globalAlpha = alpha; c.lineJoin = 'round'; c.lineCap = 'round';
     // light spill under/around the block
     c.globalCompositeOperation = 'lighter';
@@ -290,7 +290,7 @@
     c.save(); c.font = o.font; c.letterSpacing = o.ls + 'px';
     const ws = [...str].map((ch) => c.measureText(ch).width);
     const total = ws.reduce((a, b) => a + b, 0);
-    let px = x - total / 2;
+    let px = o.align === 'left' ? x : x - total / 2;
     c.beginPath(); c.rect(px - 40, y - size * 1.0, total + 80, size * 1.3); c.clip();
     c.textBaseline = 'alphabetic';
     [...str].forEach((ch, i) => {
@@ -322,11 +322,11 @@
   function heroState(t) {
     const ry = TAU * (t / DUR) * 2 + 0.62;
     const rx = 0.5 + 0.08 * Math.sin(TAU * t / DUR);
-    const m = E.inOutCubic(prog(t, 0.92, 1.45));
-    let y = lerp(330, 400, m), h = lerp(62, 70, m), a = 1;
-    if (t >= 3.15 && t < 12.5) { const k = E.inOutCubic(prog(t, 3.15, 3.5)); h *= 1 - k; a = 1 - k; }
-    if (t >= 12.5) { const k = E.outExpo(prog(t, 12.55, 13.2)); y = 330; h = 62 * k; a = clamp(k * 1.2); }
-    return { x: CX, y, h, a, rx, ry };
+    const m = E.inOutCubic(prog(t, 0.92, 1.6));
+    let x = lerp(CX, PORTRAIT.cx - 30, m), y = lerp(330, 455, m), h = lerp(62, 168, m), a = 1;
+    if (t >= 3.1 && t < 12.5) { const k = E.inOutCubic(prog(t, 3.1, 3.5)); h *= 1 - k; a = 1 - k; }
+    if (t >= 12.5) { const k = E.outExpo(prog(t, 14.3, 14.95)); x = CX; y = 330; h = 62 * k; a = clamp(k * 1.2); }
+    return { x, y, h, a, rx, ry };
   }
 
   // ---------- background + chrome ----------
@@ -373,30 +373,60 @@
   // ---------- 01 identity: chain + name ----------
   function identity(c, t) {
     if (t < 0.95 || t > 3.6) return;
-    const hs = heroState(t);
-    const blocks = [];
-    for (const k of [-2, -1, 1, 2]) {
-      const pin = E.outExpo(prog(t, 1.1 + Math.abs(k) * 0.09, 1.9 + Math.abs(k) * 0.09));
-      const pout = E.inOutCubic(prog(t, 3.1 - Math.abs(k) * 0.05, 3.42 - Math.abs(k) * 0.05));
-      const p = pin * (1 - pout);
-      blocks.push({ k, x: lerp(CX, CX + k * 205, p), y: hs.y, h: (70 - Math.abs(k) * 11) * (0.6 + 0.4 * p), a: p * (1 - Math.abs(k) * 0.22) });
-    }
-    const pts = [blocks[0], blocks[1], { x: hs.x, y: hs.y, a: 1 }, blocks[2], blocks[3]];
-    for (let i = 0; i < 4; i++) {
-      const a = pts[i], b = pts[i + 1], al = Math.min(a.a, b.a);
-      if (al <= 0.02) continue;
-      c.strokeStyle = rgba('#FFFFFF', 0.14 * al); c.lineWidth = 1.5;
-      c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke();
-      const u = frac(t * 0.9 + i * 0.25);
-      c.fillStyle = rgba(C.accent, al); c.beginPath(); c.arc(lerp(a.x, b.x, u), a.y, 3, 0, TAU); c.fill();
-    }
-    blocks.sort((a, b) => Math.abs(b.k) - Math.abs(a.k));
-    for (const b of blocks) cube(c, b.x, b.y, b.h, hs.rx, hs.ry + b.k * 0.5, 0, b.a);
+    label(c, 'BLOCKCHAIN  ·  PROJECTS  ·  FUTURE', M, 480, prog(t, 1.55, 1.9) * (1 - prog(t, 3.05, 3.25)), C.mute);
+    chars(c, 'Thee_Kal_El', M, 590, 86, t, { t0: 1.22, st: 0.032, dur: 0.85, out: 3.08, outDur: 0.34, fill: nameFill, align: 'left' });
+    line(c, [['your guide to what’s next,', F.serif(48), '#C9CDD6']], M, 668, 48, t, { t0: 1.7, st: 0.04, dur: 0.7, out: 3.12, outDur: 0.32 });
+    line(c, [['on-chain.', F.serif(48), accentFill]], M, 720, 48, t, { t0: 1.82, st: 0.04, dur: 0.7, out: 3.16, outDur: 0.32 });
+  }
 
-    label(c, 'BLOCKCHAIN  ·  PROJECTS  ·  FUTURE', CX, 560, prog(t, 1.55, 1.9) * (1 - prog(t, 3.05, 3.25)), C.mute, 'center');
-    chars(c, 'Thee_Kal_El', CX, 700, 138, t, { t0: 1.22, st: 0.032, dur: 0.85, out: 3.08, outDur: 0.34, fill: nameFill });
-    line(c, [['your guide to what’s next, on-chain.', F.serif(50), '#C9CDD6']], CX, 790, 50, t,
-      { t0: 1.7, st: 0.04, dur: 0.7, out: 3.12, outDur: 0.32, align: 'center' });
+  // ---------- photos ----------
+  const PORTRAIT = { cx: 800, scale: 0.78 };
+  const loadImg = (src) => { const im = new Image(); im.src = src; return im.decode().then(() => im); };
+  let portraitCv = null, socialsImg = null;
+  const photosReady = Promise.all([loadImg('assets/portrait.png'), loadImg('assets/socials_card.jpg')]).then(([pi, si]) => {
+    // bake a soft fade into the bottom of the cut-out so it melts into the floor
+    portraitCv = mk(pi.naturalWidth, pi.naturalHeight);
+    const g = portraitCv.getContext('2d');
+    g.drawImage(pi, 0, 0);
+    const fade = g.createLinearGradient(0, pi.naturalHeight * 0.72, 0, pi.naturalHeight);
+    fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
+    g.globalCompositeOperation = 'destination-out'; g.fillStyle = fade; g.fillRect(0, 0, pi.naturalWidth, pi.naturalHeight);
+    socialsImg = si;
+  });
+
+  // identity: portrait slides in from the right, standing inside the glass hero block
+  function portrait(c, t) {
+    if (!portraitCv || t < 1.0 || t > 3.6) return;
+    const pin = E.outExpo(prog(t, 1.12, 2.0)), pout = E.inOutCubic(prog(t, 3.02, 3.45));
+    const a = clamp(prog(t, 1.12, 1.55)) * (1 - pout);
+    if (a <= 0.01) return;
+    const w = portraitCv.width * PORTRAIT.scale, h = portraitCv.height * PORTRAIT.scale;
+    const x = PORTRAIT.cx - w / 2 + (1 - pin) * 420 + pout * 320, y = H - h + 10;
+    c.save(); c.globalAlpha = a;
+    c.globalCompositeOperation = 'lighter';
+    radial(c, x + w / 2, y + h * 0.35, 420, C.accent, 0.18);
+    c.globalCompositeOperation = 'source-over';
+    c.drawImage(portraitCv, x, y, w, h);
+    c.restore();
+  }
+
+  // end card: socials card slides in from the left with a neon glass frame
+  function socials(c, t) {
+    if (!socialsImg || t < 12.45 || t > 14.8) return;
+    const pin = E.outExpo(prog(t, 12.5, 13.35)), pout = E.inOutCubic(prog(t, 14.25, 14.65));
+    const a = clamp(prog(t, 12.5, 12.9)) * (1 - pout);
+    if (a <= 0.01) return;
+    const S = 560, x = (W - S) / 2 - (1 - pin) * 520 - pout * 420, y = 170, r = 36;
+    c.save(); c.globalAlpha = a;
+    c.globalCompositeOperation = 'lighter';
+    radial(c, x + S / 2, y + S / 2, S * 0.9, C.accent2, 0.22);
+    c.globalCompositeOperation = 'source-over';
+    c.save(); c.beginPath(); c.roundRect(x, y, S, S, r); c.clip();
+    c.drawImage(socialsImg, x, y, S, S);
+    c.restore();
+    c.beginPath(); c.roundRect(x, y, S, S, r);
+    neonStroke(c, '#5CE1FF', 2.2, 0.9);
+    c.restore();
   }
 
   // ---------- 02 projects carousel ----------
@@ -571,15 +601,12 @@
   // ---------- 05 end card ----------
   function endcard(c, t) {
     if (t < 12.5) return;
-    label(c, 'BLOCKCHAIN  ·  PROJECTS  ·  FUTURE', CX, 452, prog(t, 12.9, 13.2) * (1 - prog(t, 14.3, 14.5)), C.mute, 'center');
-    chars(c, 'Thee_Kal_El', CX, 590, 138, t, { t0: 12.62, st: 0.03, dur: 0.85, out: 14.3, outDur: 0.4, fill: nameFill });
-    line(c, [['Blockchain projects, shown first.', F.sans(36, 450), '#B4B9C3', -0.5]], CX, 672, 36, t,
-      { t0: 12.95, st: 0.04, out: 14.36, align: 'center' });
-    line(c, [['Leading you into the future.', F.serif(50), accentFill]], CX, 738, 50, t,
-      { t0: 13.1, st: 0.04, out: 14.42, align: 'center' });
-    const k = E.outExpo(prog(t, 13.35, 14.0)) * (1 - E.inOutCubic(prog(t, 14.4, 14.7)));
+    socials(c, t);
+    line(c, [['Leading you into the future.', F.serif(52), accentFill]], CX, 812, 52, t,
+      { t0: 13.0, st: 0.04, out: 14.3, align: 'center' });
+    const k = E.outExpo(prog(t, 13.3, 13.95)) * (1 - E.inOutCubic(prog(t, 14.3, 14.6)));
     if (k > 0.005) {
-      const w = 380, h = 72, y = 860 + (1 - k) * 20;
+      const w = 380, h = 72, y = 905 + (1 - k) * 20;
       c.save(); c.globalAlpha = k;
       c.beginPath(); c.roundRect(CX - w / 2, y - h / 2, w, h, h / 2);
       c.fillStyle = C.ink; c.fill();
@@ -595,7 +622,7 @@
     const s = heroState(t);
     if (s.a <= 0.01) return;
     c.globalCompositeOperation = 'lighter';
-    radial(c, s.x, s.y, s.h * 4.2, C.accent, 0.22 * s.a);
+    radial(c, s.x, s.y, Math.min(s.h * 4.2, 420), C.accent, 0.22 * s.a);
     c.globalCompositeOperation = 'source-over';
     c.save(); c.globalAlpha = 0.5 * s.a; c.translate(s.x, s.y + s.h * 1.9); c.scale(1, 0.18);
     radial(c, 0, 0, s.h * 1.6, '#000000', 0.9); c.restore();
@@ -613,8 +640,9 @@
     future(c, t);
     signal(c, t);
     projects(c, t);
-    identity(c, t);
     heroDraw(c, t);
+    portrait(c, t);
+    identity(c, t);
     hook(c, t);
     endcard(c, t);
     chrome(c, t);
@@ -628,7 +656,7 @@
     drawBlock: (c, x, y, h, rx, ry, tone, alpha, style, t) => { curT = t; const prev = STYLE; STYLE = style; cube(c, x, y, h, rx, ry, tone, alpha, style); STYLE = prev; } };
   window.SHOWREEL.ready = Promise.all([
     document.fonts.load(F.sans(100)), document.fonts.load(F.serif(100)), document.fonts.load(F.mono(20)),
-  ]).then(() => document.fonts.ready);
+  ]).then(() => document.fonts.ready).then(() => photosReady);
 
   if (!/[?&]render\b/.test(location.search)) {
     window.SHOWREEL.ready.then(() => {
