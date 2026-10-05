@@ -313,23 +313,26 @@
   function meet(c, t) {
     if (t < T(2) || t >= T(3)) return;
     const lt = t - T(2);
+    // glass block on the right, clear of the portrait
     const ck = E.outBack(prog(t, T(2), T(2) + 0.5));
-    cube(c, 1390, 430, 210 * ck, 0.5, lt * 0.9 + 0.6, { col: C.cyan, glow: 1 + 0.4 * pulse(t, 8) });
+    cube(c, 1570, 500, 175 * ck, 0.5, lt * 0.9 + 0.6, { col: C.cyan, glow: 1 + 0.4 * pulse(t, 8) });
+    // portrait centred under the headline, rising in beside the tagline
     if (portraitCv) {
       const pin = E.outExpo(prog(t, T(2), T(2) + 0.7));
-      const s = 0.86, w = portraitCv.width * s, h = portraitCv.height * s;
+      const s = 0.72, w = portraitCv.width * s, h = portraitCv.height * s, px = 1010;
       c.save(); c.globalAlpha = clamp(pin * 2);
-      c.globalCompositeOperation = 'lighter'; radial(c, 1390, 460, 520, C.blue, 0.2); c.globalCompositeOperation = 'source-over';
-      c.drawImage(portraitCv, 1390 - w / 2 + (1 - pin) * 600, H - h + 12, w, h);
+      c.globalCompositeOperation = 'lighter'; radial(c, px, 560, 460, C.blue, 0.22); c.globalCompositeOperation = 'source-over';
+      c.drawImage(portraitCv, px - w / 2, H - h + 12 + (1 - pin) * 300, w, h);
       c.restore();
     }
-    line(c, [['Meet', F.serif(96), GOLD]], M + 4, 300, 96, t, { t0: T(2, 0) });
-    chars(c, 'Thee_Kal_El', M, 470, 170, t, { t0: T(2, 1), fill: (ch) => (ch === '_' ? C.cyan : C.ink) });
+    line(c, [['Meet', F.serif(92), GOLD]], M + 4, 215, 92, t, { t0: T(2, 0) });
+    chars(c, 'Thee_Kal_El', M, 360, 140, t, { t0: T(2, 1), fill: (ch) => (ch === '_' ? C.cyan : C.ink) });
     let x = M;
-    x += chip(c, 'BLOCKCHAIN CREATOR', x, 570, C.cyan, t, T(2, 2)) + 16;
-    x += chip(c, 'EDUCATOR', x, 570, C.violet, t, T(2, 2.5)) + 16;
-    chip(c, 'UP & COMING', x, 570, C.gold, t, T(2, 3));
-    line(c, [['Here so you’re ', F.serif(56), '#C9CDD6'], ['never late.', F.serif(56), GOLD]], M, 690, 56, t, { t0: T(2, 3), st: 0.03 });
+    x += chip(c, 'BLOCKCHAIN CREATOR', x, 452, C.cyan, t, T(2, 2)) + 14;
+    x += chip(c, 'EDUCATOR', x, 452, C.violet, t, T(2, 2.5)) + 14;
+    chip(c, 'UP & COMING', x, 452, C.gold, t, T(2, 3));
+    line(c, [['Here so you’re', F.serif(60), '#D6D9E0']], M, 560, 60, t, { t0: T(2, 3), st: 0.03 });
+    line(c, [['never late.', F.serif(76), GOLD]], M, 640, 76, t, { t0: T(2, 3) + 0.08, st: 0.03 });
   }
 
   // ================= BAR 3 — WHAT HE TEACHES (8 words on 8ths) =================

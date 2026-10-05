@@ -43,7 +43,7 @@ The reel runs at 128 BPM, so 15s is exactly 32 beats (8 bars). Every scene cut i
 |---|---|---|
 | 1 | 0.00s | Hook, one rush per beat: **1849** gold, **1995** internet, **NOW** blockchain, then *DON'T BE late.* |
 | 2 | 1.88s | *Every rush has an early crowd.* An adoption S-curve with a "YOU ARE HERE" marker on the beat |
-| 3 | 3.75s | **Meet Thee_Kal_El**: portrait in a neon glass block, with a tag chip on each beat |
+| 3 | 3.75s | **Meet Thee_Kal_El**: text top-left, portrait centred beside "never late.", glass block on the right, and a tag chip on each beat |
 | 4 | 5.63s | What he teaches: 8 topics on 8th notes, with full-bleed colour panels |
 | 5 | 7.50s | *Built for everyone*: the crowd streams through the onboarding block into organized lanes |
 | 6 | 9.38s | *Learn it in minutes. Not years.*: a tilted episode wall that steps on every beat |
