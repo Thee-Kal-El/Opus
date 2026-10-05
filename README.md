@@ -109,14 +109,17 @@ open arc/index.html                           # live preview
 
 A 10s, 1920×1080, 60fps breakout piece in the channel's style, with an original hip-hop/electronic score.
 
-**Output:** `out/thee_kal_el_breakout_1080p60.mp4`. The score alone is `out/thee_kal_el_breakout_score.wav`.
+There are two versions, each with its own dark phonk score (`thk/phonk.mjs`):
+- `out/thee_kal_el_breakout_shorts_1080p60.mp4`: adds four of the channel's Shorts as vertical cards, flying out on the beat from 4.0s. Score: C# phrygian with a 16th-note cowbell riff.
+- `out/thee_kal_el_breakout_classic_1080p60.mp4`: no Shorts. Score: F minor with a triplet cowbell riff and heavier 808 slides.
 
 A neon poster with the purple hexagon glow and pink laser grid from the channel art hangs over a synthwave grid. On the drop at 2.0s the glass shatters and Kal steps out of the frame. The chunky thumbnail title swoops down in front of him, and six real video thumbnails fly out and orbit the poster. SOLANA, POLYGON, AVALANCHE and ETHEREUM chips pop in on the beat. A Subscribe button appears and a cursor clicks it (bell, "+1"), and the piece ends on youtube.com/@Thee_Kal_El.
 
 Thumbnails, banner and avatar are cropped from the channel screenshots into `assets/yt/`.
 
 ```sh
-node thk/synth.mjs && node thk/render.mjs     # score, then video
+node thk/phonk.mjs shorts  && node thk/render.mjs --variant shorts
+node thk/phonk.mjs classic && node thk/render.mjs --variant classic
 node thk/render.mjs --stills 2.5,7.1          # spot-check frames
 open thk/index.html                           # live preview
 ```

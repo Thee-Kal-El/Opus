@@ -45,6 +45,14 @@
     { k: 'damnbruh', w: 3.1, x: -5.6, y: -3.0, z: -3.2, r: -0.03 },
     { k: 'limewire_merch', w: 3.1, x: 5.7, y: -3.0, z: -3.6, r: 0.04 },
   ];
+  // ?shorts=1 adds the vertical Shorts cards (outer columns, partly cropped by the screen edge)
+  const WITH_SHORTS = /[?&]shorts=1\b/.test(location.search);
+  const SHORTS = WITH_SHORTS ? [
+    { k: 'short_solana_dapps', w: 2.2, x: -7.5, y: 1.05, z: -4.4, r: -0.07 },
+    { k: 'short_ags', w: 2.2, x: 7.5, y: 1.15, z: -4.4, r: 0.07 },
+    { k: 'short_solana_house', w: 2.2, x: -7.3, y: -2.55, z: -4.6, r: 0.05 },
+    { k: 'short_bumper', w: 2.2, x: 7.3, y: -2.45, z: -4.6, r: -0.05 },
+  ] : [];
   const CHIPS = [['SOLANA', ['#9945FF', '#14F195'], -3.7, 4.35, -1.0], ['POLYGON', ['#7B3FE4', '#A46BFF'], 3.75, 4.05, -1.2], ['AVALANCHE', ['#E84142', '#FF7A6B'], -3.85, -4.15, -1.0], ['ETHEREUM', ['#3C3C9D', '#8A92B2'], 3.9, -3.95, -1.1]];
   function roundedCard(im, w) {
     const h = Math.round(w * im.naturalHeight / im.naturalWidth), c = mk(w + 24, h + 24), g = c.getContext('2d');
@@ -85,6 +93,7 @@
     t2.restore();
     TEX.title = tt;
     for (const cd of CARDS) TEX[cd.k] = roundedCard(IMG[cd.k], 600);
+    for (const cd of SHORTS) TEX[cd.k] = roundedCard(IMG[cd.k], 360);
     TEX.chips = CHIPS.map(([s, [a, b]]) => {
       const c = mk(560, 130), g2 = c.getContext('2d'); g2.font = SANS(850, 54); g2.letterSpacing = '4px';
       const w = Math.min(540, g2.measureText(s).width + 90), x0 = (560 - w) / 2;
@@ -189,15 +198,16 @@
       }]);
     }
   }
+  const cardStart = (cd, i) => (cd.short ? 4.0 + i * 0.25 : 2.5 + i * 0.25);
   function cardState(cd, i, t) {
-    const t0 = 2.5 + i * 0.25, k = A(t, t0, 0.65);
+    const t0 = cardStart(cd, i), k = A(t, t0, 0.65);
     const bob = Math.sin(t * 1.6 + i * 1.1) * 0.07 * k;
     // arc out of the poster: starts small behind Kal, swings through the glass to its spot
     const arc = Math.sin(Math.PI * k) * 0.8;
     return { x: lerp(0, cd.x, k), y: lerp(0.4, cd.y, k) + arc * (cd.y > 0 ? 0.6 : -0.6) + bob, z: lerp(1.6, cd.z, k), r: lerp(cd.r * 3, cd.r, k) + Math.sin(t * 1.2 + i) * 0.015 * k, w: cd.w * lerp(0.5, 1, k), a: clamp(prog(t, t0, t0 + 0.12)) };
   }
   function drawCard(c, cd, st) {
-    const tex = TEX[cd.k], [px, py, s] = P(st.x, st.y, st.z), w = st.w * s * tex.width / 600, h = w * tex.height / tex.width;
+    const tex = TEX[cd.k], [px, py, s] = P(st.x, st.y, st.z), w = st.w * s * tex.width / (cd.short ? 360 : 600), h = w * tex.height / tex.width;
     c.save(); c.globalAlpha *= st.a; c.translate(px, py); c.rotate(st.r); c.drawImage(tex, -w / 2, -h / 2, w, h); c.restore();
   }
   // the title swoops off the top of the poster and lands in front of his shirt, thumbnail-style, face kept clear
@@ -266,7 +276,8 @@ function titleState(t) { const k = A(t, 2.2, 0.75); return { y: lerp(3.25, -1.95
     environment(c, t);
     // elements still behind the glass (inside the poster)
     const behind = [], front = [];
-    CARDS.forEach((cd, i) => { if (t < 2.5 + i * 0.25) return; const st = cardState(cd, i, t); (st.z > 0 ? behind : front).push([st.z, () => drawCard(c, cd, st)]); });
+    CARDS.forEach((cd, i) => { if (t < cardStart(cd, i)) return; const st = cardState(cd, i, t); (st.z > 0 ? behind : front).push([st.z, () => drawCard(c, cd, st)]); });
+    SHORTS.forEach((sd, i) => { const cd = { ...sd, short: true }; if (t < cardStart(cd, i)) return; const st = cardState(cd, i, t); (st.z > 0 ? behind : front).push([st.z, () => drawCard(c, cd, st)]); });
     posterInside(c, t);
     { const [x, y, w, h] = windowRect(0); c.save(); c.beginPath(); c.rect(x, y, w, h); c.clip(); behind.sort((a, b) => b[0] - a[0]).forEach(([, f]) => f()); c.restore(); }
     frame(c, t);
@@ -292,6 +303,7 @@ function titleState(t) { const k = A(t, 2.2, 0.75); return { y: lerp(3.25, -1.95
     document.fonts.load(SANS(900, 40)), document.fonts.load(SANS(800, 40)),
     load('portrait', '../assets/portrait.png'),
     ...CARDS.map((cd) => load(cd.k, `../assets/yt/${cd.k}.png`)),
+    ...SHORTS.map((cd) => load(cd.k, `../assets/yt/${cd.k}.png`)),
   ]).then(build);
   if (!/[?&]render\b/.test(location.search)) {
     window.THK.ready.then(() => { const t0 = performance.now(); const loop = () => { renderAt(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); }; loop(); });

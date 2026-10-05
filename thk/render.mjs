@@ -16,23 +16,24 @@ const out = resolve(here, '..', 'out');
 mkdirSync(out, { recursive: true });
 const args = process.argv.slice(2);
 const stillsArg = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
+const variant = args.includes('--variant') ? args[args.indexOf('--variant') + 1] : 'classic'; // classic | shorts
 
 const browser = await chromium.launch({ args: ['--force-color-profile=srgb', '--allow-file-access-from-files'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 page.on('pageerror', (e) => { console.error('[pageerror]', e); process.exit(1); });
-await page.goto(pathToFileURL(resolve(here, 'index.html')).href + '?render');
+await page.goto(pathToFileURL(resolve(here, 'index.html')).href + '?render' + (variant === 'shorts' ? '&shorts=1' : ''));
 await page.evaluate(() => window.THK.ready);
 const grab = (t) => page.evaluate((t) => { window.THK.renderAt(t); return document.getElementById('c').toDataURL('image/png').split(',')[1]; }, t);
 
 if (stillsArg) {
   mkdirSync(resolve(out, 'thk_stills'), { recursive: true });
-  for (const s of stillsArg.split(',').map(Number)) writeFileSync(resolve(out, 'thk_stills', `t_${s.toFixed(3)}.png`), Buffer.from(await grab(s), 'base64'));
+  for (const s of stillsArg.split(',').map(Number)) writeFileSync(resolve(out, 'thk_stills', `${variant}_t_${s.toFixed(3)}.png`), Buffer.from(await grab(s), 'base64'));
   await browser.close(); process.exit(0);
 }
 
 const { DUR, FPS } = await page.evaluate(() => ({ DUR: window.THK.DUR, FPS: window.THK.FPS }));
-const wav = resolve(out, 'thee_kal_el_breakout_score.wav');
-const mp4 = resolve(out, 'thee_kal_el_breakout_1080p60.mp4');
+const wav = resolve(out, `thee_kal_el_breakout_${variant}_score.wav`);
+const mp4 = resolve(out, `thee_kal_el_breakout_${variant}_1080p60.mp4`);
 const ff = spawn('ffmpeg', [
   '-y', '-loglevel', 'error',
   '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-',
