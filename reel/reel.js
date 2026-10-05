@@ -465,13 +465,14 @@
   }
 
   // ================= BAR 6 — THE RUSH IS ON: fly-through + 3·2·1 =================
-  const CHAIN = Array.from({ length: 60 }, (_, k) => ({ k, z: k * 3.2, x: 1.4 * Math.sin(k * 0.45), ph: R() * TAU }));
+  const CHAIN = Array.from({ length: 72 }, (_, i) => { const k = i - 14; return { k, z: k * 3.2, x: 1.4 * Math.sin(k * 0.45), ph: R() * TAU }; });
   const STREAK = Array.from({ length: 260 }, () => ({ a: R() * TAU, z: R(), col: [C.cyan, C.gold, C.violet][(R() * 3) | 0] }));
   function rush(c, t) {
     if (t < T(6) || t >= T(7)) return;
     const lt = t - T(6);
     const travel = 6 * lt + 4.5 * lt * lt;
-    const camZ = -4 + travel, camX = 1.4 * Math.sin(((camZ + 9) / 3.2) * 0.45), FL = 900, HY = 600;
+    const camZ = -4 - travel,  // camera pulls back, so the chain streams away from the viewer (streaks still rush in)
+      camX = 1.4 * Math.sin(((camZ + 9) / 3.2) * 0.45), FL = 900, HY = 600;
     // speed streaks
     c.globalCompositeOperation = 'lighter';
     const spd = 0.6 + lt * 1.4;

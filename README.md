@@ -47,7 +47,7 @@ The reel runs at 128 BPM, so 15s is exactly 32 beats (8 bars). Every scene cut i
 | 4 | 5.63s | What he teaches: 8 topics on 8th notes, with full-bleed colour panels |
 | 5 | 7.50s | *Built for everyone*: the crowd streams through the onboarding block into organized lanes |
 | 6 | 9.38s | *Learn it in minutes. Not years.*: a tilted episode wall that steps on every beat |
-| 7 | 11.25s | THE RUSH IS ON: a block-chain fly-through (solid in the distance, holographic up close) with a 3·2·1 countdown on beats 2–4 |
+| 7 | 11.25s | THE RUSH IS ON: a block chain streaming away from the viewer (holographic up close, solid in the distance) while light streaks rush in with a 3·2·1 countdown on beats 2–4 |
 | 8 | 13.13s | The drop: FOLLOW NOW, @Thee_Kal_El, a JOIN NOW button pulsing on each beat, and a platform ticker |
 
 ```sh
