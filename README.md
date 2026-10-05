@@ -7,7 +7,7 @@
 | Time | Beat |
 |---|---|
 | 0–1s | Hook: *The future is on-chain.* |
-| 1–3.5s | Identity: the hero block grows into a glass frame, the portrait slides in from the right, and the name appears |
+| 1–3.5s | Identity: the name and tagline sit top-left, the portrait slides in from the left beneath them, and the hero block grows into a large glass block on the right |
 | 3.5–6.5s | Projects: *Every project, decoded.* (DeFi, L2, ZK, RWA, DePIN, AI × Crypto, Restaking) |
 | 6.5–9.5s | Method: *Less noise. More signal.* (scattered dots settle into one rising line) |
 | 9.5–12.5s | Future: a flight down a 3D block chain. *Leading you into the future.* |

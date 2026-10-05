@@ -323,7 +323,7 @@
     const ry = TAU * (t / DUR) * 2 + 0.62;
     const rx = 0.5 + 0.08 * Math.sin(TAU * t / DUR);
     const m = E.inOutCubic(prog(t, 0.92, 1.6));
-    let x = lerp(CX, PORTRAIT.cx - 30, m), y = lerp(330, 455, m), h = lerp(62, 168, m), a = 1;
+    let x = lerp(CX, 770, m), y = lerp(330, 560, m), h = lerp(62, 145, m), a = 1;
     if (t >= 3.1 && t < 12.5) { const k = E.inOutCubic(prog(t, 3.1, 3.5)); h *= 1 - k; a = 1 - k; }
     if (t >= 12.5) { const k = E.outExpo(prog(t, 14.3, 14.95)); x = CX; y = 330; h = 62 * k; a = clamp(k * 1.2); }
     return { x, y, h, a, rx, ry };
@@ -373,14 +373,14 @@
   // ---------- 01 identity: chain + name ----------
   function identity(c, t) {
     if (t < 0.95 || t > 3.6) return;
-    label(c, 'BLOCKCHAIN  ·  PROJECTS  ·  FUTURE', M, 480, prog(t, 1.55, 1.9) * (1 - prog(t, 3.05, 3.25)), C.mute);
-    chars(c, 'Thee_Kal_El', M, 590, 86, t, { t0: 1.22, st: 0.032, dur: 0.85, out: 3.08, outDur: 0.34, fill: nameFill, align: 'left' });
-    line(c, [['your guide to what’s next,', F.serif(48), '#C9CDD6']], M, 668, 48, t, { t0: 1.7, st: 0.04, dur: 0.7, out: 3.12, outDur: 0.32 });
-    line(c, [['on-chain.', F.serif(48), accentFill]], M, 720, 48, t, { t0: 1.82, st: 0.04, dur: 0.7, out: 3.16, outDur: 0.32 });
+    label(c, 'BLOCKCHAIN  ·  PROJECTS  ·  FUTURE', M, 168, prog(t, 1.55, 1.9) * (1 - prog(t, 3.05, 3.25)), C.mute);
+    chars(c, 'Thee_Kal_El', M, 272, 86, t, { t0: 1.22, st: 0.032, dur: 0.85, out: 3.08, outDur: 0.34, fill: nameFill, align: 'left' });
+    line(c, [['your guide to what’s next,', F.serif(48), '#C9CDD6']], M, 348, 48, t, { t0: 1.7, st: 0.04, dur: 0.7, out: 3.12, outDur: 0.32 });
+    line(c, [['on-chain.', F.serif(48), accentFill]], M, 398, 48, t, { t0: 1.82, st: 0.04, dur: 0.7, out: 3.16, outDur: 0.32 });
   }
 
   // ---------- photos ----------
-  const PORTRAIT = { cx: 800, scale: 0.78 };
+  const PORTRAIT = { cx: 300, scale: 0.6 };
   const loadImg = (src) => { const im = new Image(); im.src = src; return im.decode().then(() => im); };
   let portraitCv = null, socialsImg = null;
   const photosReady = Promise.all([loadImg('assets/portrait.png'), loadImg('assets/socials_card.jpg')]).then(([pi, si]) => {
@@ -394,14 +394,14 @@
     socialsImg = si;
   });
 
-  // identity: portrait slides in from the right, standing inside the glass hero block
+  // identity: portrait slides in from the left, under the text column (the glass block stays clear on the right)
   function portrait(c, t) {
     if (!portraitCv || t < 1.0 || t > 3.6) return;
     const pin = E.outExpo(prog(t, 1.12, 2.0)), pout = E.inOutCubic(prog(t, 3.02, 3.45));
     const a = clamp(prog(t, 1.12, 1.55)) * (1 - pout);
     if (a <= 0.01) return;
     const w = portraitCv.width * PORTRAIT.scale, h = portraitCv.height * PORTRAIT.scale;
-    const x = PORTRAIT.cx - w / 2 + (1 - pin) * 420 + pout * 320, y = H - h + 10;
+    const x = PORTRAIT.cx - w / 2 - (1 - pin) * 420 - pout * 320, y = H - h + 10;
     c.save(); c.globalAlpha = a;
     c.globalCompositeOperation = 'lighter';
     radial(c, x + w / 2, y + h * 0.35, 420, C.accent, 0.18);
