@@ -102,3 +102,21 @@ node arc/synth.mjs && node arc/render.mjs     # score, then video
 node arc/render.mjs --stills 0.5,3,6          # spot-check frames
 open arc/index.html                           # live preview
 ```
+
+---
+
+# Thee_Kal_El — YouTube creator poster breakout
+
+A 10s, 1920×1080, 60fps breakout piece in the channel's style, with an original hip-hop/electronic score.
+
+**Output:** `out/thee_kal_el_breakout_1080p60.mp4`. The score alone is `out/thee_kal_el_breakout_score.wav`.
+
+A neon poster with the purple hexagon glow and pink laser grid from the channel art hangs over a synthwave grid. On the drop at 2.0s the glass shatters and Kal steps out of the frame. The chunky thumbnail title swoops down in front of him, and six real video thumbnails fly out and orbit the poster. SOLANA, POLYGON, AVALANCHE and ETHEREUM chips pop in on the beat. A Subscribe button appears and a cursor clicks it (bell, "+1"), and the piece ends on youtube.com/@Thee_Kal_El.
+
+Thumbnails, banner and avatar are cropped from the channel screenshots into `assets/yt/`.
+
+```sh
+node thk/synth.mjs && node thk/render.mjs     # score, then video
+node thk/render.mjs --stills 2.5,7.1          # spot-check frames
+open thk/index.html                           # live preview
+```
