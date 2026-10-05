@@ -1,12 +1,12 @@
-// THE BLOCKCHAIN RUSH — 15s showreel introducing Thee_Kal_El. 1920x1080 @ 60fps.
-// Locked to a 128 BPM grid: 32 beats = 8 bars = exactly 15s. Every scene cut is on a bar line,
+// THE BLOCKCHAIN RUSH — 20s showreel introducing Thee_Kal_El. 1920x1080 @ 60fps.
+// Locked to a 96 BPM grid: 32 beats = 8 bars = exactly 20s. Every scene cut is on a bar line,
 // every word swap on a beat or an 8th. reel/synth.mjs composes the score from the same grid.
 // Deterministic: renderAt(t) draws the frame at t seconds (open index.html to preview live).
 (() => {
   'use strict';
 
-  const W = 1920, H = 1080, CX = 960, CY = 540, DUR = 15, FPS = 60, TAU = Math.PI * 2, M = 96;
-  const BPM = 128, BT = 60 / BPM, BAR = BT * 4;
+  const W = 1920, H = 1080, CX = 960, CY = 540, DUR = 20, FPS = 60, TAU = Math.PI * 2, M = 96;
+  const BPM = 96, BT = 60 / BPM, BAR = BT * 4;
   const T = (bar, beat = 0) => (bar * 4 + beat) * BT;
 
   const cv = document.getElementById('c');
@@ -465,7 +465,7 @@
   }
 
   // ================= BAR 6 — THE RUSH IS ON: fly-through + 3·2·1 =================
-  const CHAIN = Array.from({ length: 72 }, (_, i) => { const k = i - 14; return { k, z: k * 3.2, x: 1.4 * Math.sin(k * 0.45), ph: R() * TAU }; });
+  const CHAIN = Array.from({ length: 80 }, (_, i) => { const k = i - 22; return { k, z: k * 3.2, x: 1.4 * Math.sin(k * 0.45), ph: R() * TAU }; });
   const STREAK = Array.from({ length: 260 }, () => ({ a: R() * TAU, z: R(), col: [C.cyan, C.gold, C.violet][(R() * 3) | 0] }));
   function rush(c, t) {
     if (t < T(6) || t >= T(7)) return;

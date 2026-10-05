@@ -33,22 +33,22 @@ Requires Node, Playwright (Chromium), and ffmpeg.
 
 # The Blockchain Rush — 1920×1080 showreel
 
-A 15s, 60fps landscape reel that introduces Thee_Kal_El, with a score composed and synthesized entirely in code.
+A 20s, 60fps landscape reel that introduces Thee_Kal_El, with a score composed and synthesized entirely in code.
 
 **Output:** `out/the_blockchain_rush_1080p60.mp4` (H.264 + 320 kbps AAC). The score alone is `out/the_blockchain_rush_score.wav`.
 
-The reel runs at 128 BPM, so 15s is exactly 32 beats (8 bars). Every scene cut is on a bar line, and every word swap is on a beat or an 8th note.
+The reel runs at 96 BPM, so 20s is exactly 32 beats (8 bars), 2.5s per scene. Every scene cut is on a bar line, and every word swap is on a beat or an 8th note.
 
 | Bar | Time | Scene |
 |---|---|---|
 | 1 | 0.00s | Hook, one rush per beat: **1849** gold, **1995** internet, **NOW** blockchain, then *DON'T BE late.* |
-| 2 | 1.88s | *Every rush has an early crowd.* An adoption S-curve with a "YOU ARE HERE" marker on the beat |
-| 3 | 3.75s | **Meet Thee_Kal_El**: text top-left, portrait centred beside "never late.", glass block on the right, and a tag chip on each beat |
-| 4 | 5.63s | What he teaches: 8 topics on 8th notes, with full-bleed colour panels |
-| 5 | 7.50s | *Built for everyone*: the crowd streams through the onboarding block into organized lanes |
-| 6 | 9.38s | *Learn it in minutes. Not years.*: a tilted episode wall that steps on every beat |
-| 7 | 11.25s | THE RUSH IS ON: a block chain streaming away from the viewer (holographic up close, solid in the distance) while light streaks rush in with a 3·2·1 countdown on beats 2–4 |
-| 8 | 13.13s | The drop: FOLLOW NOW, @Thee_Kal_El, a JOIN NOW button pulsing on each beat, and a platform ticker |
+| 2 | 2.50s | *Every rush has an early crowd.* An adoption S-curve with a "YOU ARE HERE" marker on the beat |
+| 3 | 5.00s | **Meet Thee_Kal_El**: text top-left, portrait centred beside "never late.", glass block on the right, and a tag chip on each beat |
+| 4 | 7.50s | What he teaches: 8 topics on 8th notes, with full-bleed colour panels |
+| 5 | 10.00s | *Built for everyone*: the crowd streams through the onboarding block into organized lanes |
+| 6 | 12.50s | *Learn it in minutes. Not years.*: a tilted episode wall that steps on every beat |
+| 7 | 15.00s | THE RUSH IS ON: a block chain streaming away from the viewer (holographic up close, solid in the distance) while light streaks rush in with a 3·2·1 countdown on beats 2–4 |
+| 8 | 17.50s | The drop: FOLLOW NOW, @Thee_Kal_El, a JOIN NOW button pulsing on each beat, and a platform ticker |
 
 ```sh
 node reel/synth.mjs     # score -> out/the_blockchain_rush_score.wav

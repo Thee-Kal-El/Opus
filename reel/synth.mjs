@@ -1,13 +1,13 @@
 // Score for THE BLOCKCHAIN RUSH — composed and synthesized entirely in code (oscillators, noise, filters).
-// No samples, no audio files, no instruments. 128 BPM, F minor, 8 bars = exactly 15.000s.
+// No samples, no audio files, no instruments. 96 BPM, F minor, 8 bars = exactly 20.000s.
 // Same grid as reel/reel.js: every event is placed with T(bar, beat), so every hit lands on a visual cut.
 //   node reel/synth.mjs  ->  out/the_blockchain_rush_score.wav
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SR = 48000, DUR = 15, N = SR * DUR, TAU = Math.PI * 2;
-const BPM = 128, BT = 60 / BPM;
+const SR = 48000, DUR = 20, N = SR * DUR, TAU = Math.PI * 2;
+const BPM = 96, BT = 60 / BPM;
 const T = (bar, beat = 0) => (bar * 4 + beat) * BT;
 const L = new Float32Array(N), Rr = new Float32Array(N);
 const revL = new Float32Array(N), revR = new Float32Array(N), dlyL = new Float32Array(N), dlyR = new Float32Array(N);
