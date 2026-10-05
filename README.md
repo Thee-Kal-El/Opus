@@ -2,7 +2,7 @@
 
 15-second, 1080×1080, 60fps looping motion-graphics showreel. Everything is generated from code.
 
-**Output:** `out/thee_kal_el_showreel.mp4` (H.264 + AAC, ~6 MB)
+**Output:** `out/thee_kal_el_showreel_glass.mp4` (main, Neon Glass blocks) and `out/thee_kal_el_showreel_holo.mp4` (alternate, Holographic blocks). H.264 + AAC, ~7 MB each.
 
 | Time | Beat |
 |---|---|
@@ -22,7 +22,8 @@
 ## Rebuild
 ```sh
 node audio/synth.mjs        # -> out/soundtrack.wav
-node render/render.mjs      # -> out/thee_kal_el_showreel.mp4
+node render/render.mjs --block glass   # -> out/thee_kal_el_showreel_glass.mp4 (or --block holo)
+node render/options.mjs                # -> out/block_options.mp4 (all block styles side by side)
 node render/render.mjs --stills 0,5,10   # spot-check frames
 ```
 Requires Node, Playwright (Chromium), and ffmpeg.

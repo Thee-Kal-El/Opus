@@ -16,6 +16,7 @@ const out = resolve(root, 'out');
 mkdirSync(out, { recursive: true });
 const args = process.argv.slice(2);
 const stillsArg = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
+const block = args.includes('--block') ? args[args.indexOf('--block') + 1] : null; // e.g. glass | holo
 
 const browser = await chromium.launch({
   args: ['--force-color-profile=srgb', '--disable-gpu-vsync'],
@@ -23,7 +24,7 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 1080, height: 1080 }, deviceScaleFactor: 1 });
 page.on('console', (m) => console.log('[page]', m.text()));
 page.on('pageerror', (e) => { console.error('[pageerror]', e); process.exit(1); });
-await page.goto(pathToFileURL(resolve(root, 'index.html')).href + '?render');
+await page.goto(pathToFileURL(resolve(root, 'index.html')).href + '?render' + (block ? `&block=${block}` : ''));
 await page.evaluate(() => window.SHOWREEL.ready);
 
 const grab = (t) => page.evaluate((t) => {
@@ -34,7 +35,7 @@ const grab = (t) => page.evaluate((t) => {
 if (stillsArg) {
   mkdirSync(resolve(out, 'stills'), { recursive: true });
   for (const s of stillsArg.split(',').map(Number)) {
-    writeFileSync(resolve(out, 'stills', `t_${s.toFixed(2)}.png`), Buffer.from(await grab(s), 'base64'));
+    writeFileSync(resolve(out, 'stills', `${block ? block + '_' : ''}t_${s.toFixed(2)}.png`), Buffer.from(await grab(s), 'base64'));
   }
   await browser.close();
   process.exit(0);
@@ -43,7 +44,7 @@ if (stillsArg) {
 const { DUR, FPS } = await page.evaluate(() => ({ DUR: window.SHOWREEL.DUR, FPS: window.SHOWREEL.FPS }));
 const frames = DUR * FPS;
 const wav = resolve(out, 'soundtrack.wav');
-const mp4 = resolve(out, 'thee_kal_el_showreel.mp4');
+const mp4 = resolve(out, block ? `thee_kal_el_showreel_${block}.mp4` : 'thee_kal_el_showreel.mp4');
 const ff = spawn('ffmpeg', [
   '-y', '-loglevel', 'error',
   '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-',
