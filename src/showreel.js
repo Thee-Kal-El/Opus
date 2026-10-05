@@ -87,6 +87,7 @@
   const LIGHT = (() => { const v = [-0.45, -0.75, -0.5], l = Math.hypot(...v); return v.map((x) => x / l); })();
   function cube(c, x, y, h, rx, ry, tone = 0, alpha = 1) {
     if (alpha <= 0.005 || h < 0.5) return;
+    if (STYLE !== 'solid') return styledCube(c, x, y, h, rx, ry, tone, alpha, STYLE);
     const cx = Math.cos(rx), sxn = Math.sin(rx), cy = Math.cos(ry), syn = Math.sin(ry);
     const rot = ([a, b, d]) => {
       const x1 = a * cy + d * syn, z1 = -a * syn + d * cy;
@@ -106,6 +107,145 @@
       c.fillStyle = g; c.fill();
       c.strokeStyle = rgba(tone > 0.5 ? '#CFE0FF' : '#FFFFFF', 0.1 + 0.45 * lit); c.lineWidth = Math.max(1, h / 70);
       c.stroke();
+    }
+    c.restore();
+  }
+
+  // ---------- neon block styles ----------
+  // STYLE picks the look for every block in the reel (?block=<name> overrides it for previews).
+  const STYLES = ['solid', 'glass', 'holo', 'hyper', 'crystal', 'circuit'];
+  let STYLE = (location.search.match(/[?&]block=(\w+)/) || [])[1] || 'glass';
+  let curT = 0;
+  const EDGES = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+  const NEON = { cyan: '#5CE1FF', blue: '#4F86FF', violet: '#9A7BFF', pink: '#FF5CD6' };
+  function geom(x, y, h, rx, ry) {
+    const cx = Math.cos(rx), sxn = Math.sin(rx), cy = Math.cos(ry), syn = Math.sin(ry);
+    const rot = ([a, b, d]) => { const x1 = a * cy + d * syn, z1 = -a * syn + d * cy; return [x1, b * cx - z1 * sxn, b * sxn + z1 * cx]; };
+    const P = CV.map((v) => { const [a, b, d] = rot(v); const f = 5 / (5 + d); return [x + a * h * f, y + b * h * f, d]; });
+    const faces = CF.map(([idx, n]) => {
+      const nn = rot(n);
+      return { idx, n: nn, front: nn[2] < 0, z: idx.reduce((s, i) => s + P[i][2], 0) / 4,
+        lit: clamp(nn[0] * LIGHT[0] + nn[1] * LIGHT[1] + nn[2] * LIGHT[2]) };
+    }).sort((a, b) => b.z - a.z);
+    const edges = EDGES.map(([a, b]) => ({ a, b, front: faces.some((f) => f.front && f.idx.includes(a) && f.idx.includes(b)) }));
+    return { P, faces, edges, rot };
+  }
+  const poly = (c, P, idx) => { c.beginPath(); idx.forEach((i, k) => (k ? c.lineTo(P[i][0], P[i][1]) : c.moveTo(P[i][0], P[i][1]))); c.closePath(); };
+  // layered additive stroke = neon tube
+  function neonStroke(c, col, w, a) {
+    c.globalCompositeOperation = 'lighter';
+    c.strokeStyle = rgba(col, 0.10 * a); c.lineWidth = w * 7; c.stroke();
+    c.strokeStyle = rgba(col, 0.28 * a); c.lineWidth = w * 3; c.stroke();
+    c.strokeStyle = rgba(col, 0.9 * a); c.lineWidth = w * 1.3; c.stroke();
+    c.strokeStyle = rgba('#FFFFFF', 0.85 * a); c.lineWidth = Math.max(0.8, w * 0.45); c.stroke();
+    c.globalCompositeOperation = 'source-over';
+  }
+  function edgePath(c, P, es) { c.beginPath(); for (const e of es) { c.moveTo(P[e.a][0], P[e.a][1]); c.lineTo(P[e.b][0], P[e.b][1]); } }
+  const holoCol = (k) => { const pal = [NEON.cyan, NEON.blue, NEON.violet, NEON.pink]; k = frac(k) * 4; const i = Math.floor(k); return mix(pal[i], pal[(i + 1) % 4], k - i); };
+
+  function styledCube(c, x, y, h, rx, ry, tone, alpha, style) {
+    const { P, faces, edges, rot } = geom(x, y, h, rx, ry);
+    const glow = 0.45 + 0.55 * tone;           // side/inactive blocks glow less
+    const w = Math.max(1, h / 28);
+    c.save(); c.globalAlpha = alpha; c.lineJoin = 'round'; c.lineCap = 'round';
+    // light spill under/around the block
+    c.globalCompositeOperation = 'lighter';
+    radial(c, x, y, h * 2.6, style === 'holo' ? NEON.violet : NEON.blue, 0.16 * glow);
+    c.globalCompositeOperation = 'source-over';
+    const back = edges.filter((e) => !e.front), front = edges.filter((e) => e.front);
+
+    if (style === 'glass') {
+      for (const f of faces) {
+        poly(c, P, f.idx);
+        const p0 = P[f.idx[0]], p2 = P[f.idx[2]];
+        const g = c.createLinearGradient(p0[0], p0[1], p2[0], p2[1]);
+        const a0 = f.front ? 0.10 + 0.22 * f.lit : 0.05;
+        g.addColorStop(0, rgba(f.front ? '#BFE6FF' : NEON.blue, a0)); g.addColorStop(1, rgba(NEON.blue, a0 * 0.35));
+        c.fillStyle = g; c.fill();
+      }
+      c.globalCompositeOperation = 'lighter'; radial(c, x, y, h * 0.9, NEON.cyan, 0.35 * glow); c.globalCompositeOperation = 'source-over';
+      edgePath(c, P, back); neonStroke(c, NEON.blue, w * 0.7, 0.45 * glow);
+      edgePath(c, P, front); neonStroke(c, NEON.cyan, w, glow);
+    } else if (style === 'holo') {
+      for (const f of faces) {
+        const k = f.n[0] * 0.35 + f.n[1] * 0.25 + f.n[2] * 0.2 + curT * 0.12;
+        poly(c, P, f.idx);
+        const p0 = P[f.idx[0]], p2 = P[f.idx[2]];
+        const g = c.createLinearGradient(p0[0], p0[1], p2[0], p2[1]);
+        const a0 = f.front ? 0.22 + 0.25 * f.lit : 0.10;
+        g.addColorStop(0, rgba(holoCol(k), a0)); g.addColorStop(0.5, rgba(holoCol(k + 0.25), a0 * 0.8)); g.addColorStop(1, rgba(holoCol(k + 0.5), a0));
+        c.globalCompositeOperation = 'lighter'; c.fillStyle = g; c.fill(); c.globalCompositeOperation = 'source-over';
+      }
+      edgePath(c, P, back); neonStroke(c, NEON.violet, w * 0.6, 0.35 * glow);
+      for (const e of front) {
+        c.beginPath(); c.moveTo(P[e.a][0], P[e.a][1]); c.lineTo(P[e.b][0], P[e.b][1]);
+        neonStroke(c, holoCol((e.a + e.b) * 0.07 + curT * 0.15), w * 0.9, glow);
+      }
+    } else if (style === 'hyper') {
+      // wire cube with a solid glowing core block inside, joined at the corners (tesseract)
+      const inner = geom(x, y, h * 0.46, rx, -ry * 1.3 + 0.8);
+      c.beginPath(); for (let i = 0; i < 8; i++) { c.moveTo(P[i][0], P[i][1]); c.lineTo(inner.P[i][0], inner.P[i][1]); }
+      neonStroke(c, NEON.violet, w * 0.5, 0.45 * glow);
+      edgePath(c, P, back); neonStroke(c, NEON.blue, w * 0.7, 0.5 * glow);
+      for (const f of inner.faces) {
+        if (!f.front) continue;
+        poly(c, inner.P, f.idx);
+        c.fillStyle = mix('#14306E', '#8FB8FF', f.lit); c.fill();
+      }
+      c.globalCompositeOperation = 'lighter'; radial(c, x, y, h * 0.8, NEON.blue, 0.35 * glow); c.globalCompositeOperation = 'source-over';
+      edgePath(c, inner.P, inner.edges.filter((e) => e.front)); neonStroke(c, NEON.cyan, w * 0.6, glow);
+      edgePath(c, P, front); neonStroke(c, NEON.cyan, w, glow);
+      c.globalCompositeOperation = 'lighter';
+      for (const p of P) { if (p[2] < 0.5) radial(c, p[0], p[1], w * 5, '#FFFFFF', 0.8 * glow); }
+      c.globalCompositeOperation = 'source-over';
+    } else if (style === 'crystal') {
+      // frosted glass with a glowing core and an orbiting ring inside
+      for (const f of faces) {
+        if (f.front) continue;
+        poly(c, P, f.idx); c.fillStyle = rgba('#9FC3FF', 0.06); c.fill();
+      }
+      edgePath(c, P, back); c.strokeStyle = rgba('#CFE0FF', 0.25 * glow); c.lineWidth = w * 0.6; c.stroke();
+      c.globalCompositeOperation = 'lighter';
+      radial(c, x, y, h * 1.1, NEON.cyan, 0.55 * glow); radial(c, x, y, h * 0.35, '#FFFFFF', 0.9 * glow);
+      c.globalCompositeOperation = 'source-over';
+      c.save(); c.translate(x, y); c.rotate(curT * 1.2); c.scale(1, 0.35);
+      c.beginPath(); c.arc(0, 0, h * 0.62, 0, TAU); c.restore(); neonStroke(c, NEON.violet, w * 0.5, glow);
+      for (const f of faces) {
+        if (!f.front) continue;
+        poly(c, P, f.idx);
+        const p0 = P[f.idx[0]], p2 = P[f.idx[2]];
+        const g = c.createLinearGradient(p0[0], p0[1], p2[0], p2[1]);
+        g.addColorStop(0, rgba('#FFFFFF', 0.20 + 0.25 * f.lit)); g.addColorStop(0.55, rgba('#BFD6FF', 0.08)); g.addColorStop(1, rgba('#7FA8FF', 0.14));
+        c.fillStyle = g; c.fill();
+      }
+      edgePath(c, P, front); c.strokeStyle = rgba('#FFFFFF', 0.75); c.lineWidth = w * 0.8; c.stroke();
+      edgePath(c, P, front); neonStroke(c, NEON.cyan, w * 0.5, 0.5 * glow);
+    } else if (style === 'circuit') {
+      // dark smoked glass with live neon circuitry on each visible face
+      for (const f of faces) {
+        poly(c, P, f.idx);
+        c.fillStyle = f.front ? rgba(mix('#060B1E', '#16264F', f.lit), 0.78) : rgba('#0A1430', 0.35); c.fill();
+      }
+      for (const f of faces) {
+        if (!f.front) continue;
+        const [p0, p1, p2, p3] = f.idx.map((i) => P[i]);
+        const at = (u, v) => [lerp(lerp(p0[0], p1[0], u), lerp(p3[0], p2[0], u), v), lerp(lerp(p0[1], p1[1], u), lerp(p3[1], p2[1], u), v)];
+        c.beginPath();
+        for (let k = 1; k < 4; k++) { const a = at(k / 4, 0.12), b = at(k / 4, 0.88); c.moveTo(...a); c.lineTo(...b); const d = at(0.12, k / 4), e2 = at(0.88, k / 4); c.moveTo(...d); c.lineTo(...e2); }
+        c.strokeStyle = rgba(NEON.blue, 0.22 * glow); c.lineWidth = Math.max(0.7, w * 0.35); c.stroke();
+        // traveling data pulses
+        for (let k = 1; k < 4; k++) {
+          const u = frac(curT * 0.8 + k * 0.31 + f.idx[0] * 0.13);
+          const a = at(k / 4, lerp(0.12, 0.88, u)), b = at(lerp(0.12, 0.88, frac(u + 0.5)), k / 4);
+          c.globalCompositeOperation = 'lighter';
+          radial(c, a[0], a[1], w * 4, NEON.cyan, 0.9 * glow); radial(c, b[0], b[1], w * 4, NEON.pink, 0.7 * glow);
+          c.globalCompositeOperation = 'source-over';
+        }
+        const cc = at(0.5, 0.5);
+        c.fillStyle = rgba(NEON.cyan, 0.8 * glow); c.fillRect(cc[0] - w * 1.5, cc[1] - w * 1.5, w * 3, w * 3);
+      }
+      edgePath(c, P, back); neonStroke(c, NEON.blue, w * 0.5, 0.3 * glow);
+      edgePath(c, P, front); neonStroke(c, NEON.cyan, w * 0.9, glow);
     }
     c.restore();
   }
@@ -411,7 +551,7 @@
     line(c, [['Leading you', F.sans(100, 700), C.ink, -3.5]], CX, 250, 100, t, { t0: 9.55, out: 12.15, align: 'center' });
     line(c, [['into the ', F.sans(100, 700), C.ink, -3.5], ['future.', F.serif(118), accentFill]], CX, 362, 100, t,
       { t0: 9.72, out: 12.2, align: 'center' });
-    const ms = [['2009', 'GENESIS', 10.6], ['2026', 'NOW', 10.85], ['NEXT', 'WITH YOU', 11.1]];
+    const ms = [['2018', 'GENESIS', 10.6], ['2026', 'NOW', 10.85], ['NEXT', 'WITH YOU', 11.1]];
     ms.forEach(([big, small, ts], i) => {
       const k = E.outExpo(prog(t, ts, ts + 0.6)) * (1 - prog(t, 12.05, 12.3));
       if (k <= 0) return;
@@ -461,6 +601,7 @@
   // ---------- frame ----------
   function renderAt(t) {
     t = ((t % DUR) + DUR) % DUR;
+    curT = t;
     const frame = Math.round(t * FPS);
     const c = ctx;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0;
@@ -479,7 +620,8 @@
     c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
   }
 
-  window.SHOWREEL = { W, H, DUR, FPS, renderAt };
+  window.SHOWREEL = { W, H, DUR, FPS, renderAt, STYLES, setStyle: (s) => { STYLE = s; },
+    drawBlock: (c, x, y, h, rx, ry, tone, alpha, style, t) => { curT = t; const prev = STYLE; STYLE = style; cube(c, x, y, h, rx, ry, tone, alpha); STYLE = prev; } };
   window.SHOWREEL.ready = Promise.all([
     document.fonts.load(F.sans(100)), document.fonts.load(F.serif(100)), document.fonts.load(F.mono(20)),
   ]).then(() => document.fonts.ready);
