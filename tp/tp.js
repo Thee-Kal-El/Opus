@@ -168,9 +168,9 @@
     let x = W / 2 - rowW(rowOf(0)) / 2; for (let k = 0; k < j; k++) { x += ws[k] + 20; if (rowOf(k + 1) !== rowOf(k)) x = W / 2 - rowW(rowOf(k + 1)) / 2; } return [x + ws[j] / 2, H / 2 + 270 + rowOf(j) * 90, ws[j]];
   }
   function wallLayout() {
-    if (WALL) return WALL; const c = ctx, fs = 30, ch = 60, gap = 14, rowGap = 14, maxW = W - (V ? 70 : 150); c.font = G(800, fs);
+    if (WALL) return WALL; const c = ctx, fs = V ? 38 : 30, ch = V ? 76 : 60, gap = V ? 16 : 14, rowGap = V ? 20 : 14, maxW = W - (V ? 70 : 150); c.font = G(800, fs);
     const rowsOf = (list) => { const rows = [[]]; let w = 0; for (const n of list) { const cw = c.measureText(n).width + 48; if (rows.at(-1).length && w + cw > maxW) { rows.push([]); w = 0; } rows.at(-1).push([n, cw]); w += cw + gap; } return rows; };
-    const fr = rowsOf(FREE), pr = rowsOf(PREM), chips = []; const top = V ? 360 : 255; let y = top;
+    const fr = rowsOf(FREE), pr = rowsOf(PREM), chips = []; const top = V ? 470 : 255; let y = top;
     const place = (rows) => { for (const row of rows) { const rw = row.reduce((a, [, w]) => a + w + gap, -gap); let x = W / 2 - rw / 2; for (const [n, w] of row) { chips.push({ n, x: x + w / 2, y: y + ch / 2, w }); x += w + gap; } y += ch + rowGap; } };
     const freeLabel = y; y += 50; place(fr); y += 26; const premLabel = y; y += 50; place(pr);
     WALL = { chips, freeLabel, premLabel, bottom: y, ch, fs }; return WALL;
@@ -179,8 +179,8 @@
     const L = wallLayout(); c.fillStyle = RED; c.fillRect(0, 0, W, H); const tt = INS_AT + r * SLOW;
     c.save(); c.globalAlpha = 0.45; for (let k = 0; k < 26; k++) { const a = k / 26 * TAU + tt * 0.8 * (k % 2 ? 1 : -1), rad = 380 + (k % 3) * 160 + 100, x = W / 2 + Math.cos(a) * rad * 1.4, y = H / 2 + Math.sin(a) * rad * 0.7; icon(c, k + 15, x, y, 46 + (k % 3) * 12); } c.restore();
     const ok = io5(prog(r, 0, 0.35)); if (ok < 1) { c.save(); c.globalAlpha = 1 - ok; slam(c, 'TOGETHER.', W / 2, H / 2 - ok * 300, 300, 1); c.restore(); }
-    const hk = io5(prog(r, 0, 0.45)); txt(c, 'HOST A WATCH PARTY ON', W / 2, lerp(H / 2 + 190, V ? 250 : 160, hk), G(800, lerp(28, 40, hk)), '#fff', 'center', 'middle', lerp(6, 8, hk));
-    const lk = A(r, 0.3, 0.3); c.save(); c.globalAlpha = lk; txt(c, 'FREE', W / 2, L.freeLabel + 20, G(800, 24), '#FFE3E8', 'center', 'middle', 6); txt(c, 'PREMIUM & DUO  ·  ALL FREE CHANNELS, PLUS', W / 2, L.premLabel + 20, G(800, 24), GOLD, 'center', 'middle', 6); c.restore();
+    const hk = io5(prog(r, 0, 0.45)); txt(c, 'HOST A WATCH PARTY ON', W / 2, lerp(H / 2 + 190, V ? 360 : 160, hk), G(800, lerp(28, V ? 46 : 40, hk)), '#fff', 'center', 'middle', lerp(6, 8, hk));
+    const lk = A(r, 0.3, 0.3); c.save(); c.globalAlpha = lk; txt(c, 'FREE', W / 2, L.freeLabel + 20, G(800, V ? 30 : 24), '#FFE3E8', 'center', 'middle', 6); txt(c, V ? 'PREMIUM & DUO · ALL FREE, PLUS' : 'PREMIUM & DUO  ·  ALL FREE CHANNELS, PLUS', W / 2, L.premLabel + 20, G(800, V ? 30 : 24), GOLD, 'center', 'middle', 6); c.restore();
     L.chips.forEach((ch, j) => { let x = ch.x, y = ch.y, sc = 1, w = ch.w, fsz = L.fs;
       if (j < 6) { const [ox, oy, ow] = oldChipPos(j), m = io5(prog(r, 0.05 + j * 0.03, 0.55 + j * 0.03)); x = lerp(ox, ch.x, m); y = lerp(oy, ch.y, m); w = lerp(ow, ch.w, m); fsz = lerp(34, L.fs, m); }
       else { sc = pop(prog(r, 0.45 + (j - 6) * 0.06, 0.8 + (j - 6) * 0.06)); if (sc <= 0) return; }

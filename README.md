@@ -241,4 +241,4 @@ supported services → "Get Teleparty for free!" end card. The movie on screen i
 node tp/synth.mjs && node tp/render.mjs   # -> out/teleparty_24s_1080p60.mp4 (includes the 38-channel wall)
 ```
 - **Vertical 9:16** (`tp/tp_vertical.html`, same `tp.js` with `window.VERTICAL = true`): stacked friend screens, browser over chat,
-  copy over the customize panels, two-row services, tall icon ring. `node tp/render.mjs vertical` → `out/teleparty_9x16_20s_60fps.mp4`
+  copy over the customize panels, two-row services, tall icon ring. `node tp/render.mjs vertical` → `out/teleparty_9x16_24s_60fps.mp4`
