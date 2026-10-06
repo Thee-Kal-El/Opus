@@ -29,7 +29,7 @@ window.TOWN = (themeName) => {
       neons: [COL.cyan, COL.pink, COL.purple, COL.yellow], line: COL.cyan, curb: COL.pink, lamp: COL.pink, lampCore: '#FFC4F4',
       brick: ['#4A3328', '#3F2C2A', '#4B3530'], tower: ['#17112B', '#1B1430', '#141026'], winPal: ['#FFE8B0', '#FFD36B', '#FFB2E6', '#9FF3FF', '#FFFFFF', '#FF9E6B'], winLit: 0.62, brickWin: ['#FFE3A1', '#F2A84C'],
       bench: '#2B6F78', benchNeon: COL.cyan, tree: '#3E8C83', hallBody: '#E9E6F5', hallNeon: COL.cyan, arcNeon: COL.cyan, dome: ['#E8FBFF', '#4FC7FF', '#1060C0'],
-      names: { blip: ['Your Project Here', COL.pink], glimmer: ['FINALITY', COL.purple], tide: ['Thee_Kal_El', COL.cyan], sale: ['UP FOR SALE', COL.pink], hall: 'TOWN HALL', arc: 'ARC',
+      names: { blip: ['Your Project Here', COL.pink], glimmer: ['FINALITY', COL.purple], tide: ['$NOSELLING', COL.cyan], sale: ['UP FOR SALE', COL.pink], hall: 'TOWN HALL', arc: 'ARC',
         welcome: ['ARCTOWN WELCOMES YOU!', 'Explore projects by entering buildings,', 'apply for a building yourself,', 'or hang out with other Arc Members'], biz: ['OPEN A BUSINESS', 'Apply at the Business Desk', 'inside the Town Hall'] } },
     spooky: { sky: ['#030108', '#140720', '#3E1428'], ground: '#120E18', side: '#1C1622', road: '#0F0C14', plaza: '#1A1420', fog: '#2A1E30', fogD: 240,
       neons: [COL.orange, COL.purple, COL.green, COL.orange], line: COL.orange, curb: COL.purple, lamp: COL.orange, lampCore: '#FFD9A8',
