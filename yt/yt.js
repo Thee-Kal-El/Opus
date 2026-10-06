@@ -17,7 +17,7 @@
   const IMG = {}; const load = (k, s) => { const im = new Image(); im.src = s; return im.decode().then(() => { IMG[k] = im; }); };
   const VIDS = ['snakepot', 'cypher', 'limewire_merch', 'protonmail', 'damnbruh', 'limewire_back'];
   const SHORTS = ['short_dapps', 'short_netflix', 'short_tcg', 'short_eminem', 'short_bumper', 'short_vibes', 'short_summer', 'short_nitro', 'short_ags20', 'short_onepiece', 'short_playabull', 'short_raposa'];
-  const ASSETS = ['avatar', 'banner', 'socials', ...VIDS, ...SHORTS];
+  const ASSETS = ['avatar_hd', 'banner_hd', 'socials', ...VIDS, ...SHORTS];
 
   // ---------- helpers ----------
   const ease = (t, a, b, f = io3) => f(prog(t, a, b));
@@ -119,7 +119,8 @@
 
   function avatarDisc(c, x, y, r, t, ringK = 1) {
     c.save(); c.shadowColor = C.mag; c.shadowBlur = 60 * ringK; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = '#1A0A2A'; c.fill(); c.restore();
-    c.save(); c.beginPath(); c.arc(x, y, r, 0, TAU); c.clip(); if (IMG.avatar) c.drawImage(IMG.avatar, x - r, y - r, r * 2, r * 2); c.restore();
+    c.save(); c.beginPath(); c.arc(x, y, r, 0, TAU); c.clip(); const ag = c.createRadialGradient(x, y - r * 0.3, r * 0.1, x, y, r * 1.1); ag.addColorStop(0, '#7A2BC2'); ag.addColorStop(0.6, '#3A0E66'); ag.addColorStop(1, '#14062B'); c.fillStyle = ag; c.fillRect(x - r, y - r, r * 2, r * 2);
+    if (IMG.avatar_hd) c.drawImage(IMG.avatar_hd, x - r * 1.02, y - r * 0.96, r * 2.04, r * 2.04); c.restore();
     if (ringK <= 0.01) return;
     c.save(); c.globalCompositeOperation = 'lighter'; c.lineCap = 'round'; const p = beatPulse(t);
     for (const [rad, col, n, sp, lw] of [[r + 18 + p * 10, C.mag, 3, 0.9, 6], [r + 34 + p * 16, C.cyan, 5, -0.6, 3]]) {
@@ -213,7 +214,7 @@
     rr(c, x, y, w, h, 30); c.strokeStyle = rgba(C.mag, 0.35); c.lineWidth = 2; c.stroke();
     // banner + sheen
     const bx = x + 30, by = y + 30, bw = w - 60, bh = Math.round(bw / 3.707), bk = A(t, 8.2, 0.5);
-    c.save(); rr(c, bx, by, bw, bh, 18); c.clip(); c.globalAlpha = bk; if (IMG.banner) c.drawImage(IMG.banner, bx, by - (1 - bk) * 30, bw, bh);
+    c.save(); rr(c, bx, by, bw, bh, 18); c.clip(); c.globalAlpha = bk; cover(c, 'banner_hd', bx, by - (1 - bk) * 30, bw, bh);
     const shx = lerp(bx - 400, bx + bw + 400, ease(t, 8.5, 9.3)); const sg = c.createLinearGradient(shx - 200, 0, shx + 200, 0); sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(0.5, 'rgba(255,255,255,0.35)'); sg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = sg; c.fillRect(bx, by, bw, bh); c.restore();
     const row = by + bh + 120;
     const ak = pop(prog(t, 8.35, 8.95)); if (ak > 0) { c.save(); c.translate(x + 150, row); c.scale(ak, ak); avatarDisc(c, 0, 0, 100, t, 0.6); c.restore(); }
