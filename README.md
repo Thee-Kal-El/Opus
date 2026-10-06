@@ -175,3 +175,16 @@ node bird/synth_argus.mjs && node bird/render.mjs argus
 ```
 node yt/synth.mjs && node yt/render.mjs   # -> out/thee_kal_el_channel_30s_1080p60.mp4
 ```
+
+## ArcTown — showcase + Halloween party invite (`town/`)
+Two 30s 1920×1080 @ 60fps films built on one shared 3D ArcTown engine (`town/engine.js`): a full camera (yaw/pitch/roll),
+near-plane clipping, painter's sort, neon edges, lit windows, signs mapped onto faces, lamps, benches, trees, floating cubes and avatars.
+- **Showcase** (`town/showcase.js`, synthwave score): the city powers on → crane over the "ArcTown" title → EXPLORE whip-pans between shop
+  signs → real in-game cutaways with callouts → BUY LAND (an Up For Sale plot transforms into your HQ) → HANG OUT (avatars, proximity voice, chat) → end card.
+- **Halloween** (`town/halloween.js`, spooky trap score): the same city re-themed — moon, lightning, fog, bats, pumpkins, ghosts, renamed signs
+  ($BOO HQ, Grimmer Market, Haunted Hall, Up For Scare), a costume party, a blackout + jumpscare, and the invite end card.
+  The date line on the end card is the `WHEN` constant at the top of `town/halloween.js`.
+```
+node town/synth_showcase.mjs  && node town/render.mjs showcase    # -> out/arctown_showcase_30s_1080p60.mp4
+node town/synth_halloween.mjs && node town/render.mjs halloween   # -> out/arctown_halloween_30s_1080p60.mp4
+```
