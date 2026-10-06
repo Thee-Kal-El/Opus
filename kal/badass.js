@@ -132,9 +132,9 @@
   let PTS = null;
   function buildParticles() {
     const N = 74, cell = 640 / N, cnv = document.createElement('canvas'); cnv.width = cnv.height = N; const g = cnv.getContext('2d'); g.drawImage(IMG.avatar_hd, 0, 0, N, N); const d = g.getImageData(0, 0, N, N).data;
-    const TWd = V ? 1000 : 1800, THd = V ? 520 : 260, tc = document.createElement('canvas'); tc.width = TWd; tc.height = THd; const tg = tc.getContext('2d'); tg.fillStyle = '#fff'; tg.font = D(V ? 230 : 210, 800); tg.textAlign = 'center'; tg.textBaseline = 'middle'; tg.letterSpacing = '-4px';
-    if (V) { tg.fillText('@THEE_', TWd / 2, 135); tg.fillText('KAL_EL', TWd / 2, 385); } else tg.fillText('@THEE_KAL_EL', 900, 140);
-    const td = tg.getImageData(0, 0, TWd, THd).data, targ = []; for (let y = 0; y < THd; y += 7) for (let x = 0; x < TWd; x += 7) if (td[(y * TWd + x) * 4 + 3] > 128) targ.push([(W - TWd) / 2 + x, H / 2 - THd / 2 + y]);
+    const TWd = V ? 1040 : 1800, THd = V ? 200 : 260, tc = document.createElement('canvas'); tc.width = TWd; tc.height = THd; const tg = tc.getContext('2d'); tg.fillStyle = '#fff'; tg.font = D(V ? 128 : 210, 800); tg.textAlign = 'center'; tg.textBaseline = 'middle'; tg.letterSpacing = V ? '-2px' : '-4px';
+    if (V) tg.fillText('@THEE_KAL_EL', TWd / 2, 105); else tg.fillText('@THEE_KAL_EL', 900, 140);
+    const td = tg.getImageData(0, 0, TWd, THd).data, targ = []; const st = V ? 5 : 7; for (let y = 0; y < THd; y += st) for (let x = 0; x < TWd; x += st) if (td[(y * TWd + x) * 4 + 3] > 128) targ.push([(W - TWd) / 2 + x, H / 2 - THd / 2 + y]);
     PTS = []; for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const i = (y * N + x) * 4, j = PTS.length; PTS.push({ hx: W / 2 - 320 + x * cell, hy: H / 2 - 320 + y * cell, col: `rgb(${d[i]},${d[i + 1]},${d[i + 2]})`, cell, a: hash(j, 1) * TAU, v: 0.4 + hash(j, 2), tz: targ[(j * 7919) % targ.length], dl: hash(j, 3) }); }
   }
   function particles(c, t) {
@@ -146,10 +146,10 @@
       let x = lerp(sx, p.hx, ak), y = lerp(sy, p.hy, ak);
       if (t > 9.5) { const e = io3(ex) * (1 - io5(clamp((re - p.dl * 0.35) / 0.65))), dx = p.hx - W / 2, dy = p.hy - H / 2, dl = Math.hypot(dx, dy) + 1; const ox = x + (dx / dl) * 700 * p.v * e + Math.sin(p.a * 3 + t * 6) * 60 * e, oy = y + (dy / dl) * 700 * p.v * e + Math.cos(p.a * 2 + t * 5) * 60 * e;
         const k = io5(clamp((re - p.dl * 0.35) / 0.65)); x = lerp(ox, p.tz[0], k); y = lerp(oy, p.tz[1], k); }
-      const sz = t > 10.0 ? lerp(p.cell, 6, red) : p.cell; c.fillStyle = t > 10.2 ? (hash(p.dl * 1e4 | 0, 9) < 0.15 ? RED : '#fff') : p.col; if (t > 10.0 && t < 10.2) c.fillStyle = p.col; c.fillRect(x - sz / 2, y - sz / 2, sz + 0.6, sz + 0.6);
+      const sz = t > 10.0 ? lerp(p.cell, V ? 4.5 : 6, red) : p.cell; c.fillStyle = t > 10.2 ? (hash(p.dl * 1e4 | 0, 9) < 0.15 ? RED : '#fff') : p.col; if (t > 10.0 && t < 10.2) c.fillStyle = p.col; c.fillRect(x - sz / 2, y - sz / 2, sz + 0.6, sz + 0.6);
     }
     if (t > 8.6 && t < 9.5) { const gl = Math.floor(t * 20) % 5 === 0; if (gl) { c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = 0.4; c.drawImage(cv, -16, 0); c.restore(); } txt(c, 'MEET YOUR GUIDE TO WEB3', W / 2, VY(960, 1360), M(700, VY(34, 30)), '#fff', 'center', 'middle', 8); }
-    if (t > 10.75) { const k = pulse(t, 10.75, 6); c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = 0.6 * k; c.fillStyle = RED; c.fillRect(0, H / 2 - VY(160, 300), W, VY(320, 600)); c.restore(); }
+    if (t > 10.75) { const k = pulse(t, 10.75, 6); c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = 0.6 * k; c.fillStyle = RED; c.fillRect(0, H / 2 - VY(160, 120), W, VY(320, 240)); c.restore(); }
   }
   // ---------- S5 montage (11–13) ----------
   const MONT = [['PLAY', 'short_playabull'], ['EARN', 'short_dapps'], ['OWN', 'short_vibes'], ['BUILD', 'short_bumper'], ['TRADE', 'cypher'], ['MINT', 'short_onepiece'], ['LEARN', 'protonmail'], ['WIN', 'snakepot']];
