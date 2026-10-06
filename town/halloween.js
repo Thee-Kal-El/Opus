@@ -13,6 +13,7 @@
   const IMG = {}; const load = (k, s) => { const im = new Image(); im.src = s; return im.decode().then(() => { IMG[k] = im; }); };
   const MARK = (s) => `400 ${s}px "Permanent Marker", cursive`, SERIF = (s) => `italic 400 ${s}px "Instrument Serif", serif`, DISP = (s) => `900 ${s}px "Inter Tight", sans-serif`;
   const OR = '#FF7A1A', PU = '#9B3DFF', GR = '#7CFF4F';
+  const outline = (c, s, x, y, w) => { if (!VERT) return; c.save(); c.shadowBlur = 0; c.shadowColor = 'transparent'; c.globalCompositeOperation = 'source-over'; c.strokeStyle = '#000'; c.lineJoin = 'round'; c.miterLimit = 2; c.lineWidth = w; c.strokeText(s, x, y); c.restore(); };
 
   function track(keys, t) {
     if (t <= keys[0][0]) return keys[0].slice(1); if (t >= keys[keys.length - 1][0]) return keys[keys.length - 1].slice(1);
@@ -133,7 +134,7 @@
   function dripText(c, s, x, y, size, t, t0, col = ['#FFC15A', '#FF6A1A', '#B0180A']) {
     c.save(); c.font = DISP(size); c.letterSpacing = '-2px'; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
     const tw = c.measureText(s).width; let cx = x - tw / 2; const g = c.createLinearGradient(0, y - size * 0.75, 0, y + size * 0.6); g.addColorStop(0, col[0]); g.addColorStop(0.55, col[1]); g.addColorStop(1, col[2]);
-    c.shadowColor = rgba(col[1], 0.8); c.shadowBlur = size * 0.25; c.fillStyle = g; c.fillText(s, cx, y); c.shadowBlur = 0;
+    outline(c, s, cx, y, size * 0.08); c.shadowColor = rgba(col[1], 0.8); c.shadowBlur = size * 0.25; c.fillStyle = g; c.fillText(s, cx, y); c.shadowBlur = 0;
     for (let i = 0; i < s.length; i++) { const cw = c.measureText(s[i]).width; if (s[i] !== ' ') { const n = hash(i, s.length) < 0.6 ? 1 : 2; for (let k = 0; k < n; k++) { const dx = cx + cw * (0.25 + hash(i, k, 7) * 0.5), L = size * (0.12 + hash(i, k, 8) * 0.45) * crit(prog(t, t0 + 0.2 + hash(i, k, 9) * 0.6, t0 + 2.2)), w = size * (0.045 + hash(i, k, 10) * 0.03);
         if (L > 1) { c.fillStyle = col[2]; c.beginPath(); c.roundRect(dx - w / 2, y - size * 0.08, w, L + size * 0.08, w / 2); c.fill(); c.beginPath(); c.arc(dx, y + L, w * 0.9, 0, TAU); c.fill(); } } } cx += cw - 2; }
     c.restore();
@@ -142,21 +143,21 @@
     if (t > 4.0) return; const k = A(t, 0.9, 0.6) * (1 - prog(t, 3.6, 3.95)); if (k <= 0) return;
     const fl = t < 1.6 ? (hash(Math.floor(t * 24), 3) < 0.7 ? 1 : 0.3) : 1;
     c.save(); c.globalAlpha = k * fl; c.font = SERIF(96); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = rgba(OR, 0.8); c.shadowBlur = 30; c.fillStyle = '#FFE2C2';
-    const msg = 'Something is lurking in ArcTown…', n = Math.floor(clamp(prog(t, 1.0, 2.6)) * msg.length); if (VERT) { const cut = 21; c.font = SERIF(92); c.fillText(msg.slice(0, Math.min(n, cut)), W / 2, 560); if (n > cut) c.fillText(msg.slice(cut, n), W / 2, 670); } else c.fillText(msg.slice(0, n), W / 2, 300); c.restore();
+    const msg = 'Something is lurking in ArcTown…', n = Math.floor(clamp(prog(t, 1.0, 2.6)) * msg.length); if (VERT) { const cut = 21; c.font = SERIF(92); outline(c, msg.slice(0, Math.min(n, cut)), W / 2, 560, 9); c.fillText(msg.slice(0, Math.min(n, cut)), W / 2, 560); if (n > cut) { outline(c, msg.slice(cut, n), W / 2, 670, 9); c.fillText(msg.slice(cut, n), W / 2, 670); } } else c.fillText(msg.slice(0, n), W / 2, 300); c.restore();
   }
   function titleCard(c, t, t0, t1, y0 = VERT ? 820 : 470) {
     if (t < t0 || t > t1) return; const k = A(t, t0, 0.45), out = prog(t, t1 - 0.35, t1);
     c.save(); c.globalAlpha = 1 - out; c.translate(W / 2, y0); c.scale(lerp(1.6, 1, k) * (VERT ? 0.6 : 1), lerp(1.6, 1, k) * (VERT ? 0.6 : 1)); c.translate(-W / 2, -y0);
     dripText(c, 'HALLOWEEN', W / 2, y0 - 40, 230, t, t0); dripText(c, 'PARTY', W / 2, y0 + 170, 200, t, t0 + 0.1, ['#D7A8FF', '#9B3DFF', '#4A0E8A']);
-    const sk = A(t, t0 + 0.5, 0.4); c.globalAlpha = (1 - out) * sk; c.font = MARK(78); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = GR; c.shadowBlur = 26; c.fillStyle = '#DFFFD0'; c.fillText('in ArcTown', W / 2, y0 + 310); c.restore();
+    const sk = A(t, t0 + 0.5, 0.4); c.globalAlpha = (1 - out) * sk; c.font = MARK(78); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = GR; c.shadowBlur = 26; c.fillStyle = '#DFFFD0'; outline(c, 'in ArcTown', W / 2, y0 + 310, 10); c.fillText('in ArcTown', W / 2, y0 + 310); c.restore();
   }
   const CAPS = [[8.05, 12.95, 'Spooky streets', 'EXPLORE THE HAUNTED CITY', OR], [13.05, 15.3, 'Costume party', 'COME HANG OUT IN ARCTOWN', PU], [15.4, 17.45, 'Bring your friends', 'PROXIMITY VOICE · CHAT', GR], [17.55, 18.95, 'Live in ArcTown', 'IN-GAME · ARCTOWN.APP', OR], [19.05, 20.95, 'Up for scare', 'IF YOU DARE…', OR]];
   function captions(c, t) {
     for (const [t0, t1, a, b, col] of CAPS) {
       if (t < t0 || t > t1) continue; const k = io5(prog(t, t0, t0 + 0.25)), out = io3(prog(t, t1 - 0.2, t1));
       c.save(); c.globalAlpha = 1 - out; const gy = VERT ? 1260 : 860, g = c.createLinearGradient(0, gy, 0, H); g.addColorStop(0, 'rgba(5,2,10,0)'); g.addColorStop(0.5, 'rgba(5,2,10,0.85)'); g.addColorStop(1, 'rgba(5,2,10,0.95)'); c.fillStyle = g; c.fillRect(0, gy, W, H - gy);
-      if (VERT) { c.translate(W / 2, 1460); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k)); c.font = MARK(100); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = col; c.shadowBlur = 24; c.fillStyle = col; c.fillText(a, 0, 0); c.shadowBlur = 0; c.fillStyle = '#FFF4E8'; c.fillText(a, -2, -3);
-        c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.4); c.font = SANS(800, 32); c.letterSpacing = '5px'; c.fillStyle = '#F2E6FF'; c.fillText(b, 4, 100); c.restore(); continue; }
+      if (VERT) { c.translate(W / 2, 1460); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k)); c.font = MARK(100); c.textAlign = 'center'; c.textBaseline = 'middle'; outline(c, a, 0, 0, 12); c.shadowColor = col; c.shadowBlur = 24; c.fillStyle = col; c.fillText(a, 0, 0); c.shadowBlur = 0; c.fillStyle = '#FFF4E8'; c.fillText(a, -2, -3);
+        c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.4); c.font = SANS(800, 32); c.letterSpacing = '5px'; c.fillStyle = '#F2E6FF'; outline(c, b, 4, 100, 7); c.fillText(b, 4, 100); c.restore(); continue; }
       c.translate(80, 990); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k)); c.font = MARK(92); c.textBaseline = 'middle'; c.shadowColor = col; c.shadowBlur = 24; c.fillStyle = col; c.fillText(a, 0, 0); c.shadowBlur = 0; c.fillStyle = '#FFF4E8'; c.fillText(a, -2, -3);
       const aw = c.measureText(a).width; c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.4); c.font = SANS(800, 28); c.letterSpacing = '5px'; c.fillStyle = '#F2E6FF'; c.fillText(b, aw + 40, 10); c.restore();
     }
@@ -190,11 +191,11 @@
     if (t < 23.0) return;
     c.fillStyle = `rgba(5,2,10,${0.5 * A(t, 23.0, 0.8)})`; c.fillRect(0, 0, W, H);
     titleCard(c, t, 23.0, 31, VERT ? 600 : 360);
-    const k = A(t, 24.2, 0.5); if (k > 0) { c.save(); c.globalAlpha = k; c.font = SANS(900, 46); c.letterSpacing = '14px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = OR; c.shadowBlur = 20; c.fillStyle = '#FFE8D0'; c.fillText(WHEN, W / 2 + 7, VERT ? 1060 : 790); c.restore(); }
+    const k = A(t, 24.2, 0.5); if (k > 0) { c.save(); c.globalAlpha = k; c.font = SANS(900, 46); c.letterSpacing = '14px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = OR; c.shadowBlur = 20; c.fillStyle = '#FFE8D0'; outline(c, WHEN, W / 2 + 7, VERT ? 1060 : 790, 9); c.fillText(WHEN, W / 2 + 7, VERT ? 1060 : 790); c.restore(); }
     const bk = pop(prog(t, 25.0, 25.5)); if (bk > 0) { const p = 1 + 0.05 * Math.exp(-((t % BT) * 9)); c.save(); c.translate(W / 2, VERT ? 1190 : 895); c.scale(bk * p, bk * p); c.shadowColor = OR; c.shadowBlur = 40;
       const g = c.createLinearGradient(-300, 0, 300, 0); g.addColorStop(0, OR); g.addColorStop(1, '#C2320A'); c.fillStyle = g; c.beginPath(); c.roundRect(-300, -52, 600, 104, 52); c.fill(); c.shadowBlur = 0;
       c.font = SANS(900, 40); c.letterSpacing = '4px'; c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('JOIN US… IF YOU DARE', 3, 2); c.restore();
-      c.save(); c.globalAlpha = bk; c.font = MARK(58); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = GR; c.shadowBlur = 20; c.fillStyle = '#E8FFDA'; c.fillText('arctown.app', W / 2, VERT ? 1330 : 1012); c.restore(); }
+      c.save(); c.globalAlpha = bk; c.font = MARK(58); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = GR; c.shadowBlur = 20; c.fillStyle = '#E8FFDA'; outline(c, 'arctown.app', W / 2, VERT ? 1330 : 1012, 9); c.fillText('arctown.app', W / 2, VERT ? 1330 : 1012); c.restore(); }
   }
 
   // ---------- finishing ----------
