@@ -117,6 +117,14 @@ function growl(t0, dur, m, g = 1) { dur *= TS; const f = mtof(m); let ph = 0, lp
 function e808(t0, dur, m, g = 1) { dur *= TS; let ph = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, f = mtof(m) * (1 + 1.5 * Math.exp(-t * 30)); ph += TAU * f / SR; const v = Math.tanh(Math.sin(ph) * 2.2) * Math.min(1, t / 0.004) * Math.min(1, (dur - t) / 0.05) * g * 0.5 * duck(t0 + t + 0.02); put(at(t0) + n, v, v); } }
 function heartbeat(t0, g = 1) { for (const [d, a] of [[0, 1], [0.2, 0.7]]) { let ph = 0; for (let n = 0; n < 0.3 * SR; n++) { const t = n / SR; ph += TAU * (45 + 30 * Math.exp(-t * 25)) / SR; const v = Math.sin(ph) * Math.exp(-t * 12) * a * g * 0.6; put(at(t0 + d) + n, v, v); } } }
 function glitch(t0, dur, g = 1) { dur *= TS; for (let n = 0; n < dur * SR; n++) { const t = n / SR, step = Math.floor(t * 64), f = 200 + (Math.sin(step * 12.9898) * 43758.5453 % 1 + 1) % 1 * 3000; const v = Math.sign(Math.sin(TAU * f * t)) * ((step % 3) ? 1 : 0.2) * g * 0.08; put(at(t0) + n, v, v * 0.8, 0.2); } }
+// deep metallic slam (anvil-like inharmonic strike + sub thump) — the masculine "FINAL" ding
+function clang(t0, g = 1, base = 55) {
+  const parts = [[1, 1, 2.2], [2.76, 0.55, 3.5], [5.4, 0.32, 5], [8.93, 0.2, 7], [1.5, 0.35, 2.8]];
+  for (let n = 0; n < 2.2 * SR; n++) { const t = n / SR; let v = 0;
+    for (const [r, a, d] of parts) v += Math.sin(TAU * base * 2 * r * t + 0.8 * Math.sin(TAU * base * r * 3.01 * t) * Math.exp(-t * 6)) * a * Math.exp(-t * d);
+    v = Math.tanh(v * 1.6) * 0.16 * g; const s = Math.sin(TAU * (base * (1 + 2 * Math.exp(-t * 18))) * t) * Math.exp(-t * 5) * 0.32 * g;
+    put(at(t0) + n, v + s, v * 0.95 + s, 0.4, 0.1); }
+}
 const SEQ = [0, 2, 1, 3, 2, 0, 3, 1];
 function key(t0, g = 1, f = 3200) { for (let n = 0; n < 0.035 * SR; n++) { const t = n / SR, v = (Math.sin(TAU * f * t) * 0.4 + noise() * 0.6) * Math.exp(-t * 180) * g * 0.16; put(at(t0) + n, v, v, 0.05); } }
 function techno(t0, t1, o = {}) {
@@ -141,14 +149,14 @@ for (let k = 0; k < 7; k++) blip(3.0 + k * 0.065, 84 + k * 2, 0.5, (k % 2 ? 0.5 
 [4.0, 6.5, 9.0, 11.5].forEach(whip);
 whoosh(5.6, 0.2, 1.2, true); softImpact(6.0, 1.4); braam(6.0, 1.2, CH.Fsm, 1.5); e808(6.0, 0.6, 42, 1.0);
 for (let k = 0; k < 6; k++) { const t = 7.65 + k * 0.11; blip(t, [78, 81, 85, 88, 90, 93][k], 0.8, (k - 2.5) * 0.25); }
-[66, 70, 73, 78].forEach((m, i) => bell(8.25 + i * 0.02, m + 12, 0.45, (i - 1.5) * 0.3, 1.2)); softImpact(8.25, 0.8);
+clang(8.25, 1.1, 46); braam(8.25, 0.5, CH.Fsm, 0.9); softImpact(8.25, 0.9);
 for (let k = 0; k < 6; k++) { const t = 9.85 + k * 0.2; key(t, 1.2, 3400); blip(t, 90 + (k % 3) * 2, 0.5); }
 for (let k = 0; k < 10; k++) key(11.85 + k * 0.04, 0.6, 2800 + k * 60); softImpact(12.4, 0.6);
 riser(12.0, 1.0, 1.0); roll(12.5, 13.0, 1.1);
 // 13 finale: fan-out, stack, stamp, silence
 softImpact(13.0, 1.6); braam(13.0, 2.0, CH.Fsm, 1.6); bigKick(13.0, 1.2); e808(13.0, 1.4, 42, 1.1); pad(13.0, 1.9, CH.Fsm, 1.0, { atk: 0.05, rel: 0.6 });
 techno(13.5, 14.45, { bass: 0.8, gate: 0.6, arp: 0.6 }); whoosh(13.85, 0.3, 1.3, false);
-softImpact(14.45, 1.8); braam(14.45, 0.4, CH.Fsm, 1.6); bigKick(14.45, 1.3); e808(14.45, 0.4, 42, 1.1); [66, 70, 73, 78].forEach((m, i) => bell(14.47 + i * 0.015, m + 12, 0.45, (i - 1.5) * 0.3, 0.6));
+softImpact(14.45, 1.8); braam(14.45, 0.4, CH.Fsm, 1.6); bigKick(14.45, 1.3); e808(14.45, 0.4, 42, 1.1); clang(14.45, 1.2, 46);
 
 // ---------- FX + master ----------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }
