@@ -1,7 +1,7 @@
 // BIRDEYE TERMINAL — 46s, 1920x1080 @ 60fps.
-// A single dot on black becomes the terminal: Chart → Watchlist → Positions → Option Chain. The camera dives
+// A single dot on black becomes the Birdeye terminal: Trending Tokens → Profitable Traders → Bubble Map → Find Gems → Large Trades. The camera dives
 // in and out across scales, pulls back until the desktop is a point in space, flies to a second point that
-// becomes a landscape phone (chart | option chain), then resolves on the $NOSELLING screen.
+// becomes a landscape phone (bubble map | trending tokens), then resolves on the Birdeye logo.
 // Everything is vector-drawn under one camera transform (crisp at any zoom); renderAt(t) is deterministic.
 (() => {
   'use strict';
@@ -9,32 +9,45 @@
   const W = 1920, H = 1080, FPS = 60, DUR = 46;
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
 
-  // ---------- world layout (the desktop is a 1920x1080 world rect at the origin) ----------
+  // ---------- world layout: the real Birdeye home terminal (after the 2nd dashboard screenshot) ----------
   const WIN = {
-    chart: { x: 20, y: 116, w: 1160, h: 564, t: 3.0, title: 'SOL / USDC', tabs: ['15m', '1h', '4h', 'D'] },
-    watch: { x: 1196, y: 116, w: 704, h: 564, t: 8.5, title: 'WATCHLIST', tabs: ['Trending', 'Smart Money'] },
-    pos: { x: 20, y: 696, w: 920, h: 368, t: 9.5, title: 'POSITIONS', tabs: ['Open (5)', 'Orders', 'History'] },
-    opt: { x: 956, y: 696, w: 944, h: 368, t: 10.5, title: 'OPTION CHAIN', tabs: ['SOL', 'Exp 24 Oct', 'Greeks'] },
+    trend: { x: 8, y: 112, w: 466, h: 540, t: 3.0, title: 'TRENDING TOKENS', tabs: ['SMART MONEY'], right: 'View more' },
+    traders: { x: 482, y: 112, w: 468, h: 540, t: 8.3, title: 'PROFITABLE TRADERS', right: 'View more' },
+    bub: { x: 958, y: 112, w: 954, h: 540, t: 9.0, title: '' },
+    gems: { x: 8, y: 660, w: 942, h: 412, t: 9.8, title: 'FIND GEMS' },
+    large: { x: 958, y: 660, w: 954, h: 412, t: 10.5, title: 'LARGE TRADES' },
   };
-  const DOT = [600, 398];                          // where the first dot lives (inside the chart window)
-  const PHONE = { x: 52000, y: -18500, w: 2340, h: 1080 };   // a second point far away in space
-  const SOL = K.series(42, 90, 168, 0.012, 0.06), SOLm = K.series(7, 60, 176, 0.012, 0.08);
+  const DOT = [240, 380];
+  const PHONE = { x: 52000, y: -18500, w: 2340, h: 1080 };
+  const TREND = [['HIGGS', '$0.003166', 129], ['QQQB', '$757.79', 0.49], ['PUMP', '$0.006349', -2.13], ['NVDAx', '$240.89', 2.1], ['CARDS', '$0.2828', 15.06], ['PLAGUE', '$0.002049', 449], ['CRAWL', '$0.004517', 166], ['BNCB', '$6.0904', -0.83]];
+  const TRADERS = [['Gbj9i5dKt5', '+$8.58M', '$1B', 'sol'], ['2w3nD9VdSh', '+$3.63M', '$11.9M', 'sol'], ['0x424d9f20', '+$1.94M', '$16M', 'bnb'], ['0x2Ff0f110', '+$1.87M', '$15.38M', 'bnb'], ['0x3F59A126', '+$1.35M', '$1.66M', 'bnb'], ['0x2441FF7C', '+$1.34M', '$1.64M', 'bnb'], ['0x6bcB959C', '+$892.01K', '$897.45K', 'bnb'], ['0x89f244Ac', '+$886.26K', '$1.15M', 'bnb']];
+  const GEMS = [['USDC', 'USDC', '$1.0000', 0, '$8.42B', -99.98, '#2775CA'], ['SOL', 'SOL', '$120.94', -0.37, '$3.36B', 1.17, '#1E1E1E'], ['USDT', 'Binance Bridged USDT (BNB Smart Chain)', '$1.0000', 0, '$1.96B', 34.8, '#26A17B']];
+  const LARGE = [['bnb', '$29.89K', '-29.89K', 'USDT', '+150.81K', '币安皇帝', '0xBa128Ef2', 34], ['bnb', '$10.07K', '-51.91K', '币安皇帝', '+10.07K', 'USDT', '0x0064f894', 37], ['sol', '$12K', '-12K', 'USDC', '+11.99K', 'ETH-USDT', '8RvqEo9pqT', 39]];
+  // bubble map (screenshot pixel centre, radius, name, %) — mapped into the bubble window
+  const BUB = [['AAVE', 1.97, 1053, 270, 20], ['WBNB', -1.25, 1113, 225, 18], ['LINK', -2.33, 1200, 240, 35], ['ADA', 2.79, 1315, 240, 38], ['BTCB', -0.93, 1400, 225, 20], ['UNI', -1.33, 1463, 240, 22], ['ENA', 3.19, 1550, 240, 42], ['WETH', -0.66, 1620, 220, 16], ['PUMP', -2.29, 1711, 238, 35], ['SHIB', -0.98, 1876, 240, 18],
+    ['JUP', 4.05, 1140, 315, 48], ['TAO', 1.66, 1254, 295, 28], ['TON', 4.2, 1390, 315, 48], ['ATOM', 2.84, 1492, 325, 38], ['ASTER', 3.14, 1638, 295, 40], ['ICP', 5.64, 1797, 300, 55], ['SUI', -1.31, 1570, 335, 22], ['WLFI', -0.96, 1876, 345, 18],
+    ['SKY', -8.31, 1083, 428, 66], ['AERO', -2.69, 1270, 383, 36], ['RENDER', 3.82, 1363, 415, 45], ['NEXO', -3.12, 1500, 415, 42], ['NIGHT', 13.18, 1700, 425, 85], ['M', -2.74, 1837, 410, 38], ['ONDO', 0.59, 1184, 385, 15], ['DOGE', -0.88, 1292, 452, 17],
+    ['BTW', -4.31, 1209, 465, 48], ['RAIN', 0.96, 995, 468, 20], ['PEPE', -0.59, 1438, 377, 15], ['WLD', -0.91, 1580, 418, 17], ['MORPHO', 0.65, 1470, 486, 15], ['CRO', 0.56, 1882, 455, 15],
+    ['ZRO', 5.44, 1027, 560, 53], ['QNT', 4.58, 1147, 565, 50], ['VVV', -4.35, 1268, 560, 48], ['NEAR', 7.42, 1394, 545, 62], ['OKB', 10.45, 1566, 535, 75], ['MNT', -2.06, 1683, 570, 33], ['LIT', 9.23, 1825, 545, 70]];
+  const bubXY = (b, win = WIN.bub) => [win.x + (b[2] - 958) / 957 * win.w, win.y + 52 + (b[3] - 195) / 425 * (win.h - 60), b[4] * Math.min(win.w / 957, (win.h - 60) / 425) * 1.02];
 
   // ---------- camera keyframes: [t, cx, cy, log(zoom)] — zoom is interpolated in log space ----------
   const L = Math.log;
+  const NIGHT = (() => { const b = BUB.find((q) => q[0] === 'NIGHT'); return bubXY(b); })();
+  const rowYT = (i) => WIN.trend.y + 90 + i * ((WIN.trend.h - 96) / 8) + (WIN.trend.h - 96) / 16;
   const KEYS = [
-    [0.0, DOT[0], DOT[1], L(3.2)], [2.4, DOT[0], DOT[1], L(3.2)], [4.6, 600, 398, L(1.55)], [8.0, 600, 398, L(1.45)],
-    [10.6, 960, 540, L(1.0)], [12.0, 960, 540, L(1.0)],
-    [13.6, 1090, 300, L(3.0)], [15.6, 1060, 320, L(3.4)],                  // chart: last price + crosshair
-    [17.6, 1428, 880, L(2.0)], [19.4, 1428, 880, L(2.05)],                 // option chain
-    [20.8, 1428, 969, L(9.5)], [21.9, 1428, 969, L(10.5)], [23.2, 1428, 880, L(2.0)],   // deep dive: the ATM strike
-    [25.0, 480, 880, L(2.0)], [26.8, 480, 880, L(2.15)],                    // positions
-    [28.4, 1548, 400, L(2.1)], [29.9, 1548, 420, L(2.2)],                   // watchlist
+    [0.0, DOT[0], DOT[1], L(3.2)], [2.4, DOT[0], DOT[1], L(3.2)], [4.6, 241, 382, L(1.75)], [8.0, 280, 382, L(1.6)],
+    [10.8, 960, 540, L(1.0)], [12.0, 960, 540, L(1.0)],
+    [13.6, 240, rowYT(5), L(2.9)], [15.6, 250, rowYT(5), L(3.2)],          // Trending: PLAGUE +449%
+    [17.4, 716, 260, L(2.5)], [19.2, 716, 280, L(2.6)],                     // Profitable traders: +$8.58M
+    [20.6, NIGHT[0], NIGHT[1], L(5.5)], [22.0, NIGHT[0], NIGHT[1], L(6.2)], [23.4, 1435, 380, L(1.75)],   // bubble map → NIGHT +13.18%
+    [25.0, 480, 880, L(2.0)], [26.6, 480, 880, L(2.1)],                      // Find Gems
+    [28.2, 1435, 880, L(2.0)], [29.9, 1435, 880, L(2.1)],                    // Large Trades
     [31.4, 960, 540, L(1.0)], [32.0, 960, 540, L(1.0)],
-    [35.4, 960, 540, L(0.00035)],                                         // the desktop becomes a point in space
+    [35.4, 960, 540, L(0.00035)],
     [36.6, (960 + PHONE.x) / 2, (540 + PHONE.y) / 2, L(0.00022)],
-    [40.4, PHONE.x + PHONE.w / 2, PHONE.y + PHONE.h / 2, L(0.66)], [42.4, PHONE.x + PHONE.w / 2, PHONE.y + PHONE.h / 2, L(0.7)],
-    [44.2, PHONE.x + PHONE.w * 0.27, PHONE.y + PHONE.h * 0.52, L(3.0)], [46.0, PHONE.x + PHONE.w * 0.27, PHONE.y + PHONE.h * 0.52, L(3.0)],
+    [40.4, PHONE.x + PHONE.w / 2, PHONE.y + PHONE.h / 2, L(0.66)], [42.6, PHONE.x + PHONE.w / 2, PHONE.y + PHONE.h / 2, L(0.7)],
+    [46.0, PHONE.x + PHONE.w / 2, PHONE.y + PHONE.h / 2, L(0.74)],
   ];
   function camera(t) {
     let i = 0; while (i < KEYS.length - 2 && t >= KEYS[i + 1][0]) i++;
@@ -83,94 +96,157 @@
     c.restore();
   }
 
+  // ---------- table widgets (match the site) ----------
+  const hdr = (c, x, y, w, cols) => { c.fillStyle = '#141414'; c.fillRect(x, y, w, 40); cols.forEach(([s2, cx, al]) => text(c, s2, cx, y + 20, F(500, 15), C.mute, al)); };
+  const sep = (c, x, y, w) => { c.strokeStyle = C.line; c.lineWidth = 1; c.beginPath(); c.moveTo(x, y); c.lineTo(x + w, y); c.stroke(); };
+  const tick = (t, i, amp = 1) => (K.hash(Math.floor(t * 3), i, 5) - 0.5) * amp;
+  function chainDot(c, x, y, r, kind) {
+    if (kind === 'sol') { c.save(); c.translate(x, y); const g = c.createLinearGradient(-r, 0, r, 0); g.addColorStop(0, '#9945FF'); g.addColorStop(1, '#14F195'); c.fillStyle = g; for (let k = -1; k <= 1; k++) { c.beginPath(); c.moveTo(-r * 0.8 + (k === 0 ? 0.2 * r : 0), k * r * 0.55 - r * 0.15); c.lineTo(r * 0.9, k * r * 0.55 - r * 0.15); c.lineTo(r * 0.7, k * r * 0.55 + r * 0.15); c.lineTo(-r, k * r * 0.55 + r * 0.15); c.fill(); } c.restore(); }
+    else { c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = C.yellow; c.fill(); c.save(); c.translate(x, y); c.rotate(Math.PI / 4); c.strokeStyle = '#FFF6D0'; c.lineWidth = r * 0.18; c.strokeRect(-r * 0.32, -r * 0.32, r * 0.64, r * 0.64); c.restore(); }
+  }
+  function tokenIcon(c, x, y, r, name, i) { c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = `hsl(${(K.hash(i, 11) * 360) | 0},55%,42%)`; c.fill(); text(c, name[0], x, y + 1, F(800, r * 0.9), '#fff', 'center'); }
+  function trendTbl(c, w0, t, rowsShown = 8) {
+    const { x, y, w, h } = w0, top = y + 46; hdr(c, x, top, w, [['Token', x + 14, 'left'], ['Price', x + w * 0.7, 'right'], ['24h Chg', x + w - 14, 'right']]);
+    const rh = (h - 96) / 8;
+    TREND.slice(0, rowsShown).forEach(([n, p, ch], i) => {
+      const ry = top + 40 + i * rh + rh / 2, k = A(t, w0.t + 0.9 + i * 0.06, 0.4); if (k <= 0) return;
+      c.save(); c.globalAlpha *= k; c.translate((1 - k) * 30, 0);
+      tokenIcon(c, x + 26, ry, 14, n, i); text(c, n, x + 52, ry, F(700, 16), C.ink); text(c, p, x + w * 0.7, ry, F(500, 16), C.ink, 'right');
+      const v = ch + (Math.abs(ch) > 10 ? tick(t, i, Math.abs(ch) * 0.01) : 0);
+      text(c, `${v >= 0 ? '+' : ''}${Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(2).replace(/\.?0+$/, '')}%`, x + w - 14, ry, F(500, 16), v >= 0 ? C.green : C.red, 'right');
+      sep(c, x, ry + rh / 2, w); c.restore();
+    });
+  }
+  function tradersTbl(c, w0, t) {
+    const { x, y, w, h } = w0, top = y + 46; hdr(c, x, top, w, [['Trader', x + 14, 'left'], ['7D R PnL', x + w * 0.68, 'right'], ['7d Vol', x + w - 14, 'right']]);
+    const rh = (h - 96) / 8;
+    TRADERS.forEach(([a, pnl, vol, ch], i) => {
+      const ry = top + 40 + i * rh + rh / 2, k = A(t, w0.t + 0.9 + i * 0.06, 0.4); if (k <= 0) return;
+      c.save(); c.globalAlpha *= k; c.translate((1 - k) * 30, 0);
+      chainDot(c, x + 26, ry, 11, ch); text(c, a, x + 46, ry, M(500, 15), C.blue);
+      c.strokeStyle = C.mute; c.lineWidth = 1.3; c.strokeRect(x + 52 + c.measureText(a).width + 10, ry - 7, 10, 12);
+      text(c, pnl, x + w * 0.68, ry, F(500, 16), C.green, 'right'); text(c, vol, x + w - 14, ry, F(500, 16), C.ink, 'right');
+      sep(c, x, ry + rh / 2, w); c.restore();
+    });
+  }
+  function radio(c, x, y, label, on) { c.beginPath(); c.arc(x, y, 8, 0, TAU); c.strokeStyle = on ? C.orange : C.mute; c.lineWidth = 1.5; c.stroke(); if (on) { c.beginPath(); c.arc(x, y, 4.5, 0, TAU); c.fillStyle = C.orange; c.fill(); } text(c, label, x + 16, y, F(500, 15), C.ink); }
+  function gemsTbl(c, w0, t) {
+    const { x, y, w, h } = w0;
+    radio(c, x + w - 330, y + 23, 'Top Volume', true); radio(c, x + w - 210, y + 23, 'Top Gainers', false); text(c, 'Find more', x + w - 14, y + 23, F(500, 15), C.blue, 'right');
+    const top = y + 46; hdr(c, x, top, w, [['Token', x + 14, 'left'], ['Price', x + w * 0.48, 'right'], ['24h Chg', x + w * 0.65, 'right'], ['24h Vol', x + w * 0.82, 'right'], ['24h Chg', x + w - 14, 'right']]);
+    const rh = (h - 92) / 3.6;
+    GEMS.forEach(([n, sub, p, ch, vol, ch2, col], i) => {
+      const ry = top + 40 + i * rh, k = A(t, w0.t + 0.9 + i * 0.1, 0.45); if (k <= 0) return;
+      c.save(); c.globalAlpha *= k; c.translate((1 - k) * 30, 0);
+      c.beginPath(); c.arc(x + 30, ry + rh / 2, 17, 0, TAU); c.fillStyle = col; c.fill(); text(c, n[0] === 'S' ? '≡' : '$', x + 30, ry + rh / 2 + 1, F(800, 16), '#fff', 'center');
+      text(c, n, x + 60, ry + rh * 0.36, F(700, 16), C.ink); text(c, sub, x + 60, ry + rh * 0.66, F(400, 13), C.mute);
+      text(c, p, x + w * 0.48, ry + rh * 0.36, F(500, 16), C.ink, 'right');
+      text(c, `${ch > 0 ? '+' : ''}${ch}%`, x + w * 0.65, ry + rh * 0.36, F(500, 16), ch === 0 ? C.mute : ch > 0 ? C.green : C.red, 'right');
+      text(c, vol, x + w * 0.82, ry + rh * 0.36, F(500, 16), C.ink, 'right');
+      text(c, `${ch2 > 0 ? '+' : ''}${ch2}%`, x + w - 14, ry + rh * 0.36, F(500, 16), ch2 >= 0 ? C.green : C.red, 'right');
+      sep(c, x, ry + rh, w); c.restore();
+    });
+  }
+  function largeTbl(c, w0, t) {
+    const { x, y, w, h } = w0;
+    [['> $10K', true], ['> $50K', false], ['> $100K', false], ['> $1M', false]].forEach(([s2, on], i) => radio(c, x + w - 450 + i * 100, y + 23, s2, on));
+    text(c, 'Find more', x + w - 14, y + 23, F(500, 15), C.blue, 'right');
+    const top = y + 46; hdr(c, x, top, w, [['Value', x + w * 0.17, 'left'], ['Amount', x + w * 0.38, 'left'], ['Traders', x + w * 0.59, 'left'], ['Time', x + w * 0.79, 'left']]);
+    const rh = (h - 92) / 3.6, el = Math.max(0, Math.floor(t - w0.t));
+    LARGE.forEach(([ch, val, a1, s1, a2, s2, tr, sec], i) => {
+      const ry = top + 40 + i * rh, k = A(t, w0.t + 0.9 + i * 0.1, 0.45); if (k <= 0) return;
+      c.save(); c.globalAlpha *= k; c.translate((1 - k) * 30, 0);
+      chainDot(c, x + w * 0.09, ry + rh * 0.3, 11, ch);
+      text(c, val, x + w * 0.17, ry + rh * 0.3, F(500, 16), C.ink);
+      c.font = F(500, 15); text(c, a1, x + w * 0.38, ry + rh * 0.3, F(500, 15), C.ink); text(c, s1, x + w * 0.38 + c.measureText(a1).width + 8, ry + rh * 0.3, F(500, 15), C.blue);
+      c.font = F(500, 15); text(c, a2, x + w * 0.38, ry + rh * 0.68, F(500, 15), C.ink); text(c, s2, x + w * 0.38 + c.measureText(a2).width + 8, ry + rh * 0.68, F(500, 15), C.blue);
+      text(c, tr, x + w * 0.59, ry + rh * 0.3, M(500, 15), C.blue);
+      text(c, `${sec + el}s  ago`, x + w * 0.79, ry + rh * 0.3, M(500, 15), C.ink);
+      c.strokeStyle = C.mute; c.lineWidth = 1.4; c.strokeRect(x + w - 34, ry + rh * 0.3 - 8, 14, 14);
+      sep(c, x, ry + rh, w); c.restore();
+    });
+  }
+  function bubblePanel(c, w0, t, opts = {}) {
+    const { x, y, w, h } = w0;
+    // header: BUBBLE MAP dropdown + time tabs, as on the site
+    rr(c, x + 16, y + 12, 240, 32, 6); c.strokeStyle = C.line2; c.lineWidth = 1.2; c.stroke(); text(c, '⦿  BUBBLE MAP', x + 30, y + 28, F(800, 13), C.ink);
+    rr(c, x + w - 230, y + 12, 214, 32, 6); c.fillStyle = '#161616'; c.fill();
+    ['24h', '7D', '30D', '1Y'].forEach((s2, i) => { if (i === 0) { rr(c, x + w - 226, y + 15, 50, 26, 4); c.fillStyle = '#2A2A2A'; c.fill(); } text(c, s2, x + w - 201 + i * 53, y + 28, F(700, 12), i === 0 ? C.orange : C.mute, 'center'); });
+    const lt = t - w0.t;
+    BUB.forEach((b, i) => {
+      const t0 = w0.t + 0.7 + (i % 13) * 0.05 + Math.floor(i / 13) * 0.18, k = K.pop(prog(t, t0, t0 + 0.55)); if (k <= 0) return;
+      const [bx, by, br] = bubXY(b, w0);
+      K.bubble(c, bx + Math.sin(lt * 0.8 + i) * 2.5, by + Math.cos(lt * 0.7 + i * 1.3) * 2.5, br * k, b[0], b[1]);
+    });
+  }
+
   // ---------- the desktop ----------
   function openK(w, t) { return A(t, w.t, 0.9, crit); }
   function windowFrame(c, w, t, draw, active) {
     const k = openK(w, t); if (k <= 0) return;
-    // grows out of the original dot: outline first, then panel + content
-    const ox = DOT[0], oy = DOT[1], cx = w.x + w.w / 2, cy = w.y + w.h / 2;
-    const x = lerp(ox, w.x, k), y = lerp(oy, w.y, k), ww = w.w * k, hh = w.h * k;
-    if (k < 1) {
-      c.save(); c.strokeStyle = C.orange; c.lineWidth = 2 / Math.max(0.5, CAM.z) * 1.4; c.shadowColor = C.orange; c.shadowBlur = 20;
-      c.strokeRect(lerp(ox, x, 1), y, ww, hh); c.restore();
-    }
-    const ca = clamp((k - 0.55) / 0.45);
-    if (ca <= 0) return;
+    const ox = DOT[0], oy = DOT[1], x = lerp(ox, w.x, k), y = lerp(oy, w.y, k), ww = w.w * k, hh = w.h * k;
+    if (k < 1) { c.save(); c.strokeStyle = C.orange; c.lineWidth = 2.4 / Math.max(0.5, CAM.z); c.shadowColor = C.orange; c.shadowBlur = 20; c.strokeRect(x, y, ww, hh); c.restore(); }
+    const ca = clamp((k - 0.55) / 0.45); if (ca <= 0) return;
     c.save(); c.globalAlpha *= ca;
-    K.panel(c, x, y, ww, hh, w.title, { tabs: w.tabs, active });
-    if (k >= 0.999) { c.beginPath(); c.rect(w.x, w.y + 45, w.w, w.h - 45); c.clip(); draw(c, t); }
+    K.panel(c, x, y, ww, hh, w.title, { tabs: w.tabs, right: w.right, active });
+    if (k >= 0.999) { c.beginPath(); c.rect(w.x, w.y + (w.title ? 45 : 0), w.w, w.h - (w.title ? 45 : 0)); c.clip(); draw(c, t); }
     c.restore();
   }
-  function crossAt(t) { const u = prog(t, 13.0, 16.0); return [lerp(700, 1080, io3(u)), 330 + Math.sin(u * 5) * 60]; }
   function desktop(c, t) {
-    // background
     c.fillStyle = C.bg; c.fillRect(0, 0, 1920, 1080);
     const navK = A(t, 11.0, 0.8);
-    if (navK > 0) { c.save(); c.globalAlpha = navK; c.translate(0, (1 - navK) * -30); K.topNav(c, 0, 0, 1920, 56); K.chainBar(c, 0, 56, 1920, 44, 1); c.restore(); }
-    windowFrame(c, WIN.chart, t, (c2, tt) => {
-      const n = 8 + 82 * A(tt, 4.4, 3.6, io3), live = (tt * 0.8) % 1;
-      const cross = tt > 12.6 && tt < 16.2 ? crossAt(tt) : null;
-      const r = K.candleChart(c2, WIN.chart.x + 8, WIN.chart.y + 94, WIN.chart.w - 16, WIN.chart.h - 104, SOL, { count: n, live, cross, fmt: (v) => v.toFixed(2) });
-      text(c2, 'SOL/USDC · 15 · birdeye.so', WIN.chart.x + 18, WIN.chart.y + 66, F(600, 15), C.ink);
-      const last = SOL[Math.min(SOL.length, Math.floor(n)) - 1];
-      text(c2, `O${last.o.toFixed(2)}  H${last.h.toFixed(2)}  L${last.l.toFixed(2)}  C${r.lp.toFixed(2)}`, WIN.chart.x + 250, WIN.chart.y + 66, M(500, 13), C.green);
-      if (cross) { const [x, y] = cross; rr(c2, x - 70, WIN.chart.y + WIN.chart.h - 34, 140, 24, 4); c2.fillStyle = '#2A2A2A'; c2.fill(); text(c2, '17:30  21 Oct', x, WIN.chart.y + WIN.chart.h - 22, M(600, 12), C.ink, 'center'); }
-    }, t > 12.6 && t < 16.2);
-    windowFrame(c, WIN.watch, t, (c2, tt) => K.watchlist(c2, WIN.watch.x, WIN.watch.y + 48, WIN.watch.w, WIN.watch.h - 52, tt), t > 27.6 && t < 30.4);
-    windowFrame(c, WIN.pos, t, (c2, tt) => K.positions(c2, WIN.pos.x, WIN.pos.y + 50, WIN.pos.w, WIN.pos.h - 54, tt), t > 24.2 && t < 27.4);
-    windowFrame(c, WIN.opt, t, (c2, tt) => {
-      const hl = tt > 16.6 ? 2 + ((tt - 16.6) * 2.2) % 7 : null;
-      K.optionChain(c2, WIN.opt.x, WIN.opt.y + 48, WIN.opt.w, WIN.opt.h - 50, tt, { spot: 182.4 + Math.sin(tt * 0.7) * 0.6, hl: tt > 19.6 && tt < 23.4 ? 5 : hl });
-    }, t > 16.6 && t < 23.6);
-    // watchlist highlight on PLAGUE +395%
-    if (t > 28.0 && t < 30.6) { const k = A(t, 28.2, 0.4); const ry = WIN.watch.y + 48 + 40 + 3 * ((WIN.watch.h - 92) / 8); c.save(); c.globalAlpha = k * (1 - A(t, 30.2, 0.3)); c.strokeStyle = C.orange; c.lineWidth = 2; c.strokeRect(WIN.watch.x + 6, ry + 2, WIN.watch.w - 12, (WIN.watch.h - 92) / 8 - 4); c.restore(); }
+    if (navK > 0) { c.save(); c.globalAlpha = navK; c.translate(0, (1 - navK) * -30); K.topNav(c, 0, 0, 1920, 56); K.chainBar(c, 0, 56, 1920, 48, 0); c.restore(); }
+    windowFrame(c, WIN.trend, t, (c2, tt) => trendTbl(c2, WIN.trend, tt), t > 12.6 && t < 16.2);
+    windowFrame(c, WIN.traders, t, (c2, tt) => tradersTbl(c2, WIN.traders, tt), t > 16.6 && t < 19.8);
+    windowFrame(c, WIN.bub, t, (c2, tt) => bubblePanel(c2, WIN.bub, tt), t > 19.8 && t < 23.6);
+    windowFrame(c, WIN.gems, t, (c2, tt) => gemsTbl(c2, WIN.gems, tt), t > 24.2 && t < 27.2);
+    windowFrame(c, WIN.large, t, (c2, tt) => largeTbl(c2, WIN.large, tt), t > 27.4 && t < 30.6);
+    // focus highlights
+    const hl = (x, y, w, h, t0, t1) => { const k = A(t, t0, 0.35) * (1 - A(t, t1, 0.3)); if (k <= 0) return; c.save(); c.globalAlpha = k; c.strokeStyle = C.orange; c.lineWidth = 2; c.shadowColor = C.orange; c.shadowBlur = 14; c.strokeRect(x, y, w, h); c.restore(); };
+    const rhT = (WIN.trend.h - 96) / 8;
+    hl(WIN.trend.x + 4, rowYT(5) - rhT / 2 + 2, WIN.trend.w - 8, rhT - 4, 14.0, 16.0);
+    hl(WIN.traders.x + 4, WIN.traders.y + 86 + 2, WIN.traders.w - 8, rhT - 4, 17.8, 19.6);
+    const rhL = (WIN.large.h - 92) / 3.6;
+    hl(WIN.large.x + 4, WIN.large.y + 86 + 2, WIN.large.w - 8, rhL - 4, 28.6, 30.4);
   }
 
-  // ---------- the phone (landscape): chart | option chain ----------
+  // ---------- the phone (landscape): bubble map | trending tokens ----------
   function phone(c, t) {
     const { x, y, w, h } = PHONE;
     c.save();
     c.shadowColor = 'rgba(255,122,26,0.25)'; c.shadowBlur = 120;
     rr(c, x - 40, y - 40, w + 80, h + 80, 150); const g = c.createLinearGradient(x, y - 40, x, y + h + 40); g.addColorStop(0, '#3A3A3E'); g.addColorStop(0.5, '#1A1A1C'); g.addColorStop(1, '#2C2C30'); c.fillStyle = g; c.fill();
-    c.shadowBlur = 0;
-    rr(c, x - 28, y - 28, w + 56, h + 56, 140); c.fillStyle = '#050505'; c.fill();
+    c.shadowBlur = 0; rr(c, x - 28, y - 28, w + 56, h + 56, 140); c.fillStyle = '#050505'; c.fill();
     rr(c, x, y, w, h, 110); c.save(); c.clip();
     c.fillStyle = C.bg; c.fillRect(x, y, w, h);
-    // status + mini nav
-    c.fillStyle = '#0B0B0B'; c.fillRect(x, y, w, 110);
-    K.wordmark(c, x + 150, y + 56, 54);
-    text(c, '9:41', x + w - 160, y + 56, F(700, 38), C.ink, 'right');
-    // left half: chart
-    const lx = x + 40, cw = w / 2 - 60;
-    text(c, 'SOL/USDC · 15m', lx + 10, y + 160, F(700, 40), C.ink);
-    text(c, '+3.42%', lx + 360, y + 160, M(700, 36), C.green);
-    K.candleChart(c, lx, y + 200, cw, h - 240, SOLm, { count: 60, live: (t * 0.8) % 1, fmt: (v) => v.toFixed(1) });
-    // divider
+    c.fillStyle = '#0B0B0B'; c.fillRect(x, y, w, 110); K.wordmark(c, x + 150, y + 56, 54); text(c, '9:41', x + w - 160, y + 56, F(700, 38), C.ink, 'right');
+    // left: bubble map (re-laid into the phone)
+    c.save(); c.translate(x + 120, y + 120); c.scale(1.45, 1.45);
+    bubblePanel(c, { x: 0, y: 0, w: (w / 2 - 140) / 1.45, h: (h - 140) / 1.45, t: 36.0 }, t); c.restore();
     c.fillStyle = C.line; c.fillRect(x + w / 2, y + 130, 3, h - 160);
-    // right half: option chain (scaled up for the phone)
-    c.save(); c.translate(x + w / 2 + 30, y + 130); c.scale(1.18, 1.18);
-    K.optionChain(c, 0, 0, (w / 2 - 70) / 1.18, (h - 150) / 1.18, t, { spot: 182.4 + Math.sin(t * 0.7) * 0.6, strikes: [170, 175, 180, 185, 190, 195], hl: 3 });
+    // right: trending tokens
+    c.save(); c.translate(x + w / 2 + 30, y + 120); c.scale(1.75, 1.75);
+    const tw = { x: 0, y: -46, w: (w / 2 - 100) / 1.75, h: (h - 100) / 1.75 + 46, t: 36.0 };
+    text(c, 'TRENDING TOKENS', 14, 4, F(800, 15), C.ink); trendTbl(c, tw, t);
     c.restore();
-    // glass reflection
     const rg = c.createLinearGradient(x, y, x + w, y + h); rg.addColorStop(0, 'rgba(255,255,255,0.06)'); rg.addColorStop(0.4, 'rgba(255,255,255,0)'); rg.addColorStop(1, 'rgba(255,255,255,0.03)'); c.fillStyle = rg; c.fillRect(x, y, w, h);
     c.restore();
-    // camera punch-hole + side buttons
     c.fillStyle = '#000'; c.beginPath(); c.arc(x + 70, y + h / 2, 18, 0, TAU); c.fill();
     c.fillStyle = '#2A2A2E'; c.fillRect(x + w * 0.3, y - 48, 220, 10); c.fillRect(x + w * 0.42, y - 48, 120, 10);
     c.restore();
   }
 
-  // ---------- final: the $NOSELLING screen (YOU BETTER NOT SELL! banner with the coin) ----------
+  // ---------- final: Birdeye logo end card ----------
   function noselling(c, t) {
-    const k = A(t, 43.3, 0.7, io3); if (k <= 0) return;
-    const ck = A(t, 43.5, 1.2, crit);
-    K.betterNotSell(c, W, H * 0.86, t, k, { spin: (1 - ck) * Math.PI * 4, coinDy: (1 - ck) * -500 });
-    c.save(); c.globalAlpha = k * A(t, 44.6, 0.5);
-    c.fillStyle = '#030303'; c.fillRect(0, H * 0.86, W, H * 0.14);
-    c.font = M(700, 34); const p1 = '$NOSELLING  ', p2 = '$0.0', p3 = '5', p4 = '25430'; const w1 = c.measureText(p1).width, w2 = c.measureText(p2).width, w4 = c.measureText(p4).width; c.font = M(700, 20); const w3 = c.measureText(p3).width;
-    let px = W / 2 - (w1 + w2 + w3 + w4) / 2 - 140; const py = H * 0.93;
-    text(c, p1, px, py, F(900, 34), '#FFFFFF'); px += w1; text(c, p2, px, py, M(700, 34), C.green); px += w2; text(c, p3, px, py + 10, M(700, 20), C.green); px += w3; text(c, p4, px, py, M(700, 34), C.green);
-    K.wordmark(c, W / 2 + 200, py, 40);
+    const k = A(t, 43.3, 0.8, io3); if (k <= 0) return;
+    c.save(); c.globalAlpha = k;
+    c.fillStyle = 'rgba(5,5,5,0.88)'; c.fillRect(0, 0, W, H);
+    c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, 800); g.addColorStop(0, rgba(C.orange, 0.22)); g.addColorStop(1, rgba(C.orange, 0)); c.fillStyle = g; c.fillRect(0, 0, W, H); c.globalCompositeOperation = 'source-over';
+    const lk = A(t, 43.5, 0.9, crit);
+    c.translate(W / 2, H / 2 - 20); c.scale(lerp(1.4, 1, lk), lerp(1.4, 1, lk)); c.globalAlpha = k * clamp(lk * 2);
+    K.wordmark(c, -285, 0, 130);
+    c.globalAlpha = k * A(t, 44.3, 0.6);
+    text(c, 'birdeye.so', 0, 140, F(600, 40), C.mute, 'center');
     c.restore();
   }
 

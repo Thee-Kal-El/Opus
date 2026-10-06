@@ -148,7 +148,7 @@ open paper/index.html   # live preview
 
 # Birdeye films
 
-- `out/birdeye_terminal_46s_1080p60.mp4` (46s): a single dot on black becomes the terminal (Chart, Watchlist, Positions, Option Chain). The camera zooms in and out at many scales, pulls back until the desktop is a point in space, then flies to a landscape phone (chart | option chain). It ends on the "YOU BETTER NOT SELL!" $NOSELLING screen.
+- `out/birdeye_terminal_46s_1080p60.mp4` (46s): a single dot on black becomes the Birdeye terminal (Trending Tokens, Profitable Traders, Bubble Map, Find Gems, Large Trades). The camera zooms in and out at many scales, pulls back until the desktop is a point in space, then flies to a landscape phone (bubble map | trending tokens). It ends on the Birdeye logo.
 - `out/birdeye_promo_1080p60.mp4` (30s, 128 BPM): a flashy cut through the real dashboard and token page screenshots plus a vector bubble map, a Buy-frenzy beat, then the $NOSELLING finale with a BUY NOW call to action.
 
 Source is in `bird/`: `kit.js` (Birdeye UI kit, NOSELLING coin, banner), `terminal.js`, `promo.js`, `synth_terminal.mjs`, `synth_promo.mjs` and `render.mjs`. The screenshots live in `assets/bird/`.
