@@ -209,3 +209,12 @@ each with a live mini-UI and the real video that covers it → wall of real vide
 ```
 node kal/synth.mjs && node kal/render.mjs   # -> out/thee_kal_el_promo_20s_1080p60.mp4
 ```
+
+## Thee_Kal_El — "All out" 15s (`kal/badass.js`)
+15s 1920×1080 @ 60fps cyberpunk piece with a hard-hitting synthesized trap score (120 BPM, E phrygian): boot glitch →
+YouTube play button slam → 3D dive through a tunnel walled with his real videos & Shorts (word slams on every beat) →
+3D blockchain of video blocks → pixel avatar assembles from particles, explodes, reforms as @THEE_KAL_EL → stutter
+montage → chrome logo lockup with Subscribe.
+```
+node kal/synth_allout.mjs && node kal/render.mjs badass   # -> out/thee_kal_el_allout_15s_1080p60.mp4
+```
