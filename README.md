@@ -242,3 +242,5 @@ node tp/synth.mjs && node tp/render.mjs   # -> out/teleparty_24s_1080p60.mp4 (in
 ```
 - **Vertical 9:16** (`tp/tp_vertical.html`, same `tp.js` with `window.VERTICAL = true`): stacked friend screens, browser over chat,
   copy over the customize panels, two-row services, tall icon ring. `node tp/render.mjs vertical` → `out/teleparty_9x16_24s_60fps.mp4`
+- **Vertical 9:16** (`fin/fin_vertical.html`, same `fin.js` with `window.VERTICAL = true`): portrait framing of the same camera
+  path. `node fin/render.mjs vertical` → `out/finality_issue01_9x16_20s_60fps.mp4`

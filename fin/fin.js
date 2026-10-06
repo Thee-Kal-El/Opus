@@ -6,7 +6,8 @@
 (() => {
   'use strict';
   const K = window.KIT, { TAU, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, rr, hash } = K;
-  const W = 1920, H = 1080, FPS = 60, DUR = 20, BT = 0.5, PW = 1545, PH = 2000;
+  const V = !!window.VERTICAL; // 9:16 build: fin/fin_vertical.html
+  const W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 20, BT = 0.5, PW = 1545, PH = 2000;
   const SLOW = 15 / 20; // the cut was designed at 15s; it now plays 4/3 slower (20s, music at 90 BPM)
   let REAL = 0;
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
@@ -98,10 +99,10 @@
       if (t < 7.5) lightning(c, t, [30, 230, 1515, 700]);
       if (t > 7.6 && t < 8.55) BLOCKS.forEach(([u, v], i) => { const tt = 7.65 + i * 0.11, k = pulse(t, tt, 5); if (t < tt) return; const p = P(...pagePt(ORIGIN, u, v)); if (!p) return; const r = (i === 5 ? 160 : 90) * CAM.f / p[2] * (1 + (1 - k) * 0.2);
         c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(p[0], p[1], 0, p[0], p[1], r); g.addColorStop(0, rgba(G, 0.75 * (0.3 + 0.7 * k))); g.addColorStop(1, rgba(G, 0)); c.fillStyle = g; c.fillRect(p[0] - r, p[1] - r, r * 2, r * 2); c.restore(); });
-      if (t > 8.25 && t < 8.55) { const k = crit(prog(t, 8.25, 8.4)); c.save(); c.globalAlpha = 1 - prog(t, 8.45, 8.55); stamp(c, W / 2 + 420, H / 2 - 220, 'FINAL', k, 0.9); c.restore(); }
+      if (t > 8.25 && t < 8.55) { const k = crit(prog(t, 8.25, 8.4)); c.save(); c.globalAlpha = 1 - prog(t, 8.45, 8.55); stamp(c, W / 2 + (V ? 160 : 420), H / 2 - 220, 'FINAL', k, 0.9); c.restore(); }
     }
     if (key === 'p03') { R.cards.forEach((r, i) => { const t0 = 9.85 + i * 0.2; if (t >= t0 && t < t0 + 0.32) glowRect(c, r, 1 - prog(t, t0 + 0.18, t0 + 0.32)); }); if (t > 11.15) glowRect(c, [76, 1400, 472, 1595], 0.9); }
-    if (key === 'p04' && t > 11.85 && t < 12.4) { const n = Math.floor(lerp(0, 10e9, ease(t, 11.85, 12.25, io5))); c.save(); c.globalAlpha = 1 - ease(t, 12.3, 12.4); txt(c, n.toLocaleString('en-US'), W - 110, H - 120, M(800, 58), G, 'right', 'middle', 2); txt(c, 'ARC MINTED · GENESIS', W - 110, H - 64, M(700, 22), '#fff', 'right', 'middle', 5); c.restore(); }
+    if (key === 'p04' && t > 11.85 && t < 12.4) { const n = Math.floor(lerp(0, 10e9, ease(t, 11.85, 12.25, io5))); c.save(); c.globalAlpha = 1 - ease(t, 12.3, 12.4); if (V) { c.fillStyle = 'rgba(2,4,3,0.85)'; rr(c, W - 620, 140, 560, 150, 12); c.fill(); c.strokeStyle = G; c.lineWidth = 2; c.stroke(); } txt(c, n.toLocaleString('en-US'), W - 110, V ? 200 : H - 120, M(800, 58), G, 'right', 'middle', 2); txt(c, 'ARC MINTED · GENESIS', W - 110, V ? 256 : H - 64, M(700, 22), '#fff', 'right', 'middle', 5); c.restore(); }
   }
   function lightning(c, t, reg) {
     const seed = Math.floor(t * 12); c.save(); c.globalCompositeOperation = 'lighter';
@@ -116,9 +117,9 @@
   const BOOT = [[0.05, '> connecting to arc mainnet'], [0.25, '> validators: 11 + circle'], [0.42, '> consensus: malachite bft'], [0.6, '> block #0000001 ........ committed'], [0.78, '> status: FINAL']];
   function boot(c, t) {
     if (t >= 1.0) return; c.fillStyle = BG; c.fillRect(0, 0, W, H); gridFloor(c, t, 0.4);
-    BOOT.forEach(([t0, s], i) => { if (t < t0) return; const n = Math.floor(clamp((t - t0) / 0.14) * s.length); txt(c, s.slice(0, n), 260, 380 + i * 64, M(700, 40), i === 4 ? G : '#CFEFD9', 'left', 'middle', 1); });
-    if (Math.floor(t * 6) % 2) { c.fillStyle = G; c.fillRect(260, 380 + Math.min(4, BOOT.filter(([t0]) => t >= t0).length - 1) * 64 + 28, 24, 6); }
-    txt(c, 'FINALITY // ISSUE 01', 260, 260, M(800, 26), G, 'left', 'middle', 8);
+    BOOT.forEach(([t0, s], i) => { if (t < t0) return; const n = Math.floor(clamp((t - t0) / 0.14) * s.length); txt(c, s.slice(0, n), V ? 70 : 260, (V ? 760 : 380) + i * 64, M(700, V ? 32 : 40), i === 4 ? G : '#CFEFD9', 'left', 'middle', 1); });
+    if (Math.floor(t * 6) % 2) { c.fillStyle = G; c.fillRect(V ? 70 : 260, (V ? 760 : 380) + Math.min(4, BOOT.filter(([t0]) => t >= t0).length - 1) * 64 + 28, 24, 6); }
+    txt(c, 'FINALITY // ISSUE 01', V ? 70 : 260, V ? 640 : 260, M(800, 26), G, 'left', 'middle', 8);
   }
   // ---------- S1 title slam (1.0–1.62) → match-cut into the cover ----------
   function titleSlam(c, t) {
@@ -137,16 +138,16 @@
     if (t < 5.3 || t >= 6.5) return;
     if (t < 5.95) { const k = crit(prog(t, 5.3, 5.5)); c.save(); c.fillStyle = 'rgba(2,4,3,0.55)'; c.fillRect(0, H / 2 - 150, W, 300); c.restore(); cond(c, '"PROBABLY."', W / 2, H / 2 + 90, 260 * lerp(1.3, 1, k), '#fff', 0.62);
       const sk = ease(t, 5.6, 5.8, io5); if (sk > 0) { c.save(); c.strokeStyle = G; c.lineWidth = 22; c.lineCap = 'round'; c.beginPath(); c.moveTo(W / 2 - 520, H / 2); c.lineTo(W / 2 - 520 + 1040 * sk, H / 2 - 20 * sk); c.stroke(); c.restore(); } }
-    else { const k = crit(prog(t, 6.0, 6.15)); c.save(); c.fillStyle = 'rgba(2,4,3,0.75)'; c.fillRect(0, 0, W, H); c.restore(); cond(c, 'FINAL.', W / 2, H / 2 + 170, 480 * lerp(1.6, 1, k), G, 0.62); txt(c, 'NO REORG · NO ROLLBACK · NO SECOND CONFIRMATION', W / 2, H / 2 + 250, M(700, 30), '#fff', 'center', 'middle', 6); }
+    else { const k = crit(prog(t, 6.0, 6.15)); c.save(); c.fillStyle = 'rgba(2,4,3,0.75)'; c.fillRect(0, 0, W, H); c.restore(); cond(c, 'FINAL.', W / 2, H / 2 + (V ? 120 : 170), (V ? 330 : 480) * lerp(1.6, 1, k), G, 0.62); if (V) { txt(c, 'NO REORG · NO ROLLBACK', W / 2, H / 2 + 260, M(700, 34), '#fff', 'center', 'middle', 4); txt(c, 'NO SECOND CONFIRMATION', W / 2, H / 2 + 310, M(700, 34), '#fff', 'center', 'middle', 4); } else txt(c, 'NO REORG · NO ROLLBACK · NO SECOND CONFIRMATION', W / 2, H / 2 + 250, M(700, 30), '#fff', 'center', 'middle', 6); }
   }
   // ---------- S7 finale: pages fan out in 3D and stack into the cover (13–15) ----------
   function finale(c, t) {
     if (t < 13.0) return; c.fillStyle = BG; c.fillRect(0, 0, W, H); gridFloor(c, t, 0.5);
     const fan = ease(t, 13.0, 13.7, io5), stack = ease(t, 14.0, 14.45, io5);
-    setCam({ x: lerp(0, 0, fan), y: lerp(0, 120, fan), z: lerp(-3000, -3900, fan) + stack * 1500, yaw: Math.sin(t * 0.8) * 0.05 * (1 - stack), pitch: -0.02 * fan, roll: 0, f: 1100 });
-    const poses = PAGES.map((k, i) => { const off = i - 2, a = off * 0.42 * fan * (1 - stack); return { k, pose: { x: Math.sin(a) * 2900 * (1 - stack), y: -Math.abs(off) * 60 * fan * (1 - stack), z: (1 - Math.cos(a)) * 2600 * (1 - stack) + i * 6 * stack + (i === 0 ? -20 * stack : 0), yaw: -a * 0.9, pitch: 0, roll: off * 0.03 * fan * (1 - stack) } }; });
+    setCam({ x: lerp(0, 0, fan), y: lerp(0, 120, fan), z: lerp(-3000, -3900, fan) + stack * (V ? 1850 : 1500), yaw: Math.sin(t * 0.8) * 0.05 * (1 - stack), pitch: -0.02 * fan, roll: 0, f: 1100 });
+    const poses = PAGES.map((k, i) => { const off = i - 2, a = off * 0.42 * fan * (1 - stack); return { k, pose: { x: Math.sin(a) * (V ? 1150 : 2900) * (1 - stack), y: -Math.abs(off) * 60 * fan * (1 - stack), z: (1 - Math.cos(a)) * 2600 * (1 - stack) + i * 6 * stack + (i === 0 ? -20 * stack : 0), yaw: -a * 0.9, pitch: 0, roll: off * 0.03 * fan * (1 - stack) } }; });
     poses.sort((a, b) => b.pose.z - a.pose.z).forEach(({ k, pose }) => { drawPage(c, k, pose, 6, 8); pageEdge(c, pose, G, 0.6); });
-    const tk = A(t, 13.4, 0.4); if (tk > 0) { c.save(); c.globalAlpha = tk * (1 - ease(t, 13.95, 14.1)); c.fillStyle = 'rgba(2,4,3,0.7)'; c.fillRect(0, H - 220, W, 220); txt(c, "ONCE IT'S WRITTEN, IT'S FINAL.", W / 2, H - 130, M(800, 54), '#fff', 'center', 'middle', 4); txt(c, 'FINALITY  ·  THE MAGAZINE OF ARC  ·  ISSUE 01', W / 2, H - 66, M(700, 26), G, 'center', 'middle', 6); c.restore(); }
+    const tk = A(t, 13.4, 0.4); if (tk > 0) { c.save(); c.globalAlpha = tk * (1 - ease(t, 13.95, 14.1)); c.fillStyle = 'rgba(2,4,3,0.7)'; c.fillRect(0, H - 220, W, 220); txt(c, "ONCE IT'S WRITTEN, IT'S FINAL.", W / 2, H - 130, M(800, V ? 38 : 54), '#fff', 'center', 'middle', 4); txt(c, 'FINALITY  ·  THE MAGAZINE OF ARC  ·  ISSUE 01', W / 2, H - 66, M(700, 26), G, 'center', 'middle', 6); c.restore(); }
     if (t >= 14.45) { const k = crit(prog(t, 14.45, 14.6)); c.save(); c.fillStyle = 'rgba(2,4,3,0.55)'; c.fillRect(0, 0, W, H); c.restore(); stamp(c, W / 2, H / 2, 'STATUS: FINAL', k); txt(c, 'ISSUE 01  ·  WEEK OF SEPT 16–23, 2026', W / 2, H / 2 + 160, M(700, 28), '#fff', 'center', 'middle', 6); }
   }
 
