@@ -95,7 +95,7 @@
     if (!part2) {
       const k1 = crit(prog(t, 9.0, 9.2)), k2 = crit(prog(t, 9.15, 9.35)), hy = V ? 330 : 150;
       c.save(); c.font = G(500, V ? 96 : 110); c.letterSpacing = '-3px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#fff'; c.globalAlpha = k1; c.fillText(V ? 'Desktop app' : 'Desktop app built', W / 2, hy); c.globalAlpha = k2; c.fillText(V ? 'built for game dev' : 'for game dev with AI', W / 2, hy + (V ? 110 : 120)); if (V) { c.globalAlpha = crit(prog(t, 9.3, 9.5)); c.fillText('with AI', W / 2, hy + 220); } c.restore();
-      const ak = io5(prog(t, 9.3, 9.9)), aw = V ? 1040 : 1500, ah = aw * 337 / 1046, ax = W / 2 - aw / 2, ay = (V ? 760 : 380) + (1 - ak) * 300;
+      const ak = io5(prog(t, 9.3, 9.9)), aw = V ? 1040 : 1500, ah = V ? aw * 0.82 : aw * 337 / 1046, ax = W / 2 - aw / 2, ay = (V ? 760 : 380) + (1 - ak) * 300;
       c.save(); c.globalAlpha = ak; c.translate(W / 2, ay + ah / 2); const zk = ease(t, 10.1, 10.95, io3); c.scale(1 + zk * 0.55, 1 + zk * 0.55); c.translate(-W / 2 + zk * aw * 0.12, -(ay + ah / 2) - zk * ah * 0.02);
       c.shadowColor = rgba(BLUE, 0.6); c.shadowBlur = 90; rr(c, ax, ay, aw, ah, 24); c.fillStyle = '#000'; c.fill(); c.shadowBlur = 0; cover(c, 'app', ax, ay, aw, ah, 24); c.restore();
       [[9.9, 'Workers build in parallel'], [10.3, 'Reviewers play every part'], [10.65, 'Changes are live · 7 min']].forEach(([t0, s], i) => { const k = pop(prog(t, t0, t0 + 0.35)); if (k <= 0 || t > 10.98) return; c.save(); c.translate(V ? W / 2 : 330 + i * 630, V ? 1460 + i * 100 : 990); c.scale(k, k); c.font = M(600, 28); const w = c.measureText(s).width + 70; rr(c, -w / 2, -34, w, 68, 34); c.fillStyle = 'rgba(20,22,32,0.92)'; c.fill(); c.strokeStyle = rgba(BLUE2, 0.6); c.lineWidth = 2; c.stroke(); c.fillStyle = GREEN; c.beginPath(); c.arc(-w / 2 + 30, 0, 7, 0, TAU); c.fill(); txt(c, s, -w / 2 + 48, 1, M(600, 28), INK); c.restore(); });
@@ -120,9 +120,9 @@
     wordmark(c, W / 2, cy, V ? 150 : 200, k);
     const sk = A(t, 12.75, 0.35); c.save(); c.globalAlpha = sk; c.font = G(500, V ? 46 : 50); c.letterSpacing = '-1px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = INK; c.fillText('Everything you need to ship a game', W / 2, cy + (V ? 150 : 150)); c.restore();
     const bk1 = pop(prog(t, 13.05, 13.45)), bk2 = pop(prog(t, 13.15, 13.55)), by = cy + (V ? 300 : 300), pr = t > 13.85 && t < 14.0 ? 1 : 0;
-    if (bk1 > 0) { c.save(); c.translate(V ? W / 2 : W / 2 - 230, by); c.scale(bk1 * (1 - pr * 0.06), bk1 * (1 - pr * 0.06)); c.shadowColor = rgba(BLUE, 0.6); c.shadowBlur = 40; btn(c, 0, 0, ' Download for macOS', true); c.restore(); }
-    if (bk2 > 0) { c.save(); c.translate(V ? W / 2 : W / 2 + 250, V ? by + 110 : by); c.scale(bk2, bk2); btn(c, 0, 0, '🐧 Download for Linux', false); c.restore(); }
-    if (bk2 > 0) { c.save(); c.globalAlpha = bk2; const yA = by + (V ? 200 : 100), yB = by + (V ? 280 : 182);
+    if (bk1 > 0) { c.save(); c.translate(V ? W / 2 : W / 2 - 230, by); c.scale(bk1 * (1 - pr * 0.06) * (V ? 1.3 : 1), bk1 * (1 - pr * 0.06) * (V ? 1.3 : 1)); c.shadowColor = rgba(BLUE, 0.6); c.shadowBlur = 40; btn(c, 0, 0, ' Download for macOS', true); c.restore(); }
+    if (bk2 > 0) { c.save(); c.translate(V ? W / 2 : W / 2 + 250, V ? by + 130 : by); c.scale(bk2 * (V ? 1.3 : 1), bk2 * (V ? 1.3 : 1)); btn(c, 0, 0, '🐧 Download for Linux', false); c.restore(); }
+    if (bk2 > 0) { c.save(); c.globalAlpha = bk2; const yA = by + (V ? 260 : 100), yB = by + (V ? 370 : 182);
       // soft dark floor so the chips sit on calmer ground
       const fl = c.createLinearGradient(0, yA - 120, 0, H); fl.addColorStop(0, 'rgba(7,8,12,0)'); fl.addColorStop(0.45, 'rgba(7,8,12,0.55)'); fl.addColorStop(1, 'rgba(7,8,12,0.85)'); c.fillStyle = fl; c.fillRect(0, yA - 120, W, H - yA + 120);
       // "Coming soon to Windows" — frosted glass chip with the Windows mark

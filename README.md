@@ -253,3 +253,4 @@ open-source end card with Download for macOS / Linux.
 ```
 node gx/synth.mjs && node gx/render.mjs   # -> out/genex_20s_1080p60.mp4
 ```
+- **Vertical 9:16** (`gx/gx_vertical.html`, same `gx.js` with `window.VERTICAL = true`). `node gx/render.mjs vertical` → `out/genex_9x16_20s_60fps.mp4`
