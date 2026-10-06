@@ -1,5 +1,5 @@
 // Renders a Birdeye film frame-by-frame in headless Chromium and muxes its score.
-//   node bird/render.mjs terminal              -> out/birdeye_terminal_46s_1080p60.mp4
+//   node bird/render.mjs terminal              -> out/birdeye_terminal_26s_1080p60.mp4
 //   node bird/render.mjs promo                 -> out/birdeye_promo_1080p60.mp4
 //   node bird/render.mjs terminal --stills 1,5 -> out/bird_stills/terminal_t_<sec>.png
 import { spawn } from 'node:child_process';
@@ -25,7 +25,7 @@ if (stills) {
 }
 const { DUR, FPS } = await page.evaluate(() => ({ DUR: window.FILM.DUR, FPS: window.FILM.FPS }));
 const wav = resolve(out, `birdeye_${film}_score.wav`);
-const mp4 = resolve(out, film === 'terminal' ? 'birdeye_terminal_46s_1080p60.mp4' : 'birdeye_promo_1080p60.mp4');
+const mp4 = resolve(out, film === 'terminal' ? 'birdeye_terminal_26s_1080p60.mp4' : 'birdeye_promo_1080p60.mp4');
 const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-',
   ...(existsSync(wav) ? ['-i', wav, '-c:a', 'aac', '-b:a', '320k', '-ar', '48000'] : []),
   '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPS), '-movflags', '+faststart', '-t', String(DUR), mp4], { stdio: ['pipe', 'inherit', 'inherit'] });

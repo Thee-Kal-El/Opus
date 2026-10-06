@@ -1,12 +1,12 @@
-// Score for the BIRDEYE TERMINAL film — cinematic electronic, synthesized entirely in code (no samples).
-// 120 BPM, D minor (Dm – Bb – F – C), 46.000s. Follows the picture: the dot (0–3), windows assembling (3–11),
-// the zoom tour (11–31.5), the pull-out into space (31.5–36), the phone (36.5–42.4), $NOSELLING (43.3–46).
+// Score for the BIRDEYE TERMINAL film (26s) — strong sci-fi beats, synthesized entirely in code (no samples).
+// 120 BPM, C minor. Dot laser 0s, windows on beats 2.0–3.5, drop on 4.0, a laser/braam hit on every camera
+// whip (6, 8, 10, 12, 14, 16s), double-time 16–22s, logo slam on 22.0s.
 //   node bird/synth_terminal.mjs  ->  out/birdeye_terminal_score.wav
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SR = 48000, DUR = 46, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
+const SR = 48000, DUR = 26, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
 const L = new Float32Array(N), Rr = new Float32Array(N), revL = new Float32Array(N), revR = new Float32Array(N), dlyL = new Float32Array(N), dlyR = new Float32Array(N);
 let seed = 1207;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -17,8 +17,8 @@ const pan = (p) => [Math.cos((p + 1) * Math.PI / 4) * Math.SQRT2, Math.sin((p + 
 function put(i, l, r, rev = 0, dly = 0) { if (i < 0 || i >= N) return; L[i] += l; Rr[i] += r; if (rev) { revL[i] += l * rev; revR[i] += r * rev; } if (dly) { dlyL[i] += l * dly; dlyR[i] += r * dly; } }
 
 // ---- harmony ----
-const CH = { Dm: [38, [0, 3, 7, 10]], Bb: [34, [0, 4, 7, 11]], F: [41, [0, 4, 7, 9]], C: [36, [0, 4, 7, 10]] };
-const BARS = ['Dm', 'Bb', 'F', 'C'];
+const CH = { Cm: [36, [0, 3, 7, 10]], Ab: [32, [0, 4, 7, 11]], Eb: [39, [0, 4, 7, 11]], Bb: [34, [0, 4, 7, 9]] };
+const BARS = ['Cm', 'Ab', 'Eb', 'Bb'];
 const chordAt = (t) => CH[BARS[Math.floor(t / 2) % 4]];
 const KICKS = [];
 const duck = (t) => { let g = 1; for (const k of KICKS) { const d = t - k; if (d >= 0 && d < 0.35) g = Math.min(g, 1 - 0.55 * Math.exp(-d * 11)); } return g; };
@@ -94,40 +94,43 @@ function swell(tEnd, dur, g = 1) {
 }
 
 
-function snare(t0, g = 1) { let hp = 0, prev = 0; for (let n = 0; n < 0.26 * SR; n++) { const t = n / SR, x = noise(); hp = 0.82 * (hp + x - prev); prev = x; const v = (hp * 0.75 * Math.exp(-t * 14) + Math.sin(TAU * 195 * t) * 0.5 * Math.exp(-t * 30)) * g * 0.55; put(at(t0) + n, v, v, 0.3); } }
-function sub808(t0, dur, m, g = 1) { let ph = 0; const f0 = mtof(m); for (let n = 0; n < (dur + 0.05) * SR; n++) { const t = n / SR, f = f0 * (1 + 1.2 * Math.exp(-t * 40)); ph += TAU * f / SR; const env = Math.min(1, t / 0.003) * (t < dur ? Math.exp(-t * 2) : Math.exp(-dur * 2) * Math.exp(-(t - dur) * 50)); const v = Math.tanh(Math.sin(ph) * 2.4) * env * g * 0.45; put(at(t0) + n, v, v); } }
-function shimmer(t0, dur, notes, g = 1) { notes.forEach((m, i) => { const f = mtof(m), [a, b] = pan((i / Math.max(1, notes.length - 1)) * 1.6 - 0.8); for (let n = 0; n < dur * SR; n++) { const t = n / SR, env = Math.min(1, t / (dur * 0.4)) * Math.min(1, (dur - t) / (dur * 0.4)), v = Math.sin(TAU * f * t + Math.sin(TAU * 0.3 * t) * 2) * env * g * 0.03; put(at(t0) + n, v * a, v * b, 0.7, 0.3); } }); }
-function stab(t0, chord, g = 1, dur = 0.3) { const [root, iv] = chord; iv.forEach((i, k) => { const f = mtof(root + 24 + i); let ph = 0, lp = 0; const [a, b] = pan((k - 1.5) * 0.4); for (let n = 0; n < (dur + 0.2) * SR; n++) { const t = n / SR; ph = (ph + f * (1 + (k - 1.5) * 0.003) / SR) % 1; const x = 2 * ph - 1; lp += (0.06 + 0.3 * Math.exp(-t * 18)) * (x - lp); const env = t < dur ? Math.exp(-t * 3) : Math.exp(-dur * 3) * Math.exp(-(t - dur) * 20); const v = lp * env * g * 0.05 * duck(t0 + t); put(at(t0) + n, v * a, v * b, 0.3, 0.25); } }); }
+// ---------- sci-fi instruments ----------
+function bigKick(t0, g = 1) { KICKS.push(t0); let ph = 0; for (let n = 0; n < 0.45 * SR; n++) { const t = n / SR; ph += TAU * (42 + 210 * Math.exp(-t * 42)) / SR; const v = Math.tanh((Math.sin(ph) * Math.exp(-t * 6.5) + (n < 160 ? noise() * 0.8 * (1 - n / 160) : 0)) * 3) * 0.62 * g; put(at(t0) + n, v, v); } }
+function snap(t0, g = 1) { let b1 = 0, b2 = 0; for (let n = 0; n < 0.28 * SR; n++) { const t = n / SR, f = 2 * Math.sin(Math.PI * 1900 / SR); b1 += f * (noise() - b2 - 0.4 * b1); b2 += f * b1; const v = (Math.tanh(b1 * 2.2) * Math.exp(-t * 13) + Math.sin(TAU * 230 * t) * 0.4 * Math.exp(-t * 35)) * g * 0.5; put(at(t0) + n, v, v, 0.35); } }
+function reese(t0, dur, m, g = 1) { const f = mtof(m); let p1 = 0, p2 = 0, lp = 0, lp2 = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + f * 0.996 / SR) % 1; p2 = (p2 + f * 1.004 / SR) % 1; const x = (2 * p1 - 1) + (2 * p2 - 1); const cut = 0.025 + 0.02 * (0.5 + 0.5 * Math.sin(TAU * t * 2)); lp += cut * (x - lp); lp2 += cut * (lp - lp2); const env = Math.min(1, t / 0.005) * Math.min(1, (dur - t) / 0.02); const v = (Math.tanh(lp2 * 2) * 0.55 + Math.sin(TAU * f * t) * 0.5) * env * g * 0.42 * duck(t0 + t); put(at(t0) + n, v, v); } }
+function laser(t0, g = 1, p = 0, f0 = 2400, f1 = 200) { const [a, b] = pan(p); let ph = 0; for (let n = 0; n < 0.22 * SR; n++) { const t = n / SR, k = t / 0.22, f = f0 * Math.pow(f1 / f0, k); ph += TAU * f / SR; const v = Math.sign(Math.sin(ph)) * 0.5 * Math.exp(-t * 14) * g * 0.08; put(at(t0) + n, v * a, v * b, 0.3, 0.4); } }
+function arpSaw(t0, m, g = 1, p = 0) { const f = mtof(m), [a, b] = pan(p); let ph = 0, lp = 0; for (let n = 0; n < 0.14 * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; lp += (0.08 + 0.5 * Math.exp(-t * 30)) * ((2 * ph - 1) - lp); const v = lp * Math.exp(-t * 16) * g * 0.1 * duck(t0 + t); put(at(t0) + n, v * a, v * b, 0.3, 0.45); } }
+function braam(t0, dur, chord, g = 1) { const [root, iv] = chord; [root - 12, root, root + iv[1], root + iv[2]].forEach((m, k) => { const f = mtof(m); let ph = 0, lp = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; lp += (0.01 + 0.15 * Math.exp(-t * 3)) * ((2 * ph - 1) - lp); const v = Math.tanh(lp * 3) * Math.exp(-t * 1.5) * g * 0.07 * Math.min(1, (dur - t) / 0.3); put(at(t0) + n, v, v, 0.5); } }); }
+function zapRise(t0, dur, g = 1) { let ph = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, k = t / dur; ph += TAU * (120 + 2000 * k * k) / SR; const v = (Math.sin(ph) + 0.3 * Math.sign(Math.sin(ph * 2.01))) * k * k * g * 0.06; put(at(t0) + n, v, v, 0.4); } }
 
-// ---------- arrangement ----------
-
-// (BT = 0.5 from the header)
-// 0–3: the dot — a single sine heartbeat and a shimmering fifth
-for (const t0 of [0.3, 1.3, 2.3]) bell(t0, 74, 0.5, 0, 1.6);
-shimmer(0, 4.0, [62, 69, 74], 1.2);
-riser(2.0, 1.0, 0.6);
-// 3–11: windows assemble — soft impacts per window, pads + pulse enter
-softImpact(3.0, 0.6); [8.5, 9.5, 10.5].forEach((t, i) => { softImpact(t, 0.35); bell(t, 81 + i * 2, 0.35, (i - 1) * 0.4, 1.2); });
-for (let b = 1; b < 23; b++) pad(b * 2, 2.0, chordAt(b * 2), b < 6 ? 0.7 : b >= 16 && b < 18 ? 1.2 : 1, { atk: b === 1 ? 0.6 : 0.2 });
-for (let t = 4.0; t < 31.5; t += BT) { kick(t, t < 11 ? 0.55 : 1); if (t >= 11) { hat(t + BT / 2, 0.11, false, 0.25); if (Math.round(t / BT) % 2 === 1) clap(t, 0.4); } const [root] = chordAt(t); if (t >= 7) bassNote(t + BT / 2, BT * 0.42, root, t < 11 ? 0.7 : 1); }
-// 11–31.5: the zoom tour — arpeggios + stabs on each new focus
-const ARP = [0, 1, 2, 3, 2, 1, 2, 3];
-for (let s = 0; s < (31.5 - 11) / 0.25; s++) { const t = 11 + s * 0.25, [root, iv] = chordAt(t); pluck(t, root + 36 + iv[ARP[s % 8]], 0.8, s % 2 ? 0.35 : -0.35); }
-[12.0, 13.6, 17.6, 20.8, 25.0, 28.4, 31.4].forEach((t) => { stab(t, chordAt(t), 1); whoosh(t - 0.4, 0.45, 0.45, true); });
-riser(20.0, 0.8, 0.5); softImpact(20.8, 0.45); // the deep dive
-// 31.5–36: pull back into space — drums drop out, wide shimmer, low drone
-whoosh(31.6, 3.6, 0.7, false); shimmer(31.5, 5.5, [50, 57, 62, 69, 74, 81], 1.4);
-pad(31.5, 5.0, CH.Dm, 1.1, { atk: 1.0, rel: 1.2, cut: 0.02 });
-// 36.5–42.4: flying to the phone — rising build, then the beat returns on the phone reveal
-riser(36.5, 3.9, 0.9);
-for (let k = 0; k < 8; k++) clap(39.6 + k * 0.1, 0.1 + k * 0.05);
-softImpact(40.4, 0.9);
-for (let t = 40.4; t < 43.3; t += BT) { kick(t, 1); hat(t + BT / 2, 0.12, false, 0.25); if (Math.round(t / BT) % 2 === 1) clap(t, 0.45); bassNote(t + BT / 2, BT * 0.42, chordAt(t)[0], 1); }
-for (let s = 0; s < 11; s++) { const t = 40.4 + s * 0.25, [root, iv] = chordAt(t); pluck(t, root + 36 + iv[ARP[s % 8]], 0.9, s % 2 ? 0.35 : -0.35); }
-// 43.3–46: $NOSELLING — the coin drops, big low hit, a bell chord rings out
-whoosh(43.3, 0.5, 0.7, false); sub808(43.5, 2.2, 26, 1.1); softImpact(43.5, 1.0);
-[62, 65, 69, 74, 77].forEach((m, i) => bell(44.2 + i * 0.012, m, 0.6, (i - 2) * 0.3, 2.2));
-pad(43.3, 2.7, CH.Dm, 1.2, { atk: 0.05, rel: 1.6 });
+// ---------- arrangement (26s, 120 BPM; picture events on the beat) ----------
+// BT = 0.5 (from the header)
+// 0–0.9 the dot: a laser blip + sub swell
+laser(0.05, 1.2, 0, 3200, 800); swell(0.9, 0.85, 0.7); boomish(0.9);
+function boomish(t0) { softImpact(t0, 0.9); }
+// 0.9–4: windows pop in, a tight build
+[2.0, 2.5, 3.0, 3.5].forEach((t, i) => { laser(t, 1, (i - 1.5) * 0.5, 2600 - i * 300, 300); bigKick(t, 0.75); });
+for (let s = 0; s < 12; s++) { const t = 1.0 + s * 0.25, [root, iv] = chordAt(t); arpSaw(t, root + 36 + iv[s % 4], 0.6 + s * 0.03, s % 2 ? 0.4 : -0.4); }
+zapRise(2.5, 1.5, 1); for (let k = 0; k < 8; k++) snap(3.5 + k * 0.0625, 0.12 + k * 0.05);
+// 4.0: THE DROP — full sci-fi groove until the end card
+braam(4.0, 2.2, CH.Cm, 1.3); softImpact(4.0, 1.1);
+const SEQ = [0, 2, 1, 3, 2, 0, 3, 1];
+for (let t = 4.0; t < 22.0; t += BT) {
+  const b = Math.round(t / BT), [root] = chordAt(t);
+  bigKick(t, 1); if (b % 4 === 2) snap(t, 0.85);
+  hat(t + BT / 2, 0.12, b % 4 === 3, 0.25); hat(t + BT / 4, 0.05, false, -0.3); hat(t + BT * 0.75, 0.06, false, 0.3);
+  reese(t + BT / 2, BT * 0.45, root - 12, 1);
+}
+for (let s = 0; s < (22 - 4) / 0.125; s++) { const t = 4 + s * 0.125, [root, iv] = chordAt(t); if (s % 2 === 0 || t >= 16) arpSaw(t, root + 36 + iv[SEQ[(s >> (t >= 16 ? 0 : 1)) % 8]] + (s % 16 >= 12 ? 12 : 0), t >= 16 ? 0.9 : 0.75, s % 2 ? 0.45 : -0.45); }
+// section hits: a laser + braam on every whip arrival (6, 8, 10, 12, 14, 16)
+[6, 8, 10, 12, 14, 16].forEach((t, i) => { laser(t - 0.3, 0.9, i % 2 ? 0.6 : -0.6, 300, 2600); softImpact(t, 0.6); braam(t, 1.6, chordAt(t), 0.8); });
+// 16–22: EVERY CHAIN — double-time hats, rising energy into the logo
+for (let t = 16; t < 21.5; t += 0.125) hat(t, 0.07, false, Math.sin(t * 9) * 0.5);
+zapRise(20.5, 1.5, 1.2); for (let k = 0; k < 12; k++) snap(21.25 + k * 0.0625, 0.1 + k * 0.05);
+// 22.0: logo slam — big impact, braam, the groove resolves and rings out
+softImpact(22.0, 1.3); braam(22.0, 3.6, CH.Cm, 1.4); bigKick(22.0, 1.2); laser(22.0, 1, 0, 3000, 120);
+[60, 63, 67, 72, 75].forEach((m, i) => bell(22.05 + i * 0.012, m, 0.55, (i - 2) * 0.3, 3.2));
+pad(22.0, 4.0, CH.Cm, 1.1, { atk: 0.05, rel: 2.0 });
 
 // ---------- FX + master ----------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }
