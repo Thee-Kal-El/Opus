@@ -230,3 +230,13 @@ out in 3D and stacks into the cover → STATUS: FINAL.
 ```
 node fin/synth.mjs && node fin/render.mjs   # -> out/finality_issue01_20s_1080p60.mp4
 ```
+
+## Teleparty — 15s promo (`tp/`)
+15s 1920×1080 @ 60fps promo built from the teleparty.com screenshots, with a synthesized future-bass score (120 BPM, D major):
+four friends' screens out of sync → SNAP, synced → wordmark ("A new way to watch TV together") → the watch party (synced playback,
+group chat with the real profile icons, one pause pauses everyone, HD on desktop + mobile) → MAKE IT YOURS (the site's customize flow
+animated: nickname, icon grid, pick, "Only I have control", Start the party → icon blast) → WATCH / CHAT / IN HD / TOGETHER with the
+supported services → "Get Teleparty for free!" end card. The movie on screen is procedural (no third-party footage).
+```
+node tp/synth.mjs && node tp/render.mjs   # -> out/teleparty_15s_1080p60.mp4
+```
