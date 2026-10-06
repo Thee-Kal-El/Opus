@@ -109,7 +109,7 @@
     }
   }
   // real gameplay cutaways with callouts (coordinates are the screenshot's own pixels)
-  const CUTS = [[11.5, 13.0, 'shot_avenue', [[377, 537, 'FINALITY', COL.pink, 11.8], [1600, 535, 'Your Project Here', COL.purple, 12.1], [130, 520, 'Every building on the map', COL.cyan, 12.4]]],
+  const CUTS = [[11.5, 13.0, 'shot_avenue', [[377, 537, 'Your Project Here', COL.pink, 11.8], [1600, 535, 'FINALITY', COL.purple, 12.1], [130, 280, 'Every building on the map', COL.cyan, 12.4]]],
     [13.0, 14.5, 'shot_sale', [[795, 330, 'UP FOR SALE', COL.pink, 13.25], [125, 590, 'Plots for sale', COL.pink, 13.6]]],
     [22.0, 23.5, 'shot_hall', [[200, 600, 'Chat with everyone nearby', COL.yellow, 22.25], [855, 385, 'Town Hall', COL.cyan, 22.55], [1140, 705, 'Proximity voice', COL.cyan, 22.85]]]];
   function cutaway(c, t) {
