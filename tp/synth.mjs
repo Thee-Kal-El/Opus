@@ -8,13 +8,15 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const TS = 20 / 15; // time stretch: the 120 BPM arrangement plays at 90 BPM over 20s
-const SR = 48000, DUR = 20, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
+const SR = 48000, DUR = 24, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
 const L = new Float32Array(N), Rr = new Float32Array(N), revL = new Float32Array(N), revR = new Float32Array(N), dlyL = new Float32Array(N), dlyR = new Float32Array(N);
 let seed = 4242;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
 const noise = () => rnd() * 2 - 1;
 const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
-const at = (t) => Math.round(t * TS * SR);
+// the channel wall is inserted at design 12.5 for 3 design seconds: later events shift, insert events use NOSHIFT
+let NOSHIFT = false; const sh = (t) => t + (!NOSHIFT && t >= 12.5 - 1e-6 ? 3 : 0);
+const at = (t) => Math.round(sh(t) * TS * SR);
 const pan = (p) => [Math.cos((p + 1) * Math.PI / 4) * Math.SQRT2, Math.sin((p + 1) * Math.PI / 4) * Math.SQRT2];
 function put(i, l, r, rev = 0, dly = 0) { if (i < 0 || i >= N) return; L[i] += l; Rr[i] += r; if (rev) { revL[i] += l * rev; revR[i] += r * rev; } if (dly) { dlyL[i] += l * dly; dlyR[i] += r * dly; } }
 
@@ -27,7 +29,7 @@ const duck = (t) => { let g = 1; for (const k of KICKS) { const d = t - k; if (d
 
 // ---------- instruments ----------
 function kick(t0, g = 1) {
-  KICKS.push(t0); let ph = 0;
+  KICKS.push(sh(t0)); let ph = 0;
   for (let n = 0; n < 0.4 * SR; n++) { const t = n / SR; ph += TAU * (48 + 110 * Math.exp(-t * 30)) / SR; const v = Math.tanh(Math.sin(ph) * Math.exp(-t * 7.5) * 1.3) * 0.62 * g; put(at(t0) + n, v, v); }
 }
 function clap(t0, g = 1) {
@@ -44,7 +46,7 @@ function bassNote(t0, dur, m, g = 1, rel = 120) { dur *= TS;
     const t = n / SR; ph = (ph + f / SR) % 1; sp += TAU * f / SR;
     const env = Math.min(1, t / 0.006) * (t < dur ? 1 : Math.exp(-(t - dur) * rel));
     const cut = 0.02 + 0.08 * Math.exp(-t * 10); lp += cut * ((2 * ph - 1) - lp); lp2 += cut * (lp - lp2);
-    const v = (Math.tanh(lp2 * 2) * 0.35 + Math.sin(sp) * 0.7) * env * g * 0.36 * duck(t0 + t);
+    const v = (Math.tanh(lp2 * 2) * 0.35 + Math.sin(sp) * 0.7) * env * g * 0.36 * duck(sh(t0) + t * 0.75);
     put(at(t0) + n, v, v);
   }
 }
@@ -56,7 +58,7 @@ function pad(t0, dur, chord, g = 1, o = {}) { dur *= TS;
     notes.forEach((m, i) => { for (const [k, d] of [[0, -0.07], [1, 0.07]]) { const j = i * 2 + k; phs[j] = (phs[j] + mtof(m + d) / SR) % 1; const v = 2 * phs[j] - 1; if (k) sr += v; else sl += v; } });
     const cut = o.cut ?? 0.035; lpL += cut * (sl - lpL); lpR += cut * (sr - lpR);
     const env = Math.min(1, t / (o.atk ?? 0.25)) * Math.min(1, (dur - t) / (o.rel ?? 0.25));
-    const gg = env * g * 0.034 * duck(t0 + t);
+    const gg = env * g * 0.034 * duck(sh(t0) + t * 0.75);
     put(at(t0) + n, lpL * gg, lpR * gg, 0.5);
   }
 }
@@ -68,7 +70,7 @@ function bell(t0, m, g = 1, p = 0, len = 2.4) {
 // warm pluck (melody)
 function pluck(t0, m, g = 1, p = 0) {
   let ph = 0, lp = 0; const f = mtof(m), [a, b] = pan(p);
-  for (let n = 0; n < 0.35 * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; const x = Math.sin(TAU * ph) * 0.7 + (2 * ph - 1) * 0.3; lp += (0.06 + 0.4 * Math.exp(-t * 30)) * (x - lp); const v = lp * Math.exp(-t * 9) * g * 0.13 * duck(t0 + t); put(at(t0) + n, v * a, v * b, 0.25, 0.35); }
+  for (let n = 0; n < 0.35 * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; const x = Math.sin(TAU * ph) * 0.7 + (2 * ph - 1) * 0.3; lp += (0.06 + 0.4 * Math.exp(-t * 30)) * (x - lp); const v = lp * Math.exp(-t * 9) * g * 0.13 * duck(sh(t0) + t * 0.75); put(at(t0) + n, v * a, v * b, 0.25, 0.35); }
 }
 // ---- sound effects (kept well under the music) ----
 function whoosh(t0, dur, g = 1, up = true) { dur *= TS;
@@ -97,11 +99,11 @@ function swell(tEnd, dur, g = 1) { dur *= TS;
 
 
 // ---------- sci-fi instruments ----------
-function bigKick(t0, g = 1) { KICKS.push(t0); let ph = 0; for (let n = 0; n < 0.45 * SR; n++) { const t = n / SR; ph += TAU * (42 + 210 * Math.exp(-t * 42)) / SR; const v = Math.tanh((Math.sin(ph) * Math.exp(-t * 6.5) + (n < 160 ? noise() * 0.8 * (1 - n / 160) : 0)) * 3) * 0.62 * g; put(at(t0) + n, v, v); } }
+function bigKick(t0, g = 1) { KICKS.push(sh(t0)); let ph = 0; for (let n = 0; n < 0.45 * SR; n++) { const t = n / SR; ph += TAU * (42 + 210 * Math.exp(-t * 42)) / SR; const v = Math.tanh((Math.sin(ph) * Math.exp(-t * 6.5) + (n < 160 ? noise() * 0.8 * (1 - n / 160) : 0)) * 3) * 0.62 * g; put(at(t0) + n, v, v); } }
 function snap(t0, g = 1) { let b1 = 0, b2 = 0; for (let n = 0; n < 0.28 * SR; n++) { const t = n / SR, f = 2 * Math.sin(Math.PI * 1900 / SR); b1 += f * (noise() - b2 - 0.4 * b1); b2 += f * b1; const v = (Math.tanh(b1 * 2.2) * Math.exp(-t * 13) + Math.sin(TAU * 230 * t) * 0.4 * Math.exp(-t * 35)) * g * 0.5; put(at(t0) + n, v, v, 0.35); } }
-function reese(t0, dur, m, g = 1) { dur *= TS; const f = mtof(m); let p1 = 0, p2 = 0, lp = 0, lp2 = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + f * 0.996 / SR) % 1; p2 = (p2 + f * 1.004 / SR) % 1; const x = (2 * p1 - 1) + (2 * p2 - 1); const cut = 0.025 + 0.02 * (0.5 + 0.5 * Math.sin(TAU * t * 2)); lp += cut * (x - lp); lp2 += cut * (lp - lp2); const env = Math.min(1, t / 0.005) * Math.min(1, (dur - t) / 0.02); const v = (Math.tanh(lp2 * 2) * 0.55 + Math.sin(TAU * f * t) * 0.5) * env * g * 0.42 * duck(t0 + t); put(at(t0) + n, v, v); } }
+function reese(t0, dur, m, g = 1) { dur *= TS; const f = mtof(m); let p1 = 0, p2 = 0, lp = 0, lp2 = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + f * 0.996 / SR) % 1; p2 = (p2 + f * 1.004 / SR) % 1; const x = (2 * p1 - 1) + (2 * p2 - 1); const cut = 0.025 + 0.02 * (0.5 + 0.5 * Math.sin(TAU * t * 2)); lp += cut * (x - lp); lp2 += cut * (lp - lp2); const env = Math.min(1, t / 0.005) * Math.min(1, (dur - t) / 0.02); const v = (Math.tanh(lp2 * 2) * 0.55 + Math.sin(TAU * f * t) * 0.5) * env * g * 0.42 * duck(sh(t0) + t * 0.75); put(at(t0) + n, v, v); } }
 function laser(t0, g = 1, p = 0, f0 = 2400, f1 = 200) { const [a, b] = pan(p); let ph = 0; for (let n = 0; n < 0.22 * SR; n++) { const t = n / SR, k = t / 0.22, f = f0 * Math.pow(f1 / f0, k); ph += TAU * f / SR; const v = Math.sign(Math.sin(ph)) * 0.5 * Math.exp(-t * 14) * g * 0.08; put(at(t0) + n, v * a, v * b, 0.3, 0.4); } }
-function arpSaw(t0, m, g = 1, p = 0) { const f = mtof(m), [a, b] = pan(p); let ph = 0, lp = 0; for (let n = 0; n < 0.14 * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; lp += (0.08 + 0.5 * Math.exp(-t * 30)) * ((2 * ph - 1) - lp); const v = lp * Math.exp(-t * 16) * g * 0.1 * duck(t0 + t); put(at(t0) + n, v * a, v * b, 0.3, 0.45); } }
+function arpSaw(t0, m, g = 1, p = 0) { const f = mtof(m), [a, b] = pan(p); let ph = 0, lp = 0; for (let n = 0; n < 0.14 * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; lp += (0.08 + 0.5 * Math.exp(-t * 30)) * ((2 * ph - 1) - lp); const v = lp * Math.exp(-t * 16) * g * 0.1 * duck(sh(t0) + t * 0.75); put(at(t0) + n, v * a, v * b, 0.3, 0.45); } }
 function braam(t0, dur, chord, g = 1) { dur *= TS; const [root, iv] = chord; [root - 12, root, root + iv[1], root + iv[2]].forEach((m, k) => { const f = mtof(m); let ph = 0, lp = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; lp += (0.01 + 0.15 * Math.exp(-t * 3)) * ((2 * ph - 1) - lp); const v = Math.tanh(lp * 3) * Math.exp(-t * 1.5) * g * 0.07 * Math.min(1, (dur - t) / 0.3); put(at(t0) + n, v, v, 0.5); } }); }
 function zapRise(t0, dur, g = 1) { dur *= TS; let ph = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, k = t / dur; ph += TAU * (120 + 2000 * k * k) / SR; const v = (Math.sin(ph) + 0.3 * Math.sign(Math.sin(ph * 2.01))) * k * k * g * 0.06; put(at(t0) + n, v, v, 0.4); } }
 
@@ -114,7 +116,7 @@ function tick(t0, g = 1, f = 2000) { for (let n = 0; n < 0.03 * SR; n++) { const
 function saws(t0, dur, chord, g = 1, wob = 0) { dur *= TS; const [root, iv] = chord; const notes = [root + 12, root + 12 + iv[1], root + 12 + iv[2], root + 24, root + 24 + iv[1]]; const ph = notes.flatMap(() => [rnd(), rnd(), rnd()]); let lpL = 0, lpR = 0;
   for (let n = 0; n < dur * SR; n++) { const t = n / SR; let l = 0, r = 0; notes.forEach((m, i) => { [-0.12, 0, 0.12].forEach((d, k) => { const j = i * 3 + k; ph[j] = (ph[j] + mtof(m + d) / SR) % 1; const v = 2 * ph[j] - 1; if (k === 0) l += v; else if (k === 2) r += v; else { l += v * 0.5; r += v * 0.5; } }); });
     const cut = 0.06 + 0.05 * (wob ? 0.5 + 0.5 * Math.sin(TAU * wob * t) : 1); lpL += cut * (l - lpL); lpR += cut * (r - lpR);
-    const env = Math.min(1, t / 0.008) * Math.min(1, (dur - t) / 0.03) * (0.55 + 0.45 * Math.min(1, t / 0.2)); const gg = env * g * 0.022 * duck(t0 + t); put(at(t0) + n, lpL * gg, lpR * gg, 0.3); } }
+    const env = Math.min(1, t / 0.008) * Math.min(1, (dur - t) / 0.03) * (0.55 + 0.45 * Math.min(1, t / 0.2)); const gg = env * g * 0.022 * duck(sh(t0) + t * 0.75); put(at(t0) + n, lpL * gg, lpR * gg, 0.3); } }
 // deeper, masculine UI voices to mix with the regular pops
 function lowPop(t0, g = 1, f = 110) { let ph = 0; for (let n = 0; n < 0.22 * SR; n++) { const t = n / SR; ph += TAU * f * (1 + 1.2 * Math.exp(-t * 40)) / SR; const v = (Math.tanh(Math.sin(ph) * 1.8) * Math.exp(-t * 16) + (n < 90 ? noise() * 0.4 * (1 - n / 90) : 0)) * g * 0.34; put(at(t0) + n, v, v, 0.12); } }
 function tomHit(t0, g = 1, f = 150) { let ph = 0; for (let n = 0; n < 0.35 * SR; n++) { const t = n / SR; ph += TAU * f * (1 + 0.7 * Math.exp(-t * 22)) / SR; const v = Math.tanh(Math.sin(ph) * 2.2) * Math.exp(-t * 9) * g * 0.26; put(at(t0) + n, v * 0.9, v, 0.25); } }
@@ -149,8 +151,15 @@ softImpact(9.3, 1.5); saws(9.3, 0.9, CH.D, 1.4, 4); kick(9.3, 1.2); for (let i =
 groove(9.5, 12.5, { saw: 1.1, lead: 0.8 });
 [10.5, 11.0, 11.5, 12.0].forEach((t) => { softImpact(t, 0.7); saws(t, 0.3, chordAt(t), 1.0); });
 // end card
-whoosh(12.3, 0.25, 1.1, true); softImpact(12.5, 1.2); saws(12.5, 1.0, CH.D, 1.3); [62, 66, 69, 74].forEach((m, i) => bell(12.52 + i * 0.02, m, 0.35, (i - 1.5) * 0.3, 1.8)); clangS(12.5, 1.0, 49);
+softImpact(12.5, 1.2); saws(12.5, 1.0, CH.D, 1.3); [62, 66, 69, 74].forEach((m, i) => bell(12.52 + i * 0.02, m, 0.35, (i - 1.5) * 0.3, 1.8)); clangS(12.5, 1.0, 49);
 groove(12.5, 14.5, { kick: 0.7, saw: 0.7, lead: 0.6 });
+// ---- the channel wall insert (design 12.5–15.5 raw): keep the TOGETHER energy, a mixed pop per channel, a slam on the count
+NOSHIFT = true;
+whoosh(12.5, 0.3, 1.0, true); groove(12.5, 15.5, { saw: 1.0, lead: 0.75 });
+for (let j = 0; j < 32; j++) { const t = 12.5 + (0.45 + j * 0.06) * 0.75; [() => popS(t, 0.5, 700 + (j % 5) * 90), () => lowPop(t, 0.55, 105 + (j % 4) * 12), () => tomHit(t, 0.45, 130 + (j % 3) * 20)][j % 3](); }
+softImpact(12.5 + 2.45 * 0.75, 1.1); clangS(12.5 + 2.45 * 0.75, 0.9, 52); saws(12.5 + 2.45 * 0.75, 0.5, CH.D, 1.2);
+whoosh(15.3, 0.25, 1.1, true);
+NOSHIFT = false;
 click(13.85, 1.6, 1500); clangS(13.87, 0.9, 55); bell(13.92, 74, 0.35, 0.3, 1.2); [0, 1, 2].forEach((i) => (i % 2 ? popS(13.9 + i * 0.06, 0.6, 900) : lowPop(13.9 + i * 0.06, 0.7, 120)));
 pad(14.0, 1.0, CH.D, 0.8, { atk: 0.05, rel: 0.8 });
 

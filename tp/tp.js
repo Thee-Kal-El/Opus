@@ -7,8 +7,9 @@
   'use strict';
   const K = window.KIT, { TAU, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, rr, hash } = K;
   const V = !!window.VERTICAL; // 9:16 build: tp/tp_vertical.html
-  const W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 20, BT = 0.5;
-  const SLOW = 15 / 20; // designed at 15s; plays 4/3 slower (20s, music at 90 BPM)
+  const W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 24, BT = 0.5;
+  const SLOW = 15 / 20; // designed at 15s; plays 4/3 slower (music at 90 BPM)
+  const INS_AT = 12.5, INS = 3; // design time where the channel wall is inserted, and its length (3 design s = 4 real s)
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
   const RED = '#E8384F', PUR = '#A35BC9', DK = '#141414', CARD = '#262626', LINE = '#3A3A3A', LIGHT = '#F7F7F7', GOLD = '#F5C518';
   const D = (s, w = 800) => `${w} ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
@@ -152,8 +153,40 @@
     for (let k = 0; k < 26; k++) { const a = k / 26 * TAU + t * 0.8 * (k % 2 ? 1 : -1), r = 380 + (k % 3) * 160 + lt * 200, x = W / 2 + Math.cos(a) * r * 1.4, y = H / 2 + Math.sin(a) * r * 0.7; icon(c, k + i * 5, x, y, 46 + (k % 3) * 12); }
     const k = crit(prog(lt, 0, 0.12)); slam(c, w, W / 2, H / 2, lerp(380, 300, k), k);
     if (i === 3 && lt > 0.1) { const hk = A(lt, 0.1, 0.15); c.save(); c.globalAlpha = hk; txt(c, 'HOST A WATCH PARTY ON', W / 2, H / 2 + 190, G(800, 28), '#fff', 'center', 'middle', 6); c.restore();
-      const SV = ['Netflix', 'YouTube', 'Disney+', 'HBO Max', 'Hulu', 'Amazon Prime']; c.font = G(800, 34); const ws = SV.map((s) => c.measureText(s).width + 56); const rowOf = (j) => (V ? Math.floor(j / 3) : 0), rowW = (r) => SV.reduce((a, _, j) => a + (rowOf(j) === r ? ws[j] + 20 : 0), -20); let x = 0, lastRow = -1;
+      const SV = FREE.slice(0, 6); c.font = G(800, 34); const ws = SV.map((s) => c.measureText(s).width + 56); const rowOf = (j) => (V ? Math.floor(j / 3) : 0), rowW = (r) => SV.reduce((a, _, j) => a + (rowOf(j) === r ? ws[j] + 20 : 0), -20); let x = 0, lastRow = -1;
       SV.forEach((s, j) => { if (rowOf(j) !== lastRow) { lastRow = rowOf(j); x = W / 2 - rowW(lastRow) / 2; } const kk = pop(prog(lt, 0.12 + j * 0.04, 0.4 + j * 0.04)); if (kk > 0) { c.save(); c.translate(x + ws[j] / 2, H / 2 + 270 + rowOf(j) * 90); c.scale(kk, kk); rr(c, -ws[j] / 2, -34, ws[j], 68, 34); c.fillStyle = '#141414'; c.fill(); txt(c, s, 0, 2, G(800, 34), '#fff', 'center'); c.restore(); } x += ws[j] + 20; }); }
+  }
+
+  // ---------- S4b every supported channel (inserted after TOGETHER) — names from the pricing page ----------
+  const FREE = ['Netflix', 'YouTube', 'Disney+', 'Max', 'Hulu', 'Prime Video', 'Spotify', 'Pluto TV', 'Tubi'];
+  const PREM = ['Crunchyroll', 'Paramount+', 'ESPN+', 'Peacock', 'Disney+ Hotstar', 'STAR+', 'Apple TV', 'MUBI', 'Stan', 'Crave', 'Sling', 'fuboTV', 'Rakuten Viki', 'Globoplay', 'FanCode',
+    'Willow', 'Shahid', 'RTL+', 'Shudder', 'Canal+', 'Viu', 'Vidio', 'U-NEXT', 'Hulu Japan', 'ViX', 'NBA League Pass', 'F1 TV', 'ZEE5', 'Sony LIV'];
+  const N_CH = FREE.length + PREM.length;
+  let WALL = null;
+  function oldChipPos(j) { // where the six TOGETHER chips sat, so they can fly into the wall
+    const c = ctx, SV = FREE.slice(0, 6); c.font = G(800, 34); const ws = SV.map((s) => c.measureText(s).width + 56), rowOf = (k) => (V ? Math.floor(k / 3) : 0), rowW = (r) => SV.reduce((a, _, k) => a + (rowOf(k) === r ? ws[k] + 20 : 0), -20);
+    let x = W / 2 - rowW(rowOf(0)) / 2; for (let k = 0; k < j; k++) { x += ws[k] + 20; if (rowOf(k + 1) !== rowOf(k)) x = W / 2 - rowW(rowOf(k + 1)) / 2; } return [x + ws[j] / 2, H / 2 + 270 + rowOf(j) * 90, ws[j]];
+  }
+  function wallLayout() {
+    if (WALL) return WALL; const c = ctx, fs = 30, ch = 60, gap = 14, rowGap = 14, maxW = W - (V ? 70 : 150); c.font = G(800, fs);
+    const rowsOf = (list) => { const rows = [[]]; let w = 0; for (const n of list) { const cw = c.measureText(n).width + 48; if (rows.at(-1).length && w + cw > maxW) { rows.push([]); w = 0; } rows.at(-1).push([n, cw]); w += cw + gap; } return rows; };
+    const fr = rowsOf(FREE), pr = rowsOf(PREM), chips = []; const top = V ? 360 : 255; let y = top;
+    const place = (rows) => { for (const row of rows) { const rw = row.reduce((a, [, w]) => a + w + gap, -gap); let x = W / 2 - rw / 2; for (const [n, w] of row) { chips.push({ n, x: x + w / 2, y: y + ch / 2, w }); x += w + gap; } y += ch + rowGap; } };
+    const freeLabel = y; y += 50; place(fr); y += 26; const premLabel = y; y += 50; place(pr);
+    WALL = { chips, freeLabel, premLabel, bottom: y, ch, fs }; return WALL;
+  }
+  function channels(c, r) { // r = real seconds into the insert (0–4)
+    const L = wallLayout(); c.fillStyle = RED; c.fillRect(0, 0, W, H); const tt = INS_AT + r * SLOW;
+    c.save(); c.globalAlpha = 0.45; for (let k = 0; k < 26; k++) { const a = k / 26 * TAU + tt * 0.8 * (k % 2 ? 1 : -1), rad = 380 + (k % 3) * 160 + 100, x = W / 2 + Math.cos(a) * rad * 1.4, y = H / 2 + Math.sin(a) * rad * 0.7; icon(c, k + 15, x, y, 46 + (k % 3) * 12); } c.restore();
+    const ok = io5(prog(r, 0, 0.35)); if (ok < 1) { c.save(); c.globalAlpha = 1 - ok; slam(c, 'TOGETHER.', W / 2, H / 2 - ok * 300, 300, 1); c.restore(); }
+    const hk = io5(prog(r, 0, 0.45)); txt(c, 'HOST A WATCH PARTY ON', W / 2, lerp(H / 2 + 190, V ? 250 : 160, hk), G(800, lerp(28, 40, hk)), '#fff', 'center', 'middle', lerp(6, 8, hk));
+    const lk = A(r, 0.3, 0.3); c.save(); c.globalAlpha = lk; txt(c, 'FREE', W / 2, L.freeLabel + 20, G(800, 24), '#FFE3E8', 'center', 'middle', 6); txt(c, 'PREMIUM & DUO  ·  ALL FREE CHANNELS, PLUS', W / 2, L.premLabel + 20, G(800, 24), GOLD, 'center', 'middle', 6); c.restore();
+    L.chips.forEach((ch, j) => { let x = ch.x, y = ch.y, sc = 1, w = ch.w, fsz = L.fs;
+      if (j < 6) { const [ox, oy, ow] = oldChipPos(j), m = io5(prog(r, 0.05 + j * 0.03, 0.55 + j * 0.03)); x = lerp(ox, ch.x, m); y = lerp(oy, ch.y, m); w = lerp(ow, ch.w, m); fsz = lerp(34, L.fs, m); }
+      else { sc = pop(prog(r, 0.45 + (j - 6) * 0.06, 0.8 + (j - 6) * 0.06)); if (sc <= 0) return; }
+      const hl = pulse(r, 0.45 + (j - 6) * 0.06, 6) * (j >= 6 ? 1 : 0); c.save(); c.translate(x, y); c.scale(sc, sc); rr(c, -w / 2, -L.ch / 2, w, L.ch, L.ch / 2); c.fillStyle = '#141414'; c.fill();
+      if (j >= FREE.length) { c.strokeStyle = rgba(GOLD, 0.35 + 0.65 * hl); c.lineWidth = 2; c.stroke(); } txt(c, ch.n, 0, 2, G(800, fsz), '#fff', 'center'); c.restore(); });
+    const nk = crit(prog(r, 2.45, 2.65)); if (r > 2.45) { const n = Math.round(lerp(6, N_CH, ease(r, 0.45, 2.4))); c.save(); c.translate(W / 2, Math.min(H - 70, L.bottom + (V ? 120 : 70))); c.scale(lerp(1.6, 1, nk), lerp(1.6, 1, nk)); c.font = D(V ? 72 : 64); const s2 = `${N_CH} CHANNELS`, w2 = c.measureText(s2).width + 80; rr(c, -w2 / 2, -50, w2, 100, 50); c.fillStyle = '#fff'; c.fill(); txt(c, s2, 0, 4, D(V ? 72 : 64), RED, 'center'); c.restore(); void n; }
   }
 
   // ---------- S5 end card (12.5–15) ----------
@@ -178,7 +211,9 @@
     const fo = prog(t, 14.6, 15); if (fo > 0) { c.fillStyle = `rgba(0,0,0,${fo})`; c.fillRect(0, 0, W, H); }
   }
   function renderAt(tReal) {
-    const t = tReal * SLOW, c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
+    const tD = tReal * SLOW, c = ctx;
+    if (tD >= INS_AT && tD < INS_AT + INS) { c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; channels(c, (tD - INS_AT) / SLOW); finish(c, INS_AT - 1e-3); return; }
+    const t = tD >= INS_AT + INS ? tD - INS : tD; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
     let sh = 0; for (const T0 of HITS) sh = Math.max(sh, pulse(t, T0, 18) * 14); c.save(); c.translate((hash(Math.round(t * FPS), 3) - 0.5) * 2 * sh, (hash(Math.round(t * FPS), 4) - 0.5) * 2 * sh);
     hook(c, t); party(c, t); custom(c, t); montage(c, t); endCard(c, t); c.restore(); finish(c, t);
   }
