@@ -143,6 +143,6 @@
     wall(c, t); desktop(c, t); endCard(c, t); c.restore(); finish(c, t);
   }
   window.FILM = { W, H, FPS, DUR, renderAt };
-  window.FILM.ready = Promise.all([document.fonts.load(G(300, 100)), document.fonts.load(G(500, 40)), document.fonts.load(G(700, 40)), document.fonts.load(M(600, 20)), document.fonts.load(M(700, 20)), ...ALL.map((k) => load(k, `../assets/genex/${k}_hd.png`)), ...['app', 'modelicons', 'skill'].map((k) => load(k, `../assets/genex/${k}.png`))]).then(() => document.fonts.ready);
+  window.FILM.ready = Promise.all([document.fonts.load(G(300, 100)), document.fonts.load(G(500, 40)), document.fonts.load(G(700, 40)), document.fonts.load(M(600, 20)), document.fonts.load(M(700, 20)), ...ALL.map((k) => load(k, `../assets/genex/${k}_hd.png`)), ...['app', 'modelicons', 'skill'].map((k) => load(k, `../assets/genex/${k}_hd.png`))]).then(() => document.fonts.ready);
   if (!/[?&]render\b/.test(location.search)) window.FILM.ready.then(() => { const t0 = performance.now(); const loop = () => { renderAt(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); }; loop(); });
 })();
