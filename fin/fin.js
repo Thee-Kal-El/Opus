@@ -6,7 +6,9 @@
 (() => {
   'use strict';
   const K = window.KIT, { TAU, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, rr, hash } = K;
-  const W = 1920, H = 1080, FPS = 60, DUR = 15, BT = 0.5, PW = 1545, PH = 2000;
+  const W = 1920, H = 1080, FPS = 60, DUR = 20, BT = 0.5, PW = 1545, PH = 2000;
+  const SLOW = 15 / 20; // the cut was designed at 15s; it now plays 4/3 slower (20s, music at 90 BPM)
+  let REAL = 0;
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
   const G = '#22F27A', G2 = '#0FBF5A', BG = '#020403', Y = '#FFD23F';
   const D = (s) => `800 ${s}px "Inter Tight", sans-serif`, M = (w, s) => `${w} ${s}px "JetBrains Mono", monospace`;
@@ -165,10 +167,11 @@
     const v = c.createRadialGradient(W / 2, H / 2, H * 0.45, W / 2, H / 2, H * 1.05); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.65)'); c.fillStyle = v; c.fillRect(0, 0, W, H);
     // HUD
     c.save(); c.globalAlpha = 0.85; txt(c, `FINALITY // ISSUE 01`, 46, 40, M(700, 18), G, 'left', 'middle', 4); txt(c, `BLOCK #${String(Math.floor(t * 2.857) + 1).padStart(7, '0')}  ·  FINAL`, W - 46, 40, M(700, 18), G, 'right', 'middle', 3);
-    txt(c, `${String(Math.floor(t)).padStart(2, '0')}:${String(Math.floor((t % 1) * 60)).padStart(2, '0')}`, 46, H - 40, M(700, 18), '#7FA88E', 'left', 'middle', 3); c.restore();
+    txt(c, `${String(Math.floor(REAL)).padStart(2, '0')}:${String(Math.floor((REAL % 1) * 60)).padStart(2, '0')}`, 46, H - 40, M(700, 18), '#7FA88E', 'left', 'middle', 3); c.restore();
     if (t > 14.85) { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); }
   }
-  function renderAt(t) {
+  function renderAt(tReal) {
+    REAL = tReal; const t = tReal * SLOW;
     const c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
     let sh = 0; for (const T0 of HITS) sh = Math.max(sh, pulse(t, T0, 16) * 16); const sx = (hash(Math.round(t * FPS), 3) - 0.5) * 2 * sh, sy = (hash(Math.round(t * FPS), 4) - 0.5) * 2 * sh;
     c.save(); c.translate(sx, sy);

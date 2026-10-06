@@ -1,4 +1,4 @@
-// Score for the FINALITY Issue 01 trailer (15s) — dark driving techno, synthesized entirely in code (no samples).
+// Score for the FINALITY Issue 01 trailer (20s; the 15s/120 BPM arrangement stretched to 90 BPM via TS) — dark driving techno, synthesized entirely in code (no samples).
 // 120 BPM, F# phrygian. Terminal blips 0–1, DROP 1.0 with a stutter per slammed letter, cover 1.5, whips at 4/6.5/9/11.5/13,
 // "probably" strike 5.6 → FINAL slam 6.0, block pulses 7.65–8.2 + FINAL chime 8.25, card ticks 9.85–10.85,
 // 10B count 11.85, fan-out 13, stamp 14.45, silence at 14.85.
@@ -7,13 +7,14 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SR = 48000, DUR = 15, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
+const TS = 20 / 15; // time stretch: the 120 BPM arrangement plays at 90 BPM over 20s
+const SR = 48000, DUR = 20, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
 const L = new Float32Array(N), Rr = new Float32Array(N), revL = new Float32Array(N), revR = new Float32Array(N), dlyL = new Float32Array(N), dlyR = new Float32Array(N);
 let seed = 4242;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
 const noise = () => rnd() * 2 - 1;
 const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
-const at = (t) => Math.round(t * SR);
+const at = (t) => Math.round(t * TS * SR);
 const pan = (p) => [Math.cos((p + 1) * Math.PI / 4) * Math.SQRT2, Math.sin((p + 1) * Math.PI / 4) * Math.SQRT2];
 function put(i, l, r, rev = 0, dly = 0) { if (i < 0 || i >= N) return; L[i] += l; Rr[i] += r; if (rev) { revL[i] += l * rev; revR[i] += r * rev; } if (dly) { dlyL[i] += l * dly; dlyR[i] += r * dly; } }
 
@@ -37,7 +38,7 @@ function hat(t0, g, open = false, p = 0) {
   let hp = 0, prev = 0; const [a, b] = pan(p);
   for (let n = 0; n < (open ? 0.2 : 0.045) * SR; n++) { const x = noise(); hp = 0.94 * (hp + x - prev); prev = x; const v = hp * Math.exp(-n / SR * (open ? 20 : 85)) * g; put(at(t0) + n, v * a, v * b, 0.1); }
 }
-function bassNote(t0, dur, m, g = 1, rel = 120) {
+function bassNote(t0, dur, m, g = 1, rel = 120) { dur *= TS;
   let ph = 0, sp = 0, lp = 0, lp2 = 0; const f = mtof(m);
   for (let n = 0; n < (dur + Math.min(2, 4 / rel)) * SR; n++) {
     const t = n / SR; ph = (ph + f / SR) % 1; sp += TAU * f / SR;
@@ -47,7 +48,7 @@ function bassNote(t0, dur, m, g = 1, rel = 120) {
     put(at(t0) + n, v, v);
   }
 }
-function pad(t0, dur, chord, g = 1, o = {}) {
+function pad(t0, dur, chord, g = 1, o = {}) { dur *= TS;
   const [root, iv] = chord, notes = iv.map((i) => root + 24 + i), phs = notes.flatMap(() => [rnd(), rnd()]);
   let lpL = 0, lpR = 0;
   for (let n = 0; n < dur * SR; n++) {
@@ -70,7 +71,7 @@ function pluck(t0, m, g = 1, p = 0) {
   for (let n = 0; n < 0.35 * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; const x = Math.sin(TAU * ph) * 0.7 + (2 * ph - 1) * 0.3; lp += (0.06 + 0.4 * Math.exp(-t * 30)) * (x - lp); const v = lp * Math.exp(-t * 9) * g * 0.13 * duck(t0 + t); put(at(t0) + n, v * a, v * b, 0.25, 0.35); }
 }
 // ---- sound effects (kept well under the music) ----
-function whoosh(t0, dur, g = 1, up = true) {
+function whoosh(t0, dur, g = 1, up = true) { dur *= TS;
   let b1 = 0, b2 = 0;
   for (let n = 0; n < dur * SR; n++) { const k = n / (dur * SR), fc = up ? 300 + 3500 * k * k : 3800 - 3400 * k, f = 2 * Math.sin(Math.PI * fc / SR); b1 += f * (noise() - b2 - 0.5 * b1); b2 += f * b1; const v = b1 * Math.sin(Math.PI * k) ** 1.5 * g * 0.16; put(at(t0) + n, v * (1 - 0.5 * k), v * (0.5 + 0.5 * k), 0.3); }
 }
@@ -85,37 +86,37 @@ function softImpact(t0, g = 1) {
   let ph = 0, lp = 0;
   for (let n = 0; n < 1.6 * SR; n++) { const t = n / SR; ph += TAU * (38 + 40 * Math.exp(-t * 9)) / SR; lp += 0.08 * (noise() - lp); const v = (Math.sin(ph) * Math.exp(-t * 3) * 0.55 + lp * Math.exp(-t * 4) * 0.18) * g; put(at(t0) + n, v, v, 0.3); }
 }
-function riser(t0, dur, g = 1) {
+function riser(t0, dur, g = 1) { dur *= TS;
   let b1 = 0, b2 = 0;
   for (let n = 0; n < dur * SR; n++) { const k = n / (dur * SR), f = 2 * Math.sin(Math.PI * (400 + 6000 * k * k) / SR); b1 += f * (noise() - b2 - 0.4 * b1); b2 += f * b1; const v = b1 * k * k * g * 0.12; put(at(t0) + n, v, v, 0.35); }
 }
-function swell(tEnd, dur, g = 1) {
+function swell(tEnd, dur, g = 1) { dur *= TS;
   let lp = 0;
-  for (let n = 0; n < dur * SR; n++) { const k = n / (dur * SR); lp += (0.02 + 0.2 * k) * (noise() - lp); const v = lp * k ** 3 * g * 0.3; put(at(tEnd - dur) + n, v, v, 0.5); }
+  for (let n = 0; n < dur * SR; n++) { const k = n / (dur * SR); lp += (0.02 + 0.2 * k) * (noise() - lp); const v = lp * k ** 3 * g * 0.3; put(at(tEnd) - Math.round(dur * SR) + n, v, v, 0.5); }
 }
 
 
 // ---------- sci-fi instruments ----------
 function bigKick(t0, g = 1) { KICKS.push(t0); let ph = 0; for (let n = 0; n < 0.45 * SR; n++) { const t = n / SR; ph += TAU * (42 + 210 * Math.exp(-t * 42)) / SR; const v = Math.tanh((Math.sin(ph) * Math.exp(-t * 6.5) + (n < 160 ? noise() * 0.8 * (1 - n / 160) : 0)) * 3) * 0.62 * g; put(at(t0) + n, v, v); } }
 function snap(t0, g = 1) { let b1 = 0, b2 = 0; for (let n = 0; n < 0.28 * SR; n++) { const t = n / SR, f = 2 * Math.sin(Math.PI * 1900 / SR); b1 += f * (noise() - b2 - 0.4 * b1); b2 += f * b1; const v = (Math.tanh(b1 * 2.2) * Math.exp(-t * 13) + Math.sin(TAU * 230 * t) * 0.4 * Math.exp(-t * 35)) * g * 0.5; put(at(t0) + n, v, v, 0.35); } }
-function reese(t0, dur, m, g = 1) { const f = mtof(m); let p1 = 0, p2 = 0, lp = 0, lp2 = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + f * 0.996 / SR) % 1; p2 = (p2 + f * 1.004 / SR) % 1; const x = (2 * p1 - 1) + (2 * p2 - 1); const cut = 0.025 + 0.02 * (0.5 + 0.5 * Math.sin(TAU * t * 2)); lp += cut * (x - lp); lp2 += cut * (lp - lp2); const env = Math.min(1, t / 0.005) * Math.min(1, (dur - t) / 0.02); const v = (Math.tanh(lp2 * 2) * 0.55 + Math.sin(TAU * f * t) * 0.5) * env * g * 0.42 * duck(t0 + t); put(at(t0) + n, v, v); } }
+function reese(t0, dur, m, g = 1) { dur *= TS; const f = mtof(m); let p1 = 0, p2 = 0, lp = 0, lp2 = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + f * 0.996 / SR) % 1; p2 = (p2 + f * 1.004 / SR) % 1; const x = (2 * p1 - 1) + (2 * p2 - 1); const cut = 0.025 + 0.02 * (0.5 + 0.5 * Math.sin(TAU * t * 2)); lp += cut * (x - lp); lp2 += cut * (lp - lp2); const env = Math.min(1, t / 0.005) * Math.min(1, (dur - t) / 0.02); const v = (Math.tanh(lp2 * 2) * 0.55 + Math.sin(TAU * f * t) * 0.5) * env * g * 0.42 * duck(t0 + t); put(at(t0) + n, v, v); } }
 function laser(t0, g = 1, p = 0, f0 = 2400, f1 = 200) { const [a, b] = pan(p); let ph = 0; for (let n = 0; n < 0.22 * SR; n++) { const t = n / SR, k = t / 0.22, f = f0 * Math.pow(f1 / f0, k); ph += TAU * f / SR; const v = Math.sign(Math.sin(ph)) * 0.5 * Math.exp(-t * 14) * g * 0.08; put(at(t0) + n, v * a, v * b, 0.3, 0.4); } }
 function arpSaw(t0, m, g = 1, p = 0) { const f = mtof(m), [a, b] = pan(p); let ph = 0, lp = 0; for (let n = 0; n < 0.14 * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; lp += (0.08 + 0.5 * Math.exp(-t * 30)) * ((2 * ph - 1) - lp); const v = lp * Math.exp(-t * 16) * g * 0.1 * duck(t0 + t); put(at(t0) + n, v * a, v * b, 0.3, 0.45); } }
-function braam(t0, dur, chord, g = 1) { const [root, iv] = chord; [root - 12, root, root + iv[1], root + iv[2]].forEach((m, k) => { const f = mtof(m); let ph = 0, lp = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; lp += (0.01 + 0.15 * Math.exp(-t * 3)) * ((2 * ph - 1) - lp); const v = Math.tanh(lp * 3) * Math.exp(-t * 1.5) * g * 0.07 * Math.min(1, (dur - t) / 0.3); put(at(t0) + n, v, v, 0.5); } }); }
-function zapRise(t0, dur, g = 1) { let ph = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, k = t / dur; ph += TAU * (120 + 2000 * k * k) / SR; const v = (Math.sin(ph) + 0.3 * Math.sign(Math.sin(ph * 2.01))) * k * k * g * 0.06; put(at(t0) + n, v, v, 0.4); } }
+function braam(t0, dur, chord, g = 1) { dur *= TS; const [root, iv] = chord; [root - 12, root, root + iv[1], root + iv[2]].forEach((m, k) => { const f = mtof(m); let ph = 0, lp = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; lp += (0.01 + 0.15 * Math.exp(-t * 3)) * ((2 * ph - 1) - lp); const v = Math.tanh(lp * 3) * Math.exp(-t * 1.5) * g * 0.07 * Math.min(1, (dur - t) / 0.3); put(at(t0) + n, v, v, 0.5); } }); }
+function zapRise(t0, dur, g = 1) { dur *= TS; let ph = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, k = t / dur; ph += TAU * (120 + 2000 * k * k) / SR; const v = (Math.sin(ph) + 0.3 * Math.sign(Math.sin(ph * 2.01))) * k * k * g * 0.06; put(at(t0) + n, v, v, 0.4); } }
 
 // ---------- arrangement (15s, 120 BPM) ----------
 const bassOf = (root) => 24 + ((root % 12) + 12) % 12;
 function roll(t0, t1, g = 1) { const n = Math.round((t1 - t0) / 0.0625); for (let k = 0; k < n; k++) snap(t0 + k * 0.0625, (0.1 + 0.6 * k / n) * g); }
 function metal(t0, g = 1) { snap(t0, 0.9 * g); for (let n = 0; n < 0.18 * SR; n++) { const t = n / SR, v = (Math.sin(TAU * 1730 * t) * 0.5 + Math.sin(TAU * 2410 * t) * 0.4 + Math.sign(Math.sin(TAU * 410 * t)) * 0.3) * Math.exp(-t * 22) * g * 0.07; put(at(t0) + n, v, v, 0.3); } }
-function gated(t0, dur, chord, g = 1) { const [root, iv] = chord; const notes = [root + 12, root + 12 + iv[1], root + 12 + iv[2], root + 24], ph = notes.map(() => 0); let lp = 0;
+function gated(t0, dur, chord, g = 1) { dur *= TS; const [root, iv] = chord; const notes = [root + 12, root + 12 + iv[1], root + 12 + iv[2], root + 24], ph = notes.map(() => 0); let lp = 0;
   for (let n = 0; n < dur * SR; n++) { const t = n / SR; let x = 0; notes.forEach((m, i) => { ph[i] = (ph[i] + mtof(m) * (1 + (i % 2 ? 0.004 : -0.004)) / SR) % 1; x += 2 * ph[i] - 1; });
-    lp += 0.12 * (Math.tanh(x * 0.9) - lp); const gate = ((t * 8) % 1) < 0.55 ? 1 : 0.08, env = Math.min(1, t / 0.01) * Math.min(1, (dur - t) / 0.03); const v = lp * gate * env * g * 0.07 * duck(t0 + t); put(at(t0) + n, v * 0.9, v, 0.25, 0.2); } }
-function growl(t0, dur, m, g = 1) { const f = mtof(m); let ph = 0, lp = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, mod = Math.sin(TAU * f * 2 * t) * (2.5 + 2 * Math.sin(TAU * 4 * t)); ph += TAU * f / SR; const x = Math.tanh(Math.sin(ph + mod) * 3); lp += 0.18 * (x - lp);
+    lp += 0.12 * (Math.tanh(x * 0.9) - lp); const gate = ((t * 8 / TS) % 1) < 0.55 ? 1 : 0.08, env = Math.min(1, t / 0.01) * Math.min(1, (dur - t) / 0.03); const v = lp * gate * env * g * 0.07 * duck(t0 + t); put(at(t0) + n, v * 0.9, v, 0.25, 0.2); } }
+function growl(t0, dur, m, g = 1) { dur *= TS; const f = mtof(m); let ph = 0, lp = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, mod = Math.sin(TAU * f * 2 * t) * (2.5 + 2 * Math.sin(TAU * 4 * t)); ph += TAU * f / SR; const x = Math.tanh(Math.sin(ph + mod) * 3); lp += 0.18 * (x - lp);
   const env = Math.min(1, t / 0.01) * Math.min(1, (dur - t) / 0.04); const v = lp * env * g * 0.16 * duck(t0 + t); put(at(t0) + n, v, v, 0.15); } }
-function e808(t0, dur, m, g = 1) { let ph = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, f = mtof(m) * (1 + 1.5 * Math.exp(-t * 30)); ph += TAU * f / SR; const v = Math.tanh(Math.sin(ph) * 2.2) * Math.min(1, t / 0.004) * Math.min(1, (dur - t) / 0.05) * g * 0.5 * duck(t0 + t + 0.02); put(at(t0) + n, v, v); } }
+function e808(t0, dur, m, g = 1) { dur *= TS; let ph = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, f = mtof(m) * (1 + 1.5 * Math.exp(-t * 30)); ph += TAU * f / SR; const v = Math.tanh(Math.sin(ph) * 2.2) * Math.min(1, t / 0.004) * Math.min(1, (dur - t) / 0.05) * g * 0.5 * duck(t0 + t + 0.02); put(at(t0) + n, v, v); } }
 function heartbeat(t0, g = 1) { for (const [d, a] of [[0, 1], [0.2, 0.7]]) { let ph = 0; for (let n = 0; n < 0.3 * SR; n++) { const t = n / SR; ph += TAU * (45 + 30 * Math.exp(-t * 25)) / SR; const v = Math.sin(ph) * Math.exp(-t * 12) * a * g * 0.6; put(at(t0 + d) + n, v, v); } } }
-function glitch(t0, dur, g = 1) { for (let n = 0; n < dur * SR; n++) { const t = n / SR, step = Math.floor(t * 64), f = 200 + (Math.sin(step * 12.9898) * 43758.5453 % 1 + 1) % 1 * 3000; const v = Math.sign(Math.sin(TAU * f * t)) * ((step % 3) ? 1 : 0.2) * g * 0.08; put(at(t0) + n, v, v * 0.8, 0.2); } }
+function glitch(t0, dur, g = 1) { dur *= TS; for (let n = 0; n < dur * SR; n++) { const t = n / SR, step = Math.floor(t * 64), f = 200 + (Math.sin(step * 12.9898) * 43758.5453 % 1 + 1) % 1 * 3000; const v = Math.sign(Math.sin(TAU * f * t)) * ((step % 3) ? 1 : 0.2) * g * 0.08; put(at(t0) + n, v, v * 0.8, 0.2); } }
 const SEQ = [0, 2, 1, 3, 2, 0, 3, 1];
 function key(t0, g = 1, f = 3200) { for (let n = 0; n < 0.035 * SR; n++) { const t = n / SR, v = (Math.sin(TAU * f * t) * 0.4 + noise() * 0.6) * Math.exp(-t * 180) * g * 0.16; put(at(t0) + n, v, v, 0.05); } }
 function techno(t0, t1, o = {}) {
