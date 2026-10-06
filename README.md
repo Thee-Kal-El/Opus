@@ -220,3 +220,13 @@ node kal/synth_allout.mjs && node kal/render.mjs badass   # -> out/thee_kal_el_a
 ```
 - **Vertical 9:16** (`kal/badass_vertical.html`, same `badass.js` with `window.VERTICAL = true`): auto-fit titles, two-line
   @THEE_KAL_EL particle morph, portrait lockup. `node kal/render.mjs badass_vertical` → `out/thee_kal_el_allout_9x16_15s_60fps.mp4`
+
+## FINALITY — Issue 01 trailer (`fin/`)
+15s 1920×1080 @ 60fps trailer for the FINALITY magazine (Issue 01) with a synthesized techno score (120 BPM, F# phrygian).
+The real page scans (`assets/finality/`) are rendered as 3D planes under a moving camera that zooms into regions:
+boot onto Arc mainnet → "FINALITY" slams and match-cuts into the cover → GENESIS / 350ms → "probably" struck → FINAL →
+lightning headline, blocks light up to FINAL, dateline → ARC NET's six purpose cards + 700M+ → 10B minted → every page fans
+out in 3D and stacks into the cover → STATUS: FINAL.
+```
+node fin/synth.mjs && node fin/render.mjs   # -> out/finality_issue01_15s_1080p60.mp4
+```
