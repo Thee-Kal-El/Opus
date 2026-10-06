@@ -166,3 +166,12 @@ node bird/synth_promo.mjs && node bird/render.mjs promo
 ```sh
 node bird/synth_argus.mjs && node bird/render.mjs argus
 ```
+
+## Thee_Kal_El — "The Future, Explained." (`yt/`)
+30s 1920×1080 @ 60fps YouTube channel film over a synthwave floor, cut to a code-synthesized synthwave-trap score (120 BPM, F minor).
+0–4 a YouTube play button morphs into the pixel avatar · 4–8 kinetic word slams (BLOCKCHAIN / WEB3 / CRYPTO / PLAY-TO-EARN) and chain logos ·
+8–12 the channel page builds and gets subscribed · 12–20 a tilted wall of real thumbnails with whip-zooms on five videos · 20–24 Shorts carousel ·
+24–26 socials card · 26–30 end card with Subscribe + platform icons. Thumbnails and shorts are cropped from the channel screenshots into `assets/yt/`.
+```
+node yt/synth.mjs && node yt/render.mjs   # -> out/thee_kal_el_channel_30s_1080p60.mp4
+```
