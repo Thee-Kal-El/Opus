@@ -287,7 +287,7 @@
   }
 
   // ---------- captions, cursor, intro dot, end card ----------
-  const CAPS = [[4.0, 5.65, 'LAUNCH A TOKEN ON ARC', ''], [6.0, 7.65, 'KING OF THE HILL', '$FRLT · $26K'], [8.0, 9.65, 'CONTENDERS', 'CLOSEST TO $30K'], [10.0, 11.65, 'TOP BY MARKET CAP', '$ARGUS · $14M'],
+  const CAPS = [[4.0, 5.65, 'LAUNCH A TOKEN ON ARC', 'LAUNCH PAD'], [6.0, 7.65, 'KING OF THE HILL', '$FRLT · $26K'], [8.0, 9.65, 'CONTENDERS', 'CLOSEST TO $30K'], [10.0, 11.65, 'TOP BY MARKET CAP', '$ARGUS · $14M'],
     [12.0, 13.65, 'NEW', 'FRESH LAUNCHES'], [17.0, 18.35, '$NOSELLING', 'DO NOT SELL!!!'], [18.5, 20.15, 'CHART', 'LIVE · GECKOTERMINAL'], [20.5, 22.15, 'BUY / SELL', 'ONE TAP'], [22.5, 24.15, 'TRADES', 'EVERY BUY. EVERY SELL.']];
   function captions(c, t) {
     for (const [t0, t1, a, b] of CAPS) {
