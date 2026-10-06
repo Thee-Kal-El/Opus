@@ -122,7 +122,7 @@
     const bk1 = pop(prog(t, 13.05, 13.45)), bk2 = pop(prog(t, 13.15, 13.55)), by = cy + (V ? 300 : 300), pr = t > 13.85 && t < 14.0 ? 1 : 0;
     if (bk1 > 0) { c.save(); c.translate(V ? W / 2 : W / 2 - 230, by); c.scale(bk1 * (1 - pr * 0.06), bk1 * (1 - pr * 0.06)); c.shadowColor = rgba(BLUE, 0.6); c.shadowBlur = 40; btn(c, 0, 0, ' Download for macOS', true); c.restore(); }
     if (bk2 > 0) { c.save(); c.translate(V ? W / 2 : W / 2 + 250, V ? by + 110 : by); c.scale(bk2, bk2); btn(c, 0, 0, '🐧 Download for Linux', false); c.restore(); }
-    if (bk2 > 0) { c.save(); c.globalAlpha = bk2; txt(c, 'Coming soon to Windows', W / 2, by + (V ? 200 : 95), M(500, 26), MUTE, 'center'); txt(c, 'genex.games', W / 2, by + (V ? 270 : 165), M(700, 34), BLUE2, 'center', 'middle', 2); c.restore(); }
+    if (bk2 > 0) { c.save(); c.globalAlpha = bk2; const ol = (str, y, font, col, ls = 0) => { c.font = font; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = ls + 'px'; c.lineJoin = 'round'; c.lineWidth = 7; c.strokeStyle = '#000'; c.strokeText(str, W / 2, y); c.fillStyle = col; c.fillText(str, W / 2, y); c.letterSpacing = '0px'; }; ol('Coming soon to Windows', by + (V ? 200 : 95), M(500, 26), '#C4C8DA'); ol('genex.games', by + (V ? 270 : 165), M(700, 34), BLUE2, 2); c.restore(); }
     if (t > 13.3 && t < 14.4) { const ck = io5(prog(t, 13.4, 13.85)); cursor(c, lerp(W / 2 + 420, (V ? W / 2 : W / 2 - 230) + 40, ck), lerp(H - 60, by + 14, ck), pr); }
     if (t > 13.95) { const d = t - 13.95; c.save(); c.globalCompositeOperation = 'lighter'; c.strokeStyle = rgba(BLUE2, Math.max(0, 0.8 - d)); c.lineWidth = 5; c.beginPath(); c.arc(V ? W / 2 : W / 2 - 230, by, d * 1600, 0, TAU); c.stroke(); c.restore(); }
   }
