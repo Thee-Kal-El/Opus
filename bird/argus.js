@@ -70,6 +70,12 @@
     c.save(); c.globalAlpha *= ca; drawFn(c, k >= 0.999, active); c.restore();
   }
 
+  function glowFrame(c, x, y, w, h, t, t0, t1) {
+    const k = A(t, t0, 0.3) * (1 - A(t, t1 - 0.2, 0.2)); if (k <= 0) return;
+    c.save(); c.globalAlpha *= k; rr(c, x, y, w, h, 14);
+    c.shadowColor = C.purple; c.shadowBlur = 24; c.strokeStyle = rgba(C.purple, 0.9); c.lineWidth = 2; c.stroke();
+    c.shadowBlur = 0; c.strokeStyle = rgba(C.violet, 0.5); c.lineWidth = 1; c.stroke(); c.restore();
+  }
   // ---------- HOME ----------
   function nav(c, y0, t, k) {
     if (k <= 0) return;
@@ -193,6 +199,8 @@
     grow(c, 1154, 91, 409, 308, 2.0, t, (c2, full, act) => contenders(c2, full, act, t), t > 7.9 && t < 9.8);
     topCards(c, t, t > 9.9 && t < 11.8);
     newSection(c, t, t > 11.9 && t < 13.8);
+    glowFrame(c, 343, 404, 1225, 256, t, 10.0, 11.75);      // TOP BY MARKET CAP
+    glowFrame(c, 343, 692, 1225, 345, t, 12.0, 13.75);      // NEW
     searchModal(c, t);
   }
 
