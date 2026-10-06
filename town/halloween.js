@@ -5,7 +5,8 @@
 // 23–30 the invite end card. Same city as the showcase, re-themed ('spooky'). renderAt(t) is deterministic.
 (() => {
   'use strict';
-  const T = window.TOWN('spooky'), { W, H, TAU, COL, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, hash, SANS } = T;
+  const VERT = !!window.VERTICAL, FOCAL = VERT ? 880 : 1050; // 9:16 build: town/halloween_vertical.html
+  const T = window.TOWN('spooky', VERT ? { W: 1080, H: 1920 } : undefined), { W, H, TAU, COL, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, hash, SANS } = T;
   const FPS = 60, DUR = 30, BT = 0.5;
   const WHEN = 'THIS HALLOWEEN'; // ← the party date/time line on the end card
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
@@ -34,7 +35,7 @@
     [21.0, 23.0, [[21.0, 0, 2.4, 150, 0, 0.02], [23.0, 0, 2.4, 160, 0, 0.02]]],
     [23.0, 30.0, [[23.0, 0, 6, 210, 0.06, 0.2], [30.0, 0, 10, 238, 0.08, 0.26]]],
   ];
-  function camAt(t) { const sh = SHOTS.find(([a, b]) => t >= a && t < b) || SHOTS[SHOTS.length - 1]; const [x, y, z, yaw, pitch] = track(sh[2], t); return { x, y, z, yaw, pitch, f: 1050, roll: 0 }; }
+  function camAt(t) { const sh = SHOTS.find(([a, b]) => t >= a && t < b) || SHOTS[SHOTS.length - 1]; const [x, y, z, yaw, pitch] = track(sh[2], t); return { x, y, z, yaw, pitch, f: FOCAL, roll: 0 }; }
 
   // ---------- light ----------
   const BOLTS = [0.5, 2.6, 21.15];
@@ -51,7 +52,7 @@
   const PUMPKINS = []; for (let z = 4; z < 292; z += 11) for (const side of [-1, 1]) PUMPKINS.push({ x: side * (9.3 + hash(z, side) * 1.2), z: z + (side > 0 ? 5.5 : 0), s: 0.7 + hash(z, side, 2) * 0.5 });
   for (let k = 0; k < 10; k++) PUMPKINS.push({ x: -26 + k * 5.8, z: 297, s: 1.1 });
   function drawPumpkin(c, p, t) {
-    const q = T.P(p.x, 0, p.z); if (!q) return; const s = 1050 / q[2]; if (s < 0.8) return;
+    const q = T.P(p.x, 0, p.z); if (!q) return; const s = FOCAL / q[2]; if (s < 0.8) return;
     const lit = t < 4 ? 0 : blackout(t) ? 0 : A(t, 4.0 + clamp(p.z / 300) * 1.6, 0.15), fl = 0.85 + 0.15 * Math.sin(t * 17 + p.z), r = 0.62 * p.s * s;
     if (lit > 0) { c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(q[0], q[1] - r * 0.6, 0, q[0], q[1] - r * 0.6, r * 4.5); g.addColorStop(0, rgba(OR, 0.45 * lit * fl)); g.addColorStop(1, rgba(OR, 0)); c.fillStyle = g; c.fillRect(q[0] - r * 4.5, q[1] - r * 5, r * 9, r * 9); c.restore(); }
     const fk = T.fogK(q[2]); c.save(); c.translate(q[0], q[1] - r * 0.85); c.globalAlpha = 1 - fk * 0.5;
@@ -63,7 +64,7 @@
     c.restore();
   }
   function drawGhost(c, x, y, z, t, sc = 1, al = 0.85) {
-    const q = T.P(x, y, z); if (!q) return; const s = 1050 / q[2] * sc; if (s < 0.5) return; const fk = T.fogK(q[2]);
+    const q = T.P(x, y, z); if (!q) return; const s = FOCAL / q[2] * sc; if (s < 0.5) return; const fk = T.fogK(q[2]);
     c.save(); c.translate(q[0], q[1]); c.globalAlpha = al * (1 - fk * 0.4);
     c.save(); c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(0, 0, 0, 0, 0, s * 2.6); g.addColorStop(0, 'rgba(190,255,220,0.3)'); g.addColorStop(1, 'rgba(160,120,255,0)'); c.fillStyle = g; c.fillRect(-s * 2.6, -s * 2.6, s * 5.2, s * 5.2); c.restore();
     c.beginPath(); c.moveTo(-0.9 * s, 0.4 * s); c.quadraticCurveTo(-0.95 * s, -1.6 * s, 0, -1.6 * s); c.quadraticCurveTo(0.95 * s, -1.6 * s, 0.9 * s, 0.4 * s);
@@ -141,11 +142,11 @@
     if (t > 4.0) return; const k = A(t, 0.9, 0.6) * (1 - prog(t, 3.6, 3.95)); if (k <= 0) return;
     const fl = t < 1.6 ? (hash(Math.floor(t * 24), 3) < 0.7 ? 1 : 0.3) : 1;
     c.save(); c.globalAlpha = k * fl; c.font = SERIF(96); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = rgba(OR, 0.8); c.shadowBlur = 30; c.fillStyle = '#FFE2C2';
-    const msg = 'Something is lurking in ArcTown…', n = Math.floor(clamp(prog(t, 1.0, 2.6)) * msg.length); c.fillText(msg.slice(0, n), W / 2, 300); c.restore();
+    const msg = 'Something is lurking in ArcTown…', n = Math.floor(clamp(prog(t, 1.0, 2.6)) * msg.length); if (VERT) { const cut = 21; c.font = SERIF(92); c.fillText(msg.slice(0, Math.min(n, cut)), W / 2, 560); if (n > cut) c.fillText(msg.slice(cut, n), W / 2, 670); } else c.fillText(msg.slice(0, n), W / 2, 300); c.restore();
   }
-  function titleCard(c, t, t0, t1, y0 = 470) {
+  function titleCard(c, t, t0, t1, y0 = VERT ? 820 : 470) {
     if (t < t0 || t > t1) return; const k = A(t, t0, 0.45), out = prog(t, t1 - 0.35, t1);
-    c.save(); c.globalAlpha = 1 - out; c.translate(W / 2, y0); c.scale(lerp(1.6, 1, k), lerp(1.6, 1, k)); c.translate(-W / 2, -y0);
+    c.save(); c.globalAlpha = 1 - out; c.translate(W / 2, y0); c.scale(lerp(1.6, 1, k) * (VERT ? 0.6 : 1), lerp(1.6, 1, k) * (VERT ? 0.6 : 1)); c.translate(-W / 2, -y0);
     dripText(c, 'HALLOWEEN', W / 2, y0 - 40, 230, t, t0); dripText(c, 'PARTY', W / 2, y0 + 170, 200, t, t0 + 0.1, ['#D7A8FF', '#9B3DFF', '#4A0E8A']);
     const sk = A(t, t0 + 0.5, 0.4); c.globalAlpha = (1 - out) * sk; c.font = MARK(78); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = GR; c.shadowBlur = 26; c.fillStyle = '#DFFFD0'; c.fillText('in ArcTown', W / 2, y0 + 310); c.restore();
   }
@@ -153,7 +154,9 @@
   function captions(c, t) {
     for (const [t0, t1, a, b, col] of CAPS) {
       if (t < t0 || t > t1) continue; const k = io5(prog(t, t0, t0 + 0.25)), out = io3(prog(t, t1 - 0.2, t1));
-      c.save(); c.globalAlpha = 1 - out; const g = c.createLinearGradient(0, 860, 0, H); g.addColorStop(0, 'rgba(5,2,10,0)'); g.addColorStop(0.7, 'rgba(5,2,10,0.85)'); g.addColorStop(1, 'rgba(5,2,10,0.95)'); c.fillStyle = g; c.fillRect(0, 860, W, H - 860);
+      c.save(); c.globalAlpha = 1 - out; const gy = VERT ? 1260 : 860, g = c.createLinearGradient(0, gy, 0, H); g.addColorStop(0, 'rgba(5,2,10,0)'); g.addColorStop(0.5, 'rgba(5,2,10,0.85)'); g.addColorStop(1, 'rgba(5,2,10,0.95)'); c.fillStyle = g; c.fillRect(0, gy, W, H - gy);
+      if (VERT) { c.translate(W / 2, 1460); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k)); c.font = MARK(100); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = col; c.shadowBlur = 24; c.fillStyle = col; c.fillText(a, 0, 0); c.shadowBlur = 0; c.fillStyle = '#FFF4E8'; c.fillText(a, -2, -3);
+        c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.4); c.font = SANS(800, 32); c.letterSpacing = '5px'; c.fillStyle = '#F2E6FF'; c.fillText(b, 4, 100); c.restore(); continue; }
       c.translate(80, 990); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k)); c.font = MARK(92); c.textBaseline = 'middle'; c.shadowColor = col; c.shadowBlur = 24; c.fillStyle = col; c.fillText(a, 0, 0); c.shadowBlur = 0; c.fillStyle = '#FFF4E8'; c.fillText(a, -2, -3);
       const aw = c.measureText(a).width; c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.4); c.font = SANS(800, 28); c.letterSpacing = '5px'; c.fillStyle = '#F2E6FF'; c.fillText(b, aw + 40, 10); c.restore();
     }
@@ -181,17 +184,17 @@
       c.fillStyle = `rgba(255,${220 * fl | 0},90,1)`; c.shadowColor = '#FFB020'; c.shadowBlur = 60;
       c.beginPath(); c.moveTo(-0.55 * r, -0.05 * r); c.lineTo(-0.2 * r, -0.5 * r); c.lineTo(-0.1 * r, 0); c.closePath(); c.moveTo(0.55 * r, -0.05 * r); c.lineTo(0.2 * r, -0.5 * r); c.lineTo(0.1 * r, 0); c.closePath(); c.fill();
       c.beginPath(); c.moveTo(-0.62 * r, 0.18 * r); for (let i = 0; i <= 8; i++) c.lineTo(lerp(-0.62, 0.62, i / 8) * r, (0.18 + (i % 2 ? 0.16 : 0)) * r); c.lineTo(0.45 * r, 0.6 * r); for (let i = 8; i >= 0; i--) c.lineTo(lerp(-0.45, 0.45, i / 8) * r, (0.6 - (i % 2 ? 0.14 : 0)) * r); c.closePath(); c.fill(); c.restore(); }
-    if (t >= 22.35) { const q = A(t, 22.35, 0.3); c.save(); c.fillStyle = `rgba(5,2,10,${0.6})`; c.fillRect(0, 0, W, H); c.translate(W / 2, H / 2); c.scale(lerp(1.8, 1, q) + Math.sin(t * 50) * 0.01, lerp(1.8, 1, q)); dripText(c, "DON'T MISS IT", 0, 60, 190, t, 22.35, ['#FFFFFF', '#FF3A2A', '#7A0010']); c.restore(); }
+    if (t >= 22.35) { const q = A(t, 22.35, 0.3); c.save(); c.fillStyle = `rgba(5,2,10,${0.6})`; c.fillRect(0, 0, W, H); c.translate(W / 2, H / 2); c.scale(lerp(1.8, 1, q) + Math.sin(t * 50) * 0.01, lerp(1.8, 1, q)); if (VERT) { dripText(c, "DON'T", 0, -40, 230, t, 22.35, ['#FFFFFF', '#FF3A2A', '#7A0010']); dripText(c, 'MISS IT', 0, 200, 230, t, 22.45, ['#FFFFFF', '#FF3A2A', '#7A0010']); } else dripText(c, "DON'T MISS IT", 0, 60, 190, t, 22.35, ['#FFFFFF', '#FF3A2A', '#7A0010']); c.restore(); }
   }
   function endCard(c, t) {
     if (t < 23.0) return;
     c.fillStyle = `rgba(5,2,10,${0.5 * A(t, 23.0, 0.8)})`; c.fillRect(0, 0, W, H);
-    titleCard(c, t, 23.0, 31, 360);
-    const k = A(t, 24.2, 0.5); if (k > 0) { c.save(); c.globalAlpha = k; c.font = SANS(900, 46); c.letterSpacing = '14px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = OR; c.shadowBlur = 20; c.fillStyle = '#FFE8D0'; c.fillText(WHEN, W / 2 + 7, 790); c.restore(); }
-    const bk = pop(prog(t, 25.0, 25.5)); if (bk > 0) { const p = 1 + 0.05 * Math.exp(-((t % BT) * 9)); c.save(); c.translate(W / 2, 895); c.scale(bk * p, bk * p); c.shadowColor = OR; c.shadowBlur = 40;
+    titleCard(c, t, 23.0, 31, VERT ? 600 : 360);
+    const k = A(t, 24.2, 0.5); if (k > 0) { c.save(); c.globalAlpha = k; c.font = SANS(900, 46); c.letterSpacing = '14px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = OR; c.shadowBlur = 20; c.fillStyle = '#FFE8D0'; c.fillText(WHEN, W / 2 + 7, VERT ? 1060 : 790); c.restore(); }
+    const bk = pop(prog(t, 25.0, 25.5)); if (bk > 0) { const p = 1 + 0.05 * Math.exp(-((t % BT) * 9)); c.save(); c.translate(W / 2, VERT ? 1190 : 895); c.scale(bk * p, bk * p); c.shadowColor = OR; c.shadowBlur = 40;
       const g = c.createLinearGradient(-300, 0, 300, 0); g.addColorStop(0, OR); g.addColorStop(1, '#C2320A'); c.fillStyle = g; c.beginPath(); c.roundRect(-300, -52, 600, 104, 52); c.fill(); c.shadowBlur = 0;
       c.font = SANS(900, 40); c.letterSpacing = '4px'; c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('JOIN US… IF YOU DARE', 3, 2); c.restore();
-      c.save(); c.globalAlpha = bk; c.font = MARK(58); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = GR; c.shadowBlur = 20; c.fillStyle = '#E8FFDA'; c.fillText('arctown.app', W / 2, 1012); c.restore(); }
+      c.save(); c.globalAlpha = bk; c.font = MARK(58); c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = GR; c.shadowBlur = 20; c.fillStyle = '#E8FFDA'; c.fillText('arctown.app', W / 2, VERT ? 1330 : 1012); c.restore(); }
   }
 
   // ---------- finishing ----------

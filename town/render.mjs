@@ -9,7 +9,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 let chromium; try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require('/opt/node-tools/node_modules/playwright')); }
 const here = dirname(fileURLToPath(import.meta.url)), out = resolve(here, '..', 'out'); mkdirSync(out, { recursive: true });
-const args = process.argv.slice(2), film = ['halloween', 'vertical'].includes(args[0]) ? args[0] : 'showcase', stills = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
+const args = process.argv.slice(2), film = ['halloween', 'vertical', 'halloween_vertical'].includes(args[0]) ? args[0] : 'showcase', stills = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
 const browser = await chromium.launch({ args: ['--force-color-profile=srgb', '--allow-file-access-from-files'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 page.on('pageerror', (e) => { console.error('[pageerror]', e); process.exit(1); });
@@ -22,7 +22,7 @@ if (stills) {
   await browser.close(); process.exit(0);
 }
 const { DUR, FPS } = await page.evaluate(() => ({ DUR: window.FILM.DUR, FPS: window.FILM.FPS }));
-const wav = resolve(out, `arctown_${film}_score.wav`), mp4 = resolve(out, film === 'vertical' ? 'arctown_vertical_9x16_30s_60fps.mp4' : `arctown_${film}_30s_1080p60.mp4`);
+const wav = resolve(out, `arctown_${film === 'halloween_vertical' ? 'halloween' : film}_score.wav`), mp4 = resolve(out, film === 'vertical' ? 'arctown_vertical_9x16_30s_60fps.mp4' : film === 'halloween_vertical' ? 'arctown_halloween_9x16_30s_60fps.mp4' : `arctown_${film}_30s_1080p60.mp4`);
 const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-',
   ...(existsSync(wav) ? ['-i', wav, '-c:a', 'aac', '-b:a', '320k', '-ar', '48000'] : []),
   '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPS), '-movflags', '+faststart', '-t', String(DUR), mp4], { stdio: ['pipe', 'inherit', 'inherit'] });

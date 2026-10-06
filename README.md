@@ -195,3 +195,8 @@ node town/synth_halloween.mjs && node town/render.mjs halloween   # -> out/arcto
 ```
 node town/synth_vertical.mjs && node town/render.mjs vertical   # -> out/arctown_vertical_9x16_30s_60fps.mp4
 ```
+- **Halloween 9:16** (`town/halloween_vertical.html`, same `halloween.js` with `window.VERTICAL = true`): the Halloween invite reframed for
+  TikTok/Reels/Shorts — wider lens, stacked captions, two-line titles, portrait end card.
+```
+node town/synth_halloween.mjs && node town/render.mjs halloween_vertical   # -> out/arctown_halloween_9x16_30s_60fps.mp4
+```
