@@ -200,3 +200,12 @@ node town/synth_vertical.mjs && node town/render.mjs vertical   # -> out/arctown
 ```
 node town/synth_halloween.mjs && node town/render.mjs halloween_vertical   # -> out/arctown_halloween_9x16_30s_60fps.mp4
 ```
+
+## Thee_Kal_El — "Blockchain, explained." SaaS-style promo (`kal/`)
+20s 1920×1080 @ 60fps product-launch-style promo (light, bento, blur-in type) with a code-synthesized score (120 BPM, F major).
+Hook ("Blockchain is ~~confusing~~ the future.") → meet Kal El (channel card) → 12 blockchain use cases on a bento board
+(payments, gaming, earn-to-test, media, privacy, DePIN, collectibles, social, DeFi, real-world assets, DAOs, multichain),
+each with a live mini-UI and the real video that covers it → wall of real videos → Subscribe end card.
+```
+node kal/synth.mjs && node kal/render.mjs   # -> out/thee_kal_el_promo_20s_1080p60.mp4
+```
