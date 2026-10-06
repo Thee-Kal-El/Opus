@@ -122,7 +122,19 @@
     const bk1 = pop(prog(t, 13.05, 13.45)), bk2 = pop(prog(t, 13.15, 13.55)), by = cy + (V ? 300 : 300), pr = t > 13.85 && t < 14.0 ? 1 : 0;
     if (bk1 > 0) { c.save(); c.translate(V ? W / 2 : W / 2 - 230, by); c.scale(bk1 * (1 - pr * 0.06), bk1 * (1 - pr * 0.06)); c.shadowColor = rgba(BLUE, 0.6); c.shadowBlur = 40; btn(c, 0, 0, ' Download for macOS', true); c.restore(); }
     if (bk2 > 0) { c.save(); c.translate(V ? W / 2 : W / 2 + 250, V ? by + 110 : by); c.scale(bk2, bk2); btn(c, 0, 0, '🐧 Download for Linux', false); c.restore(); }
-    if (bk2 > 0) { c.save(); c.globalAlpha = bk2; const ol = (str, y, font, col, ls = 0) => { c.font = font; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = ls + 'px'; c.lineJoin = 'round'; c.lineWidth = 7; c.strokeStyle = '#000'; c.strokeText(str, W / 2, y); c.fillStyle = col; c.fillText(str, W / 2, y); c.letterSpacing = '0px'; }; ol('Coming soon to Windows', by + (V ? 200 : 95), M(500, 26), '#C4C8DA'); ol('genex.games', by + (V ? 270 : 165), M(700, 34), BLUE2, 2); c.restore(); }
+    if (bk2 > 0) { c.save(); c.globalAlpha = bk2; const yA = by + (V ? 200 : 100), yB = by + (V ? 280 : 182);
+      // soft dark floor so the chips sit on calmer ground
+      const fl = c.createLinearGradient(0, yA - 120, 0, H); fl.addColorStop(0, 'rgba(7,8,12,0)'); fl.addColorStop(0.45, 'rgba(7,8,12,0.55)'); fl.addColorStop(1, 'rgba(7,8,12,0.85)'); c.fillStyle = fl; c.fillRect(0, yA - 120, W, H - yA + 120);
+      // "Coming soon to Windows" — frosted glass chip with the Windows mark
+      c.font = M(500, 24); const wt = 'Coming soon to Windows', ww = c.measureText(wt).width + 92; rr(c, W / 2 - ww / 2, yA - 26, ww, 52, 26); c.fillStyle = 'rgba(14,16,26,0.78)'; c.fill(); c.strokeStyle = 'rgba(255,255,255,0.10)'; c.lineWidth = 1.5; c.stroke();
+      const ix = W / 2 - ww / 2 + 30, iy = yA - 9; c.fillStyle = '#4FA3F7'; [[0, 0], [10, 0], [0, 10], [10, 10]].forEach(([dx, dy]) => c.fillRect(ix + dx, iy + dy, 8.5, 8.5));
+      txt(c, wt, ix + 30, yA + 1, M(500, 24), '#B9BED3');
+      // genex.games — glowing URL pill in the brand blue
+      c.font = M(700, 32); c.letterSpacing = '2px'; const gw = c.measureText('genex.games').width + 96; c.letterSpacing = '0px'; const gp = 0.6 + 0.4 * Math.sin(t * 3);
+      c.save(); c.shadowColor = rgba(BLUE, 0.55 + 0.25 * gp); c.shadowBlur = 34; rr(c, W / 2 - gw / 2, yB - 34, gw, 68, 34); c.fillStyle = '#0B0F2A'; c.fill(); c.restore();
+      rr(c, W / 2 - gw / 2, yB - 34, gw, 68, 34); c.strokeStyle = rgba(BLUE2, 0.75); c.lineWidth = 2; c.stroke();
+      c.fillStyle = BLUE2; c.beginPath(); c.arc(W / 2 - gw / 2 + 30, yB, 6, 0, TAU); c.fill();
+      txt(c, 'genex.games', W / 2 + 10, yB + 1, M(700, 32), '#FFFFFF', 'center', 'middle', 2); c.restore(); }
     if (t > 13.3 && t < 14.4) { const ck = io5(prog(t, 13.4, 13.85)); cursor(c, lerp(W / 2 + 420, (V ? W / 2 : W / 2 - 230) + 40, ck), lerp(H - 60, by + 14, ck), pr); }
     if (t > 13.95) { const d = t - 13.95; c.save(); c.globalCompositeOperation = 'lighter'; c.strokeStyle = rgba(BLUE2, Math.max(0, 0.8 - d)); c.lineWidth = 5; c.beginPath(); c.arc(V ? W / 2 : W / 2 - 230, by, d * 1600, 0, TAU); c.stroke(); c.restore(); }
   }
