@@ -9,7 +9,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 let chromium; try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require('/opt/node-tools/node_modules/playwright')); }
 const here = dirname(fileURLToPath(import.meta.url)), out = resolve(here, '..', 'out'); mkdirSync(out, { recursive: true });
-const args = process.argv.slice(2), film = args[0] === 'badass' ? 'badass' : 'kal', stills = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
+const args = process.argv.slice(2), film = ['badass', 'badass_vertical'].includes(args[0]) ? args[0] : 'kal', stills = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
 const browser = await chromium.launch({ args: ['--force-color-profile=srgb', '--allow-file-access-from-files'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 page.on('pageerror', (e) => { console.error('[pageerror]', e); process.exit(1); });
@@ -22,7 +22,7 @@ if (stills) {
   await browser.close(); process.exit(0);
 }
 const { DUR, FPS } = await page.evaluate(() => ({ DUR: window.FILM.DUR, FPS: window.FILM.FPS }));
-const wav = resolve(out, film === 'badass' ? 'thee_kal_el_allout_score.wav' : 'thee_kal_el_promo_score.wav'), mp4 = resolve(out, film === 'badass' ? 'thee_kal_el_allout_15s_1080p60.mp4' : 'thee_kal_el_promo_20s_1080p60.mp4');
+const wav = resolve(out, film.startsWith('badass') ? 'thee_kal_el_allout_score.wav' : 'thee_kal_el_promo_score.wav'), mp4 = resolve(out, { badass: 'thee_kal_el_allout_15s_1080p60.mp4', badass_vertical: 'thee_kal_el_allout_9x16_15s_60fps.mp4', kal: 'thee_kal_el_promo_20s_1080p60.mp4' }[film]);
 const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-',
   ...(existsSync(wav) ? ['-i', wav, '-c:a', 'aac', '-b:a', '320k', '-ar', '48000'] : []),
   '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPS), '-movflags', '+faststart', '-t', String(DUR), mp4], { stdio: ['pipe', 'inherit', 'inherit'] });

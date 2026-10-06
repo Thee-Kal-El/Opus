@@ -218,3 +218,5 @@ montage → chrome logo lockup with Subscribe.
 ```
 node kal/synth_allout.mjs && node kal/render.mjs badass   # -> out/thee_kal_el_allout_15s_1080p60.mp4
 ```
+- **Vertical 9:16** (`kal/badass_vertical.html`, same `badass.js` with `window.VERTICAL = true`): auto-fit titles, two-line
+  @THEE_KAL_EL particle morph, portrait lockup. `node kal/render.mjs badass_vertical` → `out/thee_kal_el_allout_9x16_15s_60fps.mp4`
