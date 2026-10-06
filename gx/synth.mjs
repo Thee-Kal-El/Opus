@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SR = 48000, DUR = 15, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
+const SR = 48000, DUR = 20, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
 const L = new Float32Array(N), Rr = new Float32Array(N), revL = new Float32Array(N), revR = new Float32Array(N), dlyL = new Float32Array(N), dlyR = new Float32Array(N);
 let seed = 4242;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -142,17 +142,19 @@ drive(2.0, 9.0, {});
 [5.5, 7.5].forEach((t) => { softImpact(t, 1.1); braam(t, 1.2, chordAt(t), 1.1); laser(t, 0.8, 0, 2600, 200); });
 for (let i = 0; i < 8; i++) { const t = 8.0 + i * 0.125; i % 2 ? popS(t, 0.55, 700 + i * 40) : lowPop(t, 0.6, 100 + i * 6); } click(8.88, 1.4, 1400); clangS(8.9, 0.7, 58);
 riser(8.2, 0.8, 1.0); roll(8.75, 9.0, 1);
-// 9–12.5 desktop app: big hit, half-time, chips, models connect, skill lines
-softImpact(9.0, 1.5); braam(9.0, 2.0, CH.Am, 1.5); bigKick(9.0, 1.2); e808(9.0, 0.8, 45, 1.1); whoosh(9.3, 0.6, 1.1, true);
-drive(9.5, 12.5, { kick: 0.85, gate: 0.6, arp: 0.55 });
-[9.9, 10.3, 10.65].forEach((t, i) => (i % 2 ? popS(t, 0.8, 900) : lowPop(t, 0.9, 120)));
-whoosh(10.85, 0.25, 1.2, true); softImpact(11.0, 1.1); [11.55, 11.7, 11.85].forEach((t, i) => [() => lowPop(t, 0.9, 110), () => tomHit(t, 0.8, 150), () => clangS(t, 0.7, 60)][i]());
-for (let i = 0; i < 4; i++) key(11.6 + i * 0.15, 0.8, 3000);
-riser(11.8, 0.7, 1.0); roll(12.25, 12.5, 1);
-// 12.5–15 end card
-softImpact(12.5, 1.5); braam(12.5, 2.5, CH.Am, 1.4); bigKick(12.5, 1.1); clangS(12.5, 1.0, 49); pad(12.5, 2.5, CH.Am, 1.0, { atk: 0.05, rel: 1.5 });
-[13.05, 13.15].forEach((t, i) => (i ? popS(t, 0.8, 900) : lowPop(t, 0.9, 115)));
-click(13.95, 1.6, 1300); clangS(13.97, 0.9, 55); bell(14.0, 69, 0.3, 0, 1.2);
+// 9–20 (stretched): desktop app 9–12.5, models/skills 12.5–15.5, end card 15.5–20 — same cues, re-timed on the 120 BPM grid
+const F = (d) => (d < 11 ? 9 + (d - 9) * 1.75 : d < 12.5 ? 12.5 + (d - 11) * 2 : 15.5 + (d - 12.5) * 1.8);
+softImpact(9.0, 1.5); braam(9.0, 2.6, CH.Am, 1.5); bigKick(9.0, 1.2); e808(9.0, 0.8, 45, 1.1); whoosh(9.4, 0.9, 1.1, true);
+drive(9.5, 15.5, { kick: 0.85, gate: 0.6, arp: 0.55 });
+[9.9, 10.3, 10.65].forEach((t, i) => (i % 2 ? popS(F(t), 0.8, 900) : lowPop(F(t), 0.9, 120)));
+whoosh(12.1, 0.4, 1.2, true); softImpact(12.5, 1.1); braam(12.5, 1.6, chordAt(12.5), 0.9);
+[11.55, 11.7, 11.85].forEach((t, i) => [() => lowPop(F(t), 0.9, 110), () => tomHit(F(t), 0.8, 150), () => clangS(F(t), 0.7, 60)][i]());
+for (let i = 0; i < 4; i++) key(F(11.6 + i * 0.15), 0.8, 3000);
+riser(14.3, 1.2, 1.0); roll(15.0, 15.5, 1);
+softImpact(15.5, 1.5); braam(15.5, 3.0, CH.Am, 1.4); bigKick(15.5, 1.1); clangS(15.5, 1.0, 49); pad(15.5, 4.5, CH.Am, 1.0, { atk: 0.05, rel: 2.0 });
+drive(16.0, 19.0, { kick: 0.6, bass: 0.7, gate: 0.45, arp: 0.45 });
+[13.05, 13.15].forEach((t, i) => (i ? popS(F(t), 0.8, 900) : lowPop(F(t), 0.9, 115)));
+click(F(13.95), 1.6, 1300); clangS(F(13.97), 0.9, 55); bell(F(14.0), 69, 0.3, 0, 1.2);
 
 // ---------- FX + master ----------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }

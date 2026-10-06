@@ -6,7 +6,10 @@
   'use strict';
   const K = window.KIT, { TAU, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, rr, hash } = K;
   const V = !!window.VERTICAL;
-  const W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 15, BT = 0.5;
+  const W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 20, BT = 0.5;
+  // time map: 0–9 unchanged; from the desktop app on, every clip is held longer (design → real knots, all on the beat)
+  const KN = [[0, 0], [9, 9], [11, 12.5], [12.5, 15.5], [15, 20]];
+  const toDesign = (r) => { for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (r <= r1 || i === KN.length - 2) return d0 + (r - r0) * (d1 - d0) / (r1 - r0); } return r; };
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
   const BLUE = '#5B6CF0', BLUE2 = '#8A96FF', INK = '#ECEDF3', MUTE = '#8C90A6', BG = '#07080C', CARD = '#14161E', GREEN = '#22C55E';
   const G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`, M = (w, s) => `${w} ${s}px "JetBrains Mono", monospace`;
@@ -133,13 +136,13 @@
     c.fillStyle = 'rgba(0,0,0,0.08)'; for (let y = 0; y < H; y += 3) c.fillRect(0, y, W, 1);
     const fi = 1 - prog(t, 0, 0.25), fo = prog(t, 14.6, 15); if (fi > 0 || fo > 0) { c.fillStyle = `rgba(0,0,0,${Math.max(fi, fo)})`; c.fillRect(0, 0, W, H); }
   }
-  function renderAt(t) {
-    const c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
+  function renderAt(tReal) {
+    const t = toDesign(tReal), c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
     let sh = 0; for (const T0 of HITS) sh = Math.max(sh, pulse(t, T0, 18) * 14); c.save(); c.translate((hash(Math.round(t * FPS), 3) - 0.5) * 2 * sh, (hash(Math.round(t * FPS), 4) - 0.5) * 2 * sh);
     if (t < 2.0) { background(c, t, 1); prompt(c, t); }
     wall(c, t); desktop(c, t); endCard(c, t); c.restore(); finish(c, t);
   }
   window.FILM = { W, H, FPS, DUR, renderAt };
-  window.FILM.ready = Promise.all([document.fonts.load(G(300, 100)), document.fonts.load(G(500, 40)), document.fonts.load(G(700, 40)), document.fonts.load(M(600, 20)), document.fonts.load(M(700, 20)), ...ALL.map((k) => load(k, `../assets/genex/${k}.png`)), ...['app', 'modelicons', 'skill'].map((k) => load(k, `../assets/genex/${k}.png`))]).then(() => document.fonts.ready);
+  window.FILM.ready = Promise.all([document.fonts.load(G(300, 100)), document.fonts.load(G(500, 40)), document.fonts.load(G(700, 40)), document.fonts.load(M(600, 20)), document.fonts.load(M(700, 20)), ...ALL.map((k) => load(k, `../assets/genex/${k}_hd.png`)), ...['app', 'modelicons', 'skill'].map((k) => load(k, `../assets/genex/${k}.png`))]).then(() => document.fonts.ready);
   if (!/[?&]render\b/.test(location.search)) window.FILM.ready.then(() => { const t0 = performance.now(); const loop = () => { renderAt(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); }; loop(); });
 })();
