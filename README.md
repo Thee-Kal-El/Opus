@@ -254,3 +254,13 @@ open-source end card with Download for macOS / Linux.
 node gx/synth.mjs && node gx/render.mjs   # -> out/genex_20s_1080p60.mp4
 ```
 - **Vertical 9:16** (`gx/gx_vertical.html`, same `gx.js` with `window.VERTICAL = true`). `node gx/render.mjs vertical` → `out/genex_9x16_20s_60fps.mp4`
+
+## Thee_Kal_El — SHOWREEL ’26 (`reel26/`)
+15s 1920×1080 @ 60fps motion-design résumé reel, every segment a different discipline built from the channel, with a synthesized
+score (120 BPM, D minor): film-leader slate → 01 KINETIC TYPE → 02 SHAPE MORPH (play button → avatar circle → block hexagon → chain)
+→ 03 3D (cube of video thumbnails over extruded "121 VIDEOS") → 04 PARTICLES (photo from a vortex, ripple, re-forms as @THEE_KAL_EL)
+→ 05 UI ANIMATION (channel page build + Subscribe) → 06 TRANSITIONS (wipe, iris, slice, push, pixelate, split) → end card.
+Thumbnails/Shorts AI-upscaled with Real-ESRGAN (`assets/reel26/`).
+```
+node reel26/synth.mjs && node reel26/render.mjs   # -> out/thee_kal_el_showreel26_15s_1080p60.mp4
+```
