@@ -15,21 +15,23 @@
   const ASSETS = ['card_argus', 'card_as', 'card_dividend', 'card_cat', 'new1', 'new2', 'new3', 'new4', 'new5', 'frlt', 'c1', 'c2', 'c3', 'c4', 'c5', 'coin'];
 
   // ---------- camera ----------
-  const L = Math.log, FULL = L(1.56), HOME = [955, 372], TOK = [950, TP + 410];
+  // wide, readable framing: full shots show the whole page, zooms show a whole panel with room around it
+  const L = Math.log, FULL = L(1.06), HOME = [955, 470], TOK = [950, TP + 570], TFULL = L(0.93);
   const KEYS = [
-    [0.0, 748, 245, L(4.5)], [0.9, 748, 245, L(4.5)], [1.6, 748, 245, L(2.3)], [2.0, 748, 245, L(2.2)],
-    [2.6, ...HOME, FULL], [5.65, ...HOME, L(1.62)],
-    [6.0, 748, 245, L(2.35)], [7.65, 748, 245, L(2.5)],                 // KING OF THE HILL
-    [8.0, 1358, 262, L(3.0)], [9.65, 1358, 262, L(3.15)],               // CONTENDERS
-    [10.0, 955, 545, L(1.6)], [11.65, 955, 545, L(1.7)],                // TOP BY MARKET CAP
-    [12.0, 955, 790, L(1.62)], [13.65, 955, 790, L(1.7)],               // NEW
-    [14.0, ...HOME, FULL], [14.4, 955, 310, L(2.05)], [16.75, 955, 300, L(2.25)],   // search + typing + click
-    [16.99, 955, 300, L(2.3)], [17.0, ...TOK, L(1.7)], [18.15, ...TOK, FULL],      // cut to the token page
-    [18.5, 775, TP + 470, L(2.05)], [20.15, 775, TP + 470, L(2.2)],     // CHART
-    [20.5, 1391, TP + 390, L(2.45)], [22.15, 1391, TP + 400, L(2.6)],   // BUY / SELL
-    [22.5, 775, TP + 960, L(1.95)], [24.15, 775, TP + 960, L(2.05)],    // TRADES
-    [24.5, ...TOK, FULL], [28.0, ...TOK, L(1.66)],
+    [0.0, 748, 245, L(3.2)], [0.9, 748, 245, L(3.2)], [1.6, 748, 245, L(1.75)], [2.0, 748, 260, L(1.7)],
+    [2.6, ...HOME, FULL], [5.65, ...HOME, L(1.09)],
+    [6.0, 748, 250, L(1.75)], [7.65, 748, 250, L(1.8)],                 // KING OF THE HILL
+    [8.0, 1358, 250, L(2.05)], [9.65, 1358, 250, L(2.12)],              // CONTENDERS
+    [10.0, 955, 545, L(1.38)], [11.65, 955, 545, L(1.42)],              // TOP BY MARKET CAP
+    [12.0, 955, 790, L(1.4)], [13.65, 955, 790, L(1.44)],               // NEW
+    [14.0, ...HOME, FULL], [14.4, 955, 400, L(1.4)], [16.75, 955, 400, L(1.46)],   // search + typing + click
+    [16.99, 955, 400, L(1.47)], [17.0, ...TOK, L(1.0)], [18.15, ...TOK, TFULL],    // cut to the token page
+    [18.5, 775, TP + 495, L(1.62)], [20.15, 775, TP + 495, L(1.68)],    // CHART
+    [20.5, 1391, TP + 392, L(1.55)], [22.15, 1391, TP + 392, L(1.6)],   // BUY / SELL
+    [22.5, 775, TP + 960, L(1.6)], [24.15, 775, TP + 960, L(1.66)],     // TRADES
+    [24.5, ...TOK, TFULL], [28.0, ...TOK, L(0.97)],
   ];
+
   let CAM;
   function camera(t) {
     let i = 0; while (i < KEYS.length - 2 && t >= KEYS[i + 1][0]) i++;
@@ -284,13 +286,13 @@
       if (t < t0 || t > t1) continue;
       const k = io5(prog(t, t0, t0 + 0.22)), out = io3(prog(t, t1 - 0.2, t1));
       c.save(); c.globalAlpha = 1 - out;
-      const g = c.createLinearGradient(0, 760, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.5, 'rgba(0,0,0,0.75)'); g.addColorStop(1, 'rgba(0,0,0,0.9)'); c.fillStyle = g; c.fillRect(0, 760, W, H - 760);
-      c.translate(96, 900); c.scale(lerp(1.35, 1, k), lerp(1.35, 1, k));
-      c.font = F(900, 104); c.textBaseline = 'alphabetic'; c.letterSpacing = '-3px';
+      const g = c.createLinearGradient(0, 930, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.6, 'rgba(0,0,0,0.8)'); g.addColorStop(1, 'rgba(0,0,0,0.92)'); c.fillStyle = g; c.fillRect(0, 930, W, H - 930);
+      c.translate(70, 1010); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k));
+      c.font = F(900, 58); c.textBaseline = 'alphabetic'; c.letterSpacing = '-1.5px';
       c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,60,200,0.55)'; c.fillText(a, -6 * (1 - k) - 2, 0); c.fillStyle = 'rgba(80,160,255,0.55)'; c.fillText(a, 6 * (1 - k) + 2, 0); c.globalCompositeOperation = 'source-over';
       c.fillStyle = '#FFFFFF'; c.fillText(a, 0, 0); const aw = c.measureText(a).width;
-      c.fillStyle = C.purple; c.fillRect(0, 22, aw * io3(prog(t, t0 + 0.1, t0 + 0.4)), 7);
-      c.letterSpacing = '4px'; c.font = F(800, 34); c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.35); c.fillStyle = C.violet; c.fillText(b, 4, 78);
+      c.fillStyle = C.purple; c.fillRect(0, 14, aw * io3(prog(t, t0 + 0.1, t0 + 0.4)), 5);
+      c.letterSpacing = '3px'; c.font = F(800, 24); c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.35); c.fillStyle = C.violet; c.fillText(b, aw + 30, -4);
       c.restore();
     }
   }
