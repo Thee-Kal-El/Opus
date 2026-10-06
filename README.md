@@ -244,3 +244,12 @@ node tp/synth.mjs && node tp/render.mjs   # -> out/teleparty_24s_1080p60.mp4 (in
   copy over the customize panels, two-row services, tall icon ring. `node tp/render.mjs vertical` → `out/teleparty_9x16_24s_60fps.mp4`
 - **Vertical 9:16** (`fin/fin_vertical.html`, same `fin.js` with `window.VERTICAL = true`): portrait framing of the same camera
   path. `node fin/render.mjs vertical` → `out/finality_issue01_9x16_20s_60fps.mp4`
+
+## GENEX — 15s trailer (`gx/`)
+15s 1920×1080 @ 60fps trailer built from the genex.games screenshots, with a synthesized cinematic-electronic score (120 BPM, A minor):
+the prompt box types "Create a party game for you and 7 friends" → Create → GAMES / TOOLS / ASSETS on a tilted wall of the real cards
+with heroes on the beat → the desktop app ("Desktop app built for game dev with AI"), your own models, self-improving skills →
+open-source end card with Download for macOS / Linux.
+```
+node gx/synth.mjs && node gx/render.mjs   # -> out/genex_15s_1080p60.mp4
+```
