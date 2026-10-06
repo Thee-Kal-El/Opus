@@ -156,3 +156,13 @@ Source is in `bird/`: `kit.js` (Birdeye UI kit, NOSELLING coin, banner), `termin
 node bird/synth_terminal.mjs && node bird/render.mjs terminal
 node bird/synth_promo.mjs && node bird/render.mjs promo
 ```
+
+---
+
+# Argus terminal film (argus.world)
+
+- `out/argus_terminal_28s_1080p60.mp4` (28s, 120 BPM): a dot becomes the Argus home terminal: King of the Hill, Contenders, Top by Market Cap, then New, with beat-cut whip zooms and captions. Next comes a search: "NOSELLING" is typed and the contract is clicked, cutting to the $NOSELLING page, which zooms through Chart, Buy/Sell and Trades. It ends on the Argus logo and argus.world.
+- Source is `bird/argus.js`, the score is `bird/synth_argus.mjs`, and the screenshots and art crops are in `assets/argus/`.
+```sh
+node bird/synth_argus.mjs && node bird/render.mjs argus
+```

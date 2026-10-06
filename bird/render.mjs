@@ -10,7 +10,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 let chromium; try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require('/opt/node-tools/node_modules/playwright')); }
 const here = dirname(fileURLToPath(import.meta.url)), out = resolve(here, '..', 'out'); mkdirSync(out, { recursive: true });
-const args = process.argv.slice(2), film = args[0] === 'promo' ? 'promo' : 'terminal';
+const args = process.argv.slice(2), film = ['promo', 'argus'].includes(args[0]) ? args[0] : 'terminal';
 const stills = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
 const browser = await chromium.launch({ args: ['--force-color-profile=srgb', '--allow-file-access-from-files'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
@@ -24,8 +24,8 @@ if (stills) {
   await browser.close(); process.exit(0);
 }
 const { DUR, FPS } = await page.evaluate(() => ({ DUR: window.FILM.DUR, FPS: window.FILM.FPS }));
-const wav = resolve(out, `birdeye_${film}_score.wav`);
-const mp4 = resolve(out, film === 'terminal' ? 'birdeye_terminal_26s_1080p60.mp4' : 'birdeye_promo_1080p60.mp4');
+const wav = resolve(out, film === 'argus' ? 'argus_score.wav' : `birdeye_${film}_score.wav`);
+const mp4 = resolve(out, { terminal: 'birdeye_terminal_26s_1080p60.mp4', promo: 'birdeye_promo_1080p60.mp4', argus: 'argus_terminal_28s_1080p60.mp4' }[film]);
 const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-',
   ...(existsSync(wav) ? ['-i', wav, '-c:a', 'aac', '-b:a', '320k', '-ar', '48000'] : []),
   '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPS), '-movflags', '+faststart', '-t', String(DUR), mp4], { stdio: ['pipe', 'inherit', 'inherit'] });
