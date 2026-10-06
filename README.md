@@ -128,11 +128,11 @@ open thk/index.html                           # live preview
 
 # ArcTown.app: origami / doodle story
 
-A 20s, 1920×1080, 60fps paper pop-up story with no dialogue, plus an original score with paper sound effects.
+A 17s, 1920×1080, 60fps paper pop-up story with no dialogue, plus an original score with paper sound effects.
 
 **Output:** `out/arctown_paper_story_1080p60.mp4`. The score alone is `out/arctown_paper_score.wav`.
 
-**Story:** a lonely red paper avatar wonders where to go, and a paper-plane invite lands in its hand. The invite unfolds into the ArcTown map, and a doodle route leads to ArcTown.app. The map refolds into a plane and flies the avatar to the city, then a page turn opens the book. The city pops up in three chapters:
+**Story:** a lonely red paper avatar wonders where to go, and a paper-plane invite lands in its hand. The avatar rides the plane to the city (the map scene is cut out of the final MP4), then a page turn opens the book. The city pops up in three chapters:
 - **EXPLORE:** the avatar walks the neon avenue.
 - **OWN LAND:** an UP FOR SALE sign flips to YOURS!, and the avatar's building folds up.
 - **HANG OUT:** friends pop up, with chat bubbles and a dance.
