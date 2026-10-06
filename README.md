@@ -188,3 +188,10 @@ near-plane clipping, painter's sort, neon edges, lit windows, signs mapped onto 
 node town/synth_showcase.mjs  && node town/render.mjs showcase    # -> out/arctown_showcase_30s_1080p60.mp4
 node town/synth_halloween.mjs && node town/render.mjs halloween   # -> out/arctown_halloween_30s_1080p60.mp4
 ```
+- **Vertical 9:16** (`town/vertical.js`, deep-house score, 1080×1920 @ 60fps): drone dive under the neon title → EXPLORE (third-person
+  follow cam, people walking and entering buildings, live minimap) → THE SHIFT (the city sinks into a glowing plot grid) → BUY LAND
+  (apply flow, rapid claims, buildings rising, the city rebuilds) → HANG OUT (plaza crowd, chat panel, voice, friend request) → end card.
+  Built with JavaScript (canvas + synthesized audio), Playwright and FFmpeg only.
+```
+node town/synth_vertical.mjs && node town/render.mjs vertical   # -> out/arctown_vertical_9x16_30s_60fps.mp4
+```

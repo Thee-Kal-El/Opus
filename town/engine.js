@@ -3,9 +3,9 @@
 // neon edges, lit windows, signs mapped onto faces, lamps, benches, trees, floating cubes and avatars.
 // World: metres. x right, y up, z down the avenue toward the Town Hall (z ≈ 300) and the ARC tower behind it.
 // Two themes: 'neon' (the game as it looks) and 'spooky' (Halloween: fog, orange/purple/green neon, renamed signs).
-window.TOWN = (themeName) => {
+window.TOWN = (themeName, size) => {
   themeName = themeName || 'neon';
-  const W = 1920, H = 1080, TAU = Math.PI * 2, NEAR = 0.3;
+  const W = (size && size.W) || 1920, H = (size && size.H) || 1080, TAU = Math.PI * 2, NEAR = 0.3;
   const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
   const lerp = (a, b, k) => a + (b - a) * k;
   const prog = (t, a, b) => clamp((t - a) / (b - a));
@@ -267,7 +267,7 @@ window.TOWN = (themeName) => {
   function drawAvatar(c, a, t) {
     const p = P(a.x, 0, a.z); if (!p) return null; const s = CAM.f / p[2]; if (s < 0.6) return null;
     const bob = (a.bob || 0) * Math.abs(Math.sin(t * Math.PI * 2 * (a.bpm || 1) + (a.ph || 0))), sway = Math.sin(t * 2 + (a.ph || 0)) * 0.06 * (a.bob ? 1 : 0.3);
-    const fk = fogK(p[2]); c.save(); c.translate(p[0], p[1] - bob * s); c.scale(s, s); c.rotate(sway * 0.3); c.globalAlpha = 1 - fk * 0.5;
+    const fk = fogK(p[2]); c.save(); c.translate(p[0], p[1] - bob * s); c.scale(s, s); c.rotate(sway * 0.3); c.globalAlpha *= 1 - fk * 0.5;
     const fill = (col, f) => { c.fillStyle = col; f(); c.fill(); };
     c.fillStyle = 'rgba(0,0,0,0.35)'; c.beginPath(); c.ellipse(0, bob * s / s, 0.45, 0.12, 0, 0, TAU); c.fill();
     const legSw = Math.sin(t * 6 + (a.ph || 0)) * (a.walk ? 0.12 : 0);
@@ -284,6 +284,7 @@ window.TOWN = (themeName) => {
       c.fillStyle = '#FFE27A'; c.beginPath(); c.moveTo(-0.2, -1.95); c.lineTo(-0.1, -2.03); c.lineTo(-0.06, -1.93); c.moveTo(0.2, -1.95); c.lineTo(0.1, -2.03); c.lineTo(0.06, -1.93); c.fill(); c.beginPath(); c.moveTo(-0.2, -1.8); c.lineTo(0.2, -1.8); c.lineTo(0.1, -1.72); c.lineTo(-0.1, -1.72); c.fill(); }
     else {
       fill(a.skin || '#E6B08A', () => { c.beginPath(); c.ellipse(0, -1.86, 0.24, 0.28, 0, 0, TAU); });
+      if (a.back) fill(a.hair || '#B4472A', () => { c.beginPath(); c.ellipse(0, -1.9, 0.26, 0.26, 0, 0, TAU); });
       fill(a.hair || '#B4472A', () => { c.beginPath(); c.ellipse(0, -2.0, 0.26, 0.17, 0, Math.PI, 0); c.rect(-0.26, -2.02, 0.07, 0.2); });
       if (a.bot) { c.fillStyle = '#2EF2FF'; c.fillRect(-0.16, -1.92, 0.32, 0.07); }
       if (a.costume === 'witch') { c.fillStyle = '#1A0F24'; c.beginPath(); c.ellipse(0, -2.08, 0.42, 0.08, 0, 0, TAU); c.fill(); c.beginPath(); c.moveTo(-0.22, -2.1); c.lineTo(0.12, -2.75); c.lineTo(0.22, -2.1); c.closePath(); c.fill(); c.fillStyle = '#9B3DFF'; c.fillRect(-0.21, -2.2, 0.42, 0.06); }
@@ -302,7 +303,7 @@ window.TOWN = (themeName) => {
   function render(c, cam, t, o = {}) {
     setCam(cam); c.save();
     if (CAM.roll) { c.translate(W / 2, H / 2); c.rotate(CAM.roll); c.translate(-W / 2, -H / 2); }
-    drawSky(c, t, o.sky || {}); drawGround(c, t, o);
+    drawSky(c, t, o.sky || {}); drawGround(c, t, o); if (o.ground) o.ground(c);
     const pw = (b) => (o.power ? o.power(b, t) : 1), items = [];
     const push = (x, z, f, bias = 0) => { const d = Math.hypot(x - CAM.x, z - CAM.z) + bias; if (d < 1400) items.push([d, f]); };
     for (const b of BOXES) { const cx = (b.x0 + b.x1) / 2, cz = (b.z0 + b.z1) / 2; const p = toCam(cx, b.h / 2, cz); if (p[2] < -Math.max(b.x1 - b.x0, b.z1 - b.z0, b.h)) continue; push(cx, cz, () => drawBox(c, b, t, pw(b), o), b.kind === 'column' ? -3 : b.kind === 'roof' ? -1 : b.kind === 'plinth' ? 4 : 0); }
