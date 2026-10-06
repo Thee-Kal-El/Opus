@@ -6,7 +6,8 @@
 (() => {
   'use strict';
   const K = window.KIT, { TAU, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, rr, hash } = K;
-  const W = 1920, H = 1080, FPS = 60, DUR = 15, BT = 0.5;
+  const W = 1920, H = 1080, FPS = 60, DUR = 20, BT = 0.5;
+  const SLOW = 15 / 20; // designed at 15s; plays 4/3 slower (20s, music at 90 BPM)
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
   const RED = '#E8384F', PUR = '#A35BC9', DK = '#141414', CARD = '#262626', LINE = '#3A3A3A', LIGHT = '#F7F7F7', GOLD = '#F5C518';
   const D = (s, w = 800) => `${w} ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
@@ -23,6 +24,16 @@
   function burst(c, x, y, t, t0, n = 60) { const d = t - t0; if (d < 0 || d > 1.3) return; for (let i = 0; i < n; i++) { const a = hash(i, 7) * TAU, v = 400 + hash(i, 8) * 900, px = x + Math.cos(a) * v * d, py = y + Math.sin(a) * v * d * 0.8 + 600 * d * d, s = (6 + hash(i, 9) * 9) * (1 - d / 1.3);
     c.save(); c.translate(px, py); c.rotate(d * 9 + i); c.globalAlpha = 1 - d / 1.3; c.fillStyle = [RED, PUR, GOLD, '#fff', '#5BC0EB'][i % 5]; c.fillRect(-s, -s * 0.45, s * 2, s * 0.9); c.restore(); } }
 
+  function pencil(c, x, y, s = 1) {
+    c.save(); c.translate(x, y); c.rotate(Math.PI + 0.62); c.scale(s, s); c.lineJoin = 'round'; c.lineWidth = 4; c.strokeStyle = '#1A1A1A';
+    c.fillStyle = 'rgba(0,0,0,0.12)'; c.beginPath(); c.moveTo(6, 10); c.lineTo(46, 30); c.lineTo(190, 30); c.lineTo(190, 14); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(46, -22); c.lineTo(46, 22); c.closePath(); c.fillStyle = '#F6C99A'; c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(14, -6.7); c.lineTo(14, 6.7); c.closePath(); c.fillStyle = '#1A1A1A'; c.fill();
+    c.fillStyle = '#FFC21F'; c.beginPath(); c.rect(46, -22, 130, 44); c.fill(); c.fillStyle = '#F2A50C'; c.fillRect(46, 7, 130, 15); c.fillStyle = '#FFD95A'; c.fillRect(46, -22, 130, 9); c.strokeRect(46, -22, 130, 44);
+    c.fillStyle = '#BDBDBD'; c.fillRect(176, -22, 22, 44); c.fillStyle = '#9E9E9E'; c.fillRect(184, -22, 4, 44); c.strokeRect(176, -22, 22, 44);
+    c.beginPath(); c.moveTo(198, -22); c.lineTo(222, -22); c.quadraticCurveTo(234, -22, 234, -10); c.lineTo(234, 10); c.quadraticCurveTo(234, 22, 222, 22); c.lineTo(198, 22); c.closePath(); c.fillStyle = '#F07AA0'; c.fill(); c.stroke();
+    c.restore();
+  }
   // ---------- the "movie" (procedural, so nothing copyrighted plays on screen) ----------
   function movie(c, x, y, w, h, tm, paused = false) {
     c.save(); rr(c, x, y, w, h, 16); c.clip();
@@ -123,7 +134,7 @@
       if (sel) { c.strokeStyle = '#fff'; c.lineWidth = 3; c.beginPath(); c.arc(0, 0, 30, 0, TAU); c.stroke(); } c.restore(); }));
     c.restore();
     // pencil + gradient underline (as on the site)
-    const ul = ease(t, 6.5, 7.2); if (ul > 0) { c.save(); c.globalAlpha = pk; const x0 = ox + 140 * S, y0 = oy + 388 * S, x1 = x0 + 480 * S * ul; c.fillStyle = grad(c, x0, x0 + 480 * S); rr(c, x0, y0, x1 - x0, 6, 3); c.fill(); if (IMG.pencil) c.drawImage(IMG.pencil, x1 - 250, y0 - 170, 290, 200); c.restore(); }
+    const ul = ease(t, 6.5, 7.2); if (ul > 0) { c.save(); c.globalAlpha = pk; const x0 = ox + 140 * S, y0 = oy + 388 * S, x1 = x0 + 400 * S * ul; c.fillStyle = grad(c, x0, x0 + 400 * S); rr(c, x0, y0, x1 - x0, 6, 3); c.fill(); pencil(c, x1 + 4, y0 + 2, 1.15); c.restore(); }
     // cursor: pick the cookie → toggle → start the party
     const P = (u, v) => [ox + u * S, oy + v * S]; let cx, cy, pr = 0;
     if (t > 7.35) { const a = P(420, 330), b = P(493, 70), d = P(217, 241), e = P(127, 290); if (t < 7.85) { const k = io5(prog(t, 7.35, 7.8)); cx = lerp(a[0], b[0], k); cy = lerp(a[1], b[1], k); pr = t > 7.75 ? 1 : 0; } else if (t < 8.6) { const k = io5(prog(t, 8.05, 8.5)); cx = lerp(b[0], d[0], k); cy = lerp(b[1], d[1], k); pr = t > 8.48 ? 1 : 0; } else { const k = io5(prog(t, 8.7, 9.1)); cx = lerp(d[0], e[0], k); cy = lerp(d[1], e[1], k); pr = t > 9.12 && t < 9.32 ? 1 : 0; } if (t < 9.6) cursor(c, cx + 6, cy + 6, pr); }
@@ -165,8 +176,8 @@
     const v = c.createRadialGradient(W / 2, H / 2, H * 0.5, W / 2, H / 2, H * 1.1); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.35)'); c.fillStyle = v; c.fillRect(0, 0, W, H);
     const fo = prog(t, 14.6, 15); if (fo > 0) { c.fillStyle = `rgba(0,0,0,${fo})`; c.fillRect(0, 0, W, H); }
   }
-  function renderAt(t) {
-    const c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
+  function renderAt(tReal) {
+    const t = tReal * SLOW, c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
     let sh = 0; for (const T0 of HITS) sh = Math.max(sh, pulse(t, T0, 18) * 14); c.save(); c.translate((hash(Math.round(t * FPS), 3) - 0.5) * 2 * sh, (hash(Math.round(t * FPS), 4) - 0.5) * 2 * sh);
     hook(c, t); party(c, t); custom(c, t); montage(c, t); endCard(c, t); c.restore(); finish(c, t);
   }
