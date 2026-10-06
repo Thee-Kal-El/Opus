@@ -1,6 +1,7 @@
-// Score for the ARCTOWN vertical film (30s, 9:16) — modern, elegant deep house, synthesized entirely in JavaScript.
-// 120 BPM, C minor (Cm9–Ab–Eb–Bb). Drone dive 0–2.5, explore groove 2.5–10, the shift (downlifter + drop-out) 10–11.5,
-// buy-land groove with a chime per claim 11.5–19, hang-out groove with chat pops 19–26, end-card hit 26.
+// Score for the ARCTOWN vertical film (30s, 9:16) — dark, heavy cyberpunk, synthesized entirely in JavaScript.
+// 120 BPM, E phrygian (Em–F–Em–D). Distorted reese bass, industrial drums, gated saw chords, aggressive arps, braams.
+// Cues: drone dive 0–2.5, explore 2.5–10, the shift (drop-out + downlifter) 10–11.5, buy land with a hit per claim
+// 11.5–19, hang out with chat pops 19–26, end-card slam 26.
 //   node town/synth_vertical.mjs  ->  out/arctown_vertical_score.wav
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -17,8 +18,8 @@ const pan = (p) => [Math.cos((p + 1) * Math.PI / 4) * Math.SQRT2, Math.sin((p + 
 function put(i, l, r, rev = 0, dly = 0) { if (i < 0 || i >= N) return; L[i] += l; Rr[i] += r; if (rev) { revL[i] += l * rev; revR[i] += r * rev; } if (dly) { dlyL[i] += l * dly; dlyR[i] += r * dly; } }
 
 // ---- harmony ----
-const CH = { Cm: [36, [0, 3, 7, 10]], Ab: [32, [0, 4, 7, 11]], Eb: [39, [0, 4, 7, 11]], Bb: [34, [0, 4, 7, 9]] };
-const BARS = ['Cm', 'Ab', 'Eb', 'Bb'];
+const CH = { Em: [40, [0, 3, 7, 10]], F: [41, [0, 4, 7, 11]], D: [38, [0, 4, 7, 9]] };
+const BARS = ['Em', 'F', 'Em', 'D'];
 const chordAt = (t) => CH[BARS[Math.floor(t / 2) % 4]];
 const KICKS = [];
 const duck = (t) => { let g = 1; for (const k of KICKS) { const d = t - k; if (d >= 0 && d < 0.35) g = Math.min(g, 1 - 0.55 * Math.exp(-d * 11)); } return g; };
@@ -106,40 +107,51 @@ function zapRise(t0, dur, g = 1) { let ph = 0; for (let n = 0; n < dur * SR; n++
 // ---------- arrangement (30s, 120 BPM) ----------
 const bassOf = (root) => 24 + ((root % 12) + 12) % 12;
 function key(t0, g = 1, f = 3200) { for (let n = 0; n < 0.035 * SR; n++) { const t = n / SR, v = (Math.sin(TAU * f * t) * 0.4 + noise() * 0.6) * Math.exp(-t * 180) * g * 0.16; put(at(t0) + n, v, v, 0.05); } }
-function stab(t0, chord, g = 1) { const [root, iv] = chord; iv.forEach((i, k) => pluck(t0 + k * 0.004, root + 24 + i, g * 0.9, (k - 1.5) * 0.3)); }
-function house(t0, t1, o = {}) {
-  for (let t = t0; t < t1 - 1e-6; t += BT) { const b = Math.round(t / BT), ch = chordAt(t), [root] = ch;
-    bigKick(t, o.kick ?? 0.85); if (b % 2 === 1) clap(t, 0.55); hat(t + BT / 2, 0.11, true, 0.2); hat(t + BT / 4, 0.04, false, -0.3); hat(t + BT * 0.75, 0.05, false, 0.3);
-    bassNote(t + BT / 2, BT * 0.4, bassOf(root) + 12, (o.bass ?? 1), 40); if (o.stabs !== false && (b % 4 === 1 || b % 4 === 3)) stab(t + BT * 0.75, ch, o.stab ?? 0.8); }
-  for (let t = t0; t < t1 - 1e-6; t += 2) pad(t, 2, chordAt(t), o.pad ?? 1.0, { atk: 0.3, rel: 0.3, cut: 0.04 });
-  if (o.arp) for (let s = 0; s < (t1 - t0) / 0.25 - 1e-6; s++) { const t = t0 + s * 0.25, [root, iv] = chordAt(t); arpSaw(t, root + 36 + iv[[0, 2, 1, 3][s % 4]], o.arp, s % 2 ? 0.45 : -0.45); }
-}
-// 0–2.5 drone dive
-pad(0, 2.6, CH.Cm, 1.0, { atk: 0.5, rel: 0.3 }); swell(2.5, 2.2, 0.8); [60, 63, 67, 70, 74].forEach((m, i) => bell(0.3 + i * 0.12, m + 12, 0.45, (i - 2) * 0.3, 2.2));
-riser(1.3, 1.2, 0.8); whoosh(1.9, 0.6, 1.2, false);
-// 2.5–10 explore
-softImpact(2.5, 1.0); house(2.5, 10.0, {});
-for (let t = 2.75; t < 10; t += 0.25) key(t, 0.25, 900 + (Math.round(t * 4) % 2) * 200); // footsteps
-[6.4, 8.6].forEach((t) => { bell(t, 84, 0.35, 0.4, 1.0); blip(t, 91, 0.6); });
-// 10–11.5 THE SHIFT: drop-out, downlifter, sub boom
-whoosh(9.95, 1.0, 1.6, false); zapRise(10.4, 1.1, 0.9); braam(10.3, 1.2, CH.Ab, 0.9); for (let k = 0; k < 8; k++) blip(10.2 + k * 0.08, 96 - k * 2, 0.5, (k % 2 ? 0.5 : -0.5)); roll(11.0, 11.5, 0.8);
 function roll(t0, t1, g = 1) { const n = Math.round((t1 - t0) / 0.0625); for (let k = 0; k < n; k++) snap(t0 + k * 0.0625, (0.1 + 0.6 * k / n) * g); }
-// 11.5–19 buy land: cursor, modal, approve, rapid claims
-softImpact(11.5, 1.1); house(11.5, 19.0, { arp: 0.6 });
-click(12.2, 1.6, 1500); whoosh(12.25, 0.35, 1.0, true); click(12.85, 1.6, 1300);
-[60, 64, 67, 72, 76].forEach((m, i) => bell(12.95 + i * 0.05, m + 12, 0.45, (i - 2) * 0.3, 1.6)); softImpact(13.05, 0.6);
-for (let i = 0; i < 9; i++) { const t = 13.75 + i * 0.5; blip(t, [84, 87, 91, 86, 89, 93, 88, 91, 96][i], 0.9, i % 2 ? 0.4 : -0.4); bell(t + 0.02, [72, 75, 79, 74, 77, 81, 76, 79, 84][i], 0.25, 0, 0.8); }
-riser(17.8, 1.2, 0.9); roll(18.5, 19.0, 0.9);
-// 19–26 hang out
-softImpact(19.0, 1.0); braam(19.0, 1.4, CH.Cm, 0.7); house(19.0, 26.0, { stab: 0.9 });
-[19.9, 20.7, 21.5, 22.3, 23.5, 24.3].forEach((t, i) => { blip(t, 88, 0.8, i % 2 ? 0.4 : -0.4); blip(t + 0.05, 93, 0.6, i % 2 ? 0.4 : -0.4); });
+// industrial snare: snap + metallic ring + noise burst
+function metal(t0, g = 1) { snap(t0, 0.9 * g); for (let n = 0; n < 0.18 * SR; n++) { const t = n / SR, v = (Math.sin(TAU * 1730 * t) * 0.5 + Math.sin(TAU * 2410 * t) * 0.4 + Math.sign(Math.sin(TAU * 410 * t)) * 0.3) * Math.exp(-t * 22) * g * 0.07; put(at(t0) + n, v, v, 0.3); } }
+// gated, distorted saw chord (cyberpunk stab)
+function gated(t0, dur, chord, g = 1) { const [root, iv] = chord; const notes = [root + 12, root + 12 + iv[1], root + 12 + iv[2], root + 24], ph = notes.map(() => 0); let lp = 0;
+  for (let n = 0; n < dur * SR; n++) { const t = n / SR; let x = 0; notes.forEach((m, i) => { ph[i] = (ph[i] + mtof(m) * (1 + (i % 2 ? 0.004 : -0.004)) / SR) % 1; x += 2 * ph[i] - 1; });
+    lp += 0.12 * (Math.tanh(x * 0.9) - lp); const gate = ((t * 8) % 1) < 0.55 ? 1 : 0.08, env = Math.min(1, t / 0.01) * Math.min(1, (dur - t) / 0.03); const v = lp * gate * env * g * 0.07 * duck(t0 + t); put(at(t0) + n, v * 0.9, v, 0.25, 0.2); } }
+// growl: FM-distorted bass lead
+function growl(t0, dur, m, g = 1) { const f = mtof(m); let ph = 0, lp = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, mod = Math.sin(TAU * f * 2 * t) * (2.5 + 2 * Math.sin(TAU * 4 * t)); ph += TAU * f / SR; const x = Math.tanh(Math.sin(ph + mod) * 3); lp += 0.18 * (x - lp);
+  const env = Math.min(1, t / 0.01) * Math.min(1, (dur - t) / 0.04); const v = lp * env * g * 0.16 * duck(t0 + t); put(at(t0) + n, v, v, 0.15); } }
+const SEQ = [0, 2, 1, 3, 2, 0, 3, 1];
+function cyber(t0, t1, o = {}) {
+  for (let t = t0; t < t1 - 1e-6; t += BT) { const b = Math.round(t / BT), ch = chordAt(t), [root] = ch;
+    bigKick(t, o.kick ?? 1); if (b % 2 === 1) metal(t, 0.9); hat(t + BT / 2, 0.1, b % 4 === 3, 0.2); hat(t + BT / 4, 0.05, false, -0.35); hat(t + BT * 0.75, 0.06, false, 0.35);
+    reese(t + BT / 4, BT * 0.7, bassOf(root), o.bass ?? 1.1); if (o.growl && b % 4 === 3) growl(t + BT / 2, BT * 0.45, bassOf(root) + 12, o.growl); }
+  for (let t = t0; t < t1 - 1e-6; t += 2) gated(t, 2, chordAt(t), o.gate ?? 1);
+  for (let s = 0; s < (t1 - t0) / 0.125 - 1e-6; s++) { const t = t0 + s * 0.125, [root, iv] = chordAt(t); if (s % 2 === 0 || o.dbl) arpSaw(t, root + 24 + iv[SEQ[(s >> (o.dbl ? 0 : 1)) % 8]] + (s % 16 >= 12 ? 12 : 0), (o.arp ?? 0.8), s % 2 ? 0.5 : -0.5); }
+}
+// 0–2.5 drone dive: low drone, braam, laser sweep, riser
+braam(0.0, 2.6, CH.Em, 1.2); laser(0.05, 1.1, 0, 3000, 400); reese(0.0, 2.4, 28, 0.7); zapRise(1.2, 1.3, 1.0); roll(2.0, 2.5, 0.9);
+for (let s = 0; s < 8; s++) { const t = 1.5 + s * 0.125, [root, iv] = chordAt(t); arpSaw(t, root + 24 + iv[SEQ[s]], 0.5 + s * 0.05, s % 2 ? 0.4 : -0.4); }
+// 2.5–10 explore
+softImpact(2.5, 1.2); braam(2.5, 1.4, CH.Em, 1.0); cyber(2.5, 10.0, {});
+for (let t = 2.75; t < 10; t += 0.25) key(t, 0.22, 700 + (Math.round(t * 4) % 2) * 160); // footsteps
+[6.4, 8.6].forEach((t) => { laser(t, 0.7, 0.4, 2600, 500); blip(t, 88, 0.6); });
+riser(9.0, 1.0, 0.8);
+// 10–11.5 THE SHIFT: drop-out, downlifter, glitch, sub boom
+whoosh(9.95, 1.0, 1.7, false); softImpact(10.0, 1.3); braam(10.0, 1.5, CH.F, 1.2); laser(10.05, 1.1, 0, 2600, 80);
+for (let k = 0; k < 10; k++) blip(10.2 + k * 0.07, 98 - k * 3, 0.5, (k % 2 ? 0.6 : -0.6)); zapRise(10.6, 0.9, 1.1); roll(11.0, 11.5, 1);
+// 11.5–19 buy land: cursor, modal, approve, rapid claims (a laser hit per claim)
+softImpact(11.5, 1.3); braam(11.5, 1.6, CH.Em, 1.1); cyber(11.5, 19.0, { dbl: true, growl: 0.9 });
+click(12.2, 1.6, 1300); whoosh(12.25, 0.35, 1.1, true); click(12.85, 1.6, 1100);
+softImpact(13.05, 0.8); laser(13.0, 1.0, 0, 3200, 300); [64, 67, 71, 76].forEach((m, i) => bell(13.0 + i * 0.04, m + 12, 0.35, (i - 1.5) * 0.3, 1.2));
+for (let i = 0; i < 9; i++) { const t = 13.75 + i * 0.5; laser(t, 0.55, i % 2 ? 0.5 : -0.5, 2200 + (i % 3) * 300, 400); blip(t, [88, 91, 95, 90, 93, 97, 92, 95, 100][i], 0.6, i % 2 ? 0.4 : -0.4); }
+riser(17.8, 1.2, 1.0); roll(18.5, 19.0, 1);
+// 19–26 hang out: groove stays heavy, chat pops on top
+softImpact(19.0, 1.2); braam(19.0, 1.6, CH.Em, 1.0); cyber(19.0, 26.0, { growl: 0.7, arp: 0.65 });
+[19.9, 20.7, 21.5, 22.3, 23.5, 24.3].forEach((t, i) => { blip(t, 86, 0.7, i % 2 ? 0.4 : -0.4); blip(t + 0.05, 91, 0.5, i % 2 ? 0.4 : -0.4); });
 for (let i = 0; i < 12; i++) key(22.6 + i * 0.055, 0.7, 2800 + (i % 3) * 300);
-[24.0].forEach((t) => [76, 79, 84].forEach((m, i) => bell(t + i * 0.06, m, 0.4, 0.3, 1.2))); click(24.6, 1.4, 1500); [72, 76, 79, 84].forEach((m, i) => bell(24.75 + i * 0.05, m + 12, 0.35, 0, 1.2));
-riser(25.0, 1.0, 1.0); roll(25.5, 26.0, 1);
-// 26–30 end card
-softImpact(26.0, 1.4); braam(26.0, 2.4, CH.Cm, 1.3); bigKick(26.0, 1.1); [60, 63, 67, 72, 75].forEach((m, i) => bell(26.05 + i * 0.012, m + 12, 0.55, (i - 2) * 0.3, 2.4));
-pad(26.0, 4.0, CH.Cm, 1.1, { atk: 0.05, rel: 2.0 }); bassNote(26.0, 2.5, 24, 0.9, 3);
-for (let t = 26.5; t < 28.5; t += 0.25) { const [root, iv] = CH.Cm; pluck(t, root + 36 + iv[Math.round(t * 4) % 4], 0.5 * (1 - (t - 26.5) / 2.2), Math.sin(t * 5) * 0.4); }
+blip(24.0, 84, 0.8); blip(24.06, 91, 0.7); click(24.6, 1.4, 1300); blip(24.75, 96, 0.8);
+zapRise(25.0, 1.0, 1.1); roll(25.5, 26.0, 1.1);
+// 26–30 end card: slam, braam, low reese tail, heartbeat kicks
+softImpact(26.0, 1.5); braam(26.0, 3.0, CH.Em, 1.5); bigKick(26.0, 1.2); laser(26.0, 1, 0, 3200, 100);
+reese(26.0, 3.2, 28, 0.9); gated(26.0, 2.0, CH.Em, 0.8);
+for (let t = 27.0; t < 29.5; t += 0.5) bigKick(t, 0.5 * (1 - (t - 27) / 3));
 
 // ---------- FX + master ----------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }
