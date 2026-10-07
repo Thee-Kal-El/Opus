@@ -1,14 +1,14 @@
-// Score for VISIT ARCTOWN — synthwave, synthesized entirely in code (oscillators, noise, filters).
-// No samples or audio files. 120 BPM, A minor (Am – F – C – G – Am), 5 bars = 10.000s.
-// The breakout lands on bar 2 (2.0s), the fly-through on bar 3 (4.0s), the end card on bar 5 (8.0s).
-//   node arc/synth.mjs  ->  out/visit_arctown_score.wav
+// Score for the ARC film (60s) — dark, driving 120 BPM cyber-groove in D minor (Dm–Bb–F–C), synthesized entirely in code.
+// Terminal tension 0–4 → drop 4.0 · block-lock + logo impact 7.0 · cube staircase 12–14, 350ms zap 15.35 · feature grid 18.9+ ·
+// THE ELEVEN: a hit per validator 25.0–30.5 · numbers 35/36.75/38.5/40.25 · card whooshes 42–48.6 · quote breakdown 50–55 · end 55.
+//   node arc/synth.mjs  ->  out/arc_score.wav
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SR = 48000, DUR = 10, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
+const SR = 48000, DUR = 60, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
 const L = new Float32Array(N), Rr = new Float32Array(N), revL = new Float32Array(N), revR = new Float32Array(N), dlyL = new Float32Array(N), dlyR = new Float32Array(N);
-let seed = 1207;
+let seed = 16092026;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
 const noise = () => rnd() * 2 - 1;
 const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
@@ -17,9 +17,9 @@ const pan = (p) => [Math.cos((p + 1) * Math.PI / 4) * Math.SQRT2, Math.sin((p + 
 function put(i, l, r, rev = 0, dly = 0) { if (i < 0 || i >= N) return; L[i] += l; Rr[i] += r; if (rev) { revL[i] += l * rev; revR[i] += r * rev; } if (dly) { dlyL[i] += l * dly; dlyR[i] += r * dly; } }
 
 // ---- harmony ----
-const CH = { Am: [33, [0, 3, 7, 12]], F: [29, [0, 4, 7, 12]], C: [36, [0, 4, 7, 11]], G: [31, [0, 4, 7, 10]] };
-const BARS = ['Am', 'F', 'C', 'G', 'Am'];
-const chordAt = (t) => CH[BARS[Math.min(4, Math.floor(t / 2))]];
+const CH = { Dm: [38, [0, 3, 7, 10]], Bb: [34, [0, 4, 7, 11]], F: [41, [0, 4, 7, 11]], C: [36, [0, 4, 7, 10]] };
+const BARS = ['Dm', 'Bb', 'F', 'C'];
+const chordAt = (t) => CH[BARS[Math.floor(t / 2) % 4]];
 const KICKS = [];
 const duck = (t) => { let g = 1; for (const k of KICKS) { const d = t - k; if (d >= 0 && d < 0.35) g = Math.min(g, 1 - 0.55 * Math.exp(-d * 11)); } return g; };
 
@@ -93,52 +93,84 @@ function swell(tEnd, dur, g = 1) {
   for (let n = 0; n < dur * SR; n++) { const k = n / (dur * SR); lp += (0.02 + 0.2 * k) * (noise() - lp); const v = lp * k ** 3 * g * 0.3; put(at(tEnd - dur) + n, v, v, 0.5); }
 }
 
-// ---------- arrangement ----------
-// synthwave snare: noise + tone through a big gated room
-function snare(t0, g = 1) {
-  let hp = 0, prev = 0;
-  for (let n = 0; n < 0.32 * SR; n++) { const t = n / SR, x = noise(); hp = 0.8 * (hp + x - prev); prev = x; const gate = t < 0.22 ? 1 : Math.exp(-(t - 0.22) * 60); const v = (hp * 0.6 * Math.exp(-t * 6) + Math.sin(TAU * 185 * t) * 0.5 * Math.exp(-t * 28)) * gate * g * 0.55; put(at(t0) + n, v, v, 0.5); }
+
+// ---------- sci-fi instruments ----------
+function bigKick(t0, g = 1) { KICKS.push(t0); let ph = 0; for (let n = 0; n < 0.45 * SR; n++) { const t = n / SR; ph += TAU * (42 + 210 * Math.exp(-t * 42)) / SR; const v = Math.tanh((Math.sin(ph) * Math.exp(-t * 6.5) + (n < 160 ? noise() * 0.8 * (1 - n / 160) : 0)) * 3) * 0.62 * g; put(at(t0) + n, v, v); } }
+function snap(t0, g = 1) { let b1 = 0, b2 = 0; for (let n = 0; n < 0.28 * SR; n++) { const t = n / SR, f = 2 * Math.sin(Math.PI * 1900 / SR); b1 += f * (noise() - b2 - 0.4 * b1); b2 += f * b1; const v = (Math.tanh(b1 * 2.2) * Math.exp(-t * 13) + Math.sin(TAU * 230 * t) * 0.4 * Math.exp(-t * 35)) * g * 0.5; put(at(t0) + n, v, v, 0.35); } }
+function reese(t0, dur, m, g = 1) { const f = mtof(m); let p1 = 0, p2 = 0, lp = 0, lp2 = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + f * 0.996 / SR) % 1; p2 = (p2 + f * 1.004 / SR) % 1; const x = (2 * p1 - 1) + (2 * p2 - 1); const cut = 0.025 + 0.02 * (0.5 + 0.5 * Math.sin(TAU * t * 2)); lp += cut * (x - lp); lp2 += cut * (lp - lp2); const env = Math.min(1, t / 0.005) * Math.min(1, (dur - t) / 0.02); const v = (Math.tanh(lp2 * 2) * 0.55 + Math.sin(TAU * f * t) * 0.5) * env * g * 0.42 * duck(t0 + t); put(at(t0) + n, v, v); } }
+function laser(t0, g = 1, p = 0, f0 = 2400, f1 = 200) { const [a, b] = pan(p); let ph = 0; for (let n = 0; n < 0.22 * SR; n++) { const t = n / SR, k = t / 0.22, f = f0 * Math.pow(f1 / f0, k); ph += TAU * f / SR; const v = Math.sign(Math.sin(ph)) * 0.5 * Math.exp(-t * 14) * g * 0.08; put(at(t0) + n, v * a, v * b, 0.3, 0.4); } }
+function arpSaw(t0, m, g = 1, p = 0) { const f = mtof(m), [a, b] = pan(p); let ph = 0, lp = 0; for (let n = 0; n < 0.14 * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; lp += (0.08 + 0.5 * Math.exp(-t * 30)) * ((2 * ph - 1) - lp); const v = lp * Math.exp(-t * 16) * g * 0.1 * duck(t0 + t); put(at(t0) + n, v * a, v * b, 0.3, 0.45); } }
+function braam(t0, dur, chord, g = 1) { const [root, iv] = chord; [root - 12, root, root + iv[1], root + iv[2]].forEach((m, k) => { const f = mtof(m); let ph = 0, lp = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; lp += (0.01 + 0.15 * Math.exp(-t * 3)) * ((2 * ph - 1) - lp); const v = Math.tanh(lp * 3) * Math.exp(-t * 1.5) * g * 0.07 * Math.min(1, (dur - t) / 0.3); put(at(t0) + n, v, v, 0.5); } }); }
+function zapRise(t0, dur, g = 1) { let ph = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, k = t / dur; ph += TAU * (120 + 2000 * k * k) / SR; const v = (Math.sin(ph) + 0.3 * Math.sign(Math.sin(ph * 2.01))) * k * k * g * 0.06; put(at(t0) + n, v, v, 0.4); } }
+
+function popS(t0, g = 1, f = 900) { let ph = 0; for (let n = 0; n < 0.09 * SR; n++) { const t = n / SR; ph += TAU * (f * (1 + 2.5 * Math.exp(-t * 60))) / SR; const v = Math.sin(ph) * Math.exp(-t * 38) * g * 0.16; put(at(t0) + n, v, v, 0.15); } }
+function lowPop(t0, g = 1, f = 110) { let ph = 0; for (let n = 0; n < 0.22 * SR; n++) { const t = n / SR; ph += TAU * f * (1 + 1.2 * Math.exp(-t * 40)) / SR; const v = (Math.tanh(Math.sin(ph) * 1.8) * Math.exp(-t * 16) + (n < 90 ? noise() * 0.4 * (1 - n / 90) : 0)) * g * 0.34; put(at(t0) + n, v, v, 0.12); } }
+function tomHit(t0, g = 1, f = 150) { let ph = 0; for (let n = 0; n < 0.35 * SR; n++) { const t = n / SR; ph += TAU * f * (1 + 0.7 * Math.exp(-t * 22)) / SR; const v = Math.tanh(Math.sin(ph) * 2.2) * Math.exp(-t * 9) * g * 0.26; put(at(t0) + n, v * 0.9, v, 0.25); } }
+function clangS(t0, g = 1, base = 55) { const parts = [[1, 1, 3], [2.76, 0.5, 5], [5.4, 0.28, 7], [1.5, 0.3, 4]];
+  for (let n = 0; n < 1.1 * SR; n++) { const t = n / SR; let v = 0; for (const [r, a, d] of parts) v += Math.sin(TAU * base * 2 * r * t + 0.7 * Math.sin(TAU * base * r * 3.01 * t) * Math.exp(-t * 7)) * a * Math.exp(-t * d);
+    v = Math.tanh(v * 1.5) * 0.13 * g; const sb = Math.sin(TAU * base * (1 + 1.5 * Math.exp(-t * 20)) * t) * Math.exp(-t * 7) * 0.24 * g; put(at(t0) + n, v + sb, v * 0.95 + sb, 0.35, 0.08); } }
+function saws(t0, dur, chord, g = 1, wob = 0) { const [root, iv] = chord; const notes = [root + 12, root + 12 + iv[1], root + 12 + iv[2], root + 24, root + 24 + iv[1]]; const ph = notes.flatMap(() => [rnd(), rnd(), rnd()]); let lpL = 0, lpR = 0;
+  for (let n = 0; n < dur * SR; n++) { const t = n / SR; let l = 0, r = 0; notes.forEach((m, i) => { [-0.12, 0, 0.12].forEach((d, k) => { const j = i * 3 + k; ph[j] = (ph[j] + mtof(m + d) / SR) % 1; const v = 2 * ph[j] - 1; if (k === 0) l += v; else if (k === 2) r += v; else { l += v * 0.5; r += v * 0.5; } }); });
+    const cut = 0.06 + 0.05 * (wob ? 0.5 + 0.5 * Math.sin(TAU * wob * t) : 1); lpL += cut * (l - lpL); lpR += cut * (r - lpR);
+    const env = Math.min(1, t / 0.008) * Math.min(1, (dur - t) / 0.03) * (0.55 + 0.45 * Math.min(1, t / 0.2)); const gg = env * g * 0.022 * duck(t0 + t); put(at(t0) + n, lpL * gg, lpR * gg, 0.3); } }
+function tick(t0, g = 1, f = 2000) { for (let n = 0; n < 0.03 * SR; n++) { const t = n / SR, v = Math.sin(TAU * f * t) * Math.exp(-t * 200) * g * 0.12; put(at(t0) + n, v, v, 0.05); } }
+function key(t0, g = 1, f = 3200) { for (let n = 0; n < 0.035 * SR; n++) { const t = n / SR, v = (Math.sin(TAU * f * t) * 0.4 + noise() * 0.6) * Math.exp(-t * 180) * g * 0.16; put(at(t0) + n, v, v, 0.05); } }
+function metal(t0, g = 1) { snap(t0, 0.9 * g); for (let n = 0; n < 0.18 * SR; n++) { const t = n / SR, v = (Math.sin(TAU * 1730 * t) * 0.5 + Math.sin(TAU * 2410 * t) * 0.4 + Math.sign(Math.sin(TAU * 410 * t)) * 0.3) * Math.exp(-t * 22) * g * 0.07; put(at(t0) + n, v, v, 0.3); } }
+function gated(t0, dur, chord, g = 1) { const [root, iv] = chord; const notes = [root + 12, root + 12 + iv[1], root + 12 + iv[2], root + 24], ph = notes.map(() => 0); let lp = 0;
+  for (let n = 0; n < dur * SR; n++) { const t = n / SR; let x = 0; notes.forEach((m, i) => { ph[i] = (ph[i] + mtof(m) * (1 + (i % 2 ? 0.004 : -0.004)) / SR) % 1; x += 2 * ph[i] - 1; });
+    lp += 0.12 * (Math.tanh(x * 0.9) - lp); const gate = ((t * 8) % 1) < 0.55 ? 1 : 0.08, env = Math.min(1, t / 0.01) * Math.min(1, (dur - t) / 0.03); const v = lp * gate * env * g * 0.07 * duck(t0 + t); put(at(t0) + n, v * 0.9, v, 0.25, 0.2); } }
+function e808(t0, dur, m, g = 1) { let ph = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR, f = mtof(m) * (1 + 1.5 * Math.exp(-t * 30)); ph += TAU * f / SR; const v = Math.tanh(Math.sin(ph) * 2.2) * Math.min(1, t / 0.004) * Math.min(1, (dur - t) / 0.05) * g * 0.5 * duck(t0 + t + 0.02); put(at(t0) + n, v, v); } }
+function roll(t0, t1, g = 1) { const n = Math.round((t1 - t0) / 0.0625); for (let k = 0; k < n; k++) snap(t0 + k * 0.0625, (0.1 + 0.6 * k / n) * g); }
+// ---------- arrangement (15s, 120 BPM) ----------
+const bassOf = (root) => 24 + ((root % 12) + 12) % 12;
+const SEQ = [0, 2, 1, 3, 2, 0, 3, 1];
+function groove(t0, t1, o = {}) {
+  for (let t = t0; t < t1 - 1e-6; t += BT) { const b = Math.round(t / BT), [root] = chordAt(t);
+    bigKick(t, o.kick ?? 1); if (b % 2 === 1) { clap(t, 0.6); snap(t, 0.35); } hat(t + BT / 2, 0.11, b % 4 === 3, 0.2); hat(t + BT / 4, 0.05, false, -0.3); hat(t + BT * 0.75, 0.06, false, 0.3);
+    bassNote(t + BT / 2, BT * 0.42, bassOf(root) + 12, o.bass ?? 1, 50); }
+  for (let t = t0; t < t1 - 1e-6; t += 1) [0, 0.375, 0.75].forEach((d) => { if (t + d < t1) saws(t + d, 0.2, chordAt(t + d), o.saw ?? 0.85); });
+  for (let s = 0; s < (t1 - t0) / 0.125 - 1e-6; s++) { const t = t0 + s * 0.125, [root, iv] = chordAt(t); if (s % 2 === 0 || o.dbl) arpSaw(t, root + 24 + iv[SEQ[s % 8]] + (s % 16 >= 12 ? 12 : 0), o.arp ?? 0.6, s % 2 ? 0.5 : -0.5); }
 }
-// zap: neon flicker / electric buzz
-function zap(t0, dur, g = 1) {
-  for (let n = 0; n < dur * SR; n++) { const t = n / SR; const saw = 2 * ((t * 120) % 1) - 1; const v = (saw * 0.5 + noise() * 0.5) * Math.exp(-t * 18) * g * 0.08; put(at(t0) + n, v, v, 0.15); }
-}
-function arp(t0, m, g = 1, p = 0) {
-  let ph = 0, lp = 0; const f = mtof(m), [a, b] = pan(p);
-  for (let n = 0; n < 0.14 * SR; n++) { const t = n / SR; ph = (ph + f / SR) % 1; const x = 2 * ph - 1; lp += (0.05 + 0.35 * Math.exp(-t * 25)) * (x - lp); const v = lp * Math.exp(-t * 14) * g * 0.11 * duck(t0 + t); put(at(t0) + n, v * a, v * b, 0.3, 0.5); }
-}
-// pads all the way through
-for (let b = 0; b < 5; b++) pad(b * 2, 2.0, CH[BARS[b]], b === 0 ? 0.8 : 1.1, { atk: b === 0 ? 0.6 : 0.08, cut: b === 0 ? 0.02 : 0.04 });
-// 0–2: the poster. filtered 16th arp, heartbeat kick on 1 & 3, riser into the breakout
-for (let s = 0; s < 64; s++) {
-  const t = s * 0.125; if (t >= 9.0) break;
-  const [root, iv] = chordAt(t), seq = [0, 1, 2, 3, 2, 1, 2, 3];
-  arp(t, root + 36 + iv[seq[s % 8]], t < 2 ? 0.55 + 0.25 * (t / 2) : 0.9, s % 2 ? 0.4 : -0.4);
-}
-kick(0, 0.6); kick(1.0, 0.6);
-riser(0.9, 1.1, 1.0); zap(1.95, 0.12, 1); zap(2.15, 0.08, 0.7);
-// 2.0: BREAKOUT — impact, crash, full groove
-softImpact(2.0, 1.1); [0, 0.03].forEach((d) => whoosh(2.0 + d, 0.7, 1.0, false));
-for (let t = 2.0; t < 8.0; t += BT) {
-  kick(t, 1);
-  if (Math.round(t / BT) % 2 === 1) snare(t, 1);
-  hat(t + BT / 2, 0.12, false, 0.25); hat(t + BT / 4, 0.05, false, -0.3); hat(t + BT * 0.75, 0.05, false, 0.3);
-  const [root] = chordAt(t);
-  bassNote(t, BT * 0.42, root, 1); bassNote(t + BT / 2, BT * 0.42, root + 12, 0.8);   // synthwave octave bass
-}
-// cubes fly past, title lifts
-[2.35, 2.6, 2.85, 3.1].forEach((t, i) => whoosh(t, 0.45, 0.55, i % 2 === 0));
-[69, 72, 76, 81].forEach((m, i) => bell(2.6 + i * 0.06, m, 0.4, (i - 1.5) * 0.4, 1.4));
-// 4.0: through the frame — big whoosh + swell
-swell(4.0, 0.6, 0.6); whoosh(4.0, 1.4, 1.1, true); softImpact(4.0, 0.5);
-[5.3, 6.4, 7.4].forEach((t) => whoosh(t, 0.5, 0.45, false));       // banners overhead
-riser(7.2, 0.8, 0.8);
-// 8.0: end card — sign ignites, final chord rings out
-softImpact(8.0, 0.9); zap(8.0, 0.1, 1.2); zap(8.12, 0.08, 1); zap(8.24, 0.1, 0.9);
-for (let t = 8.0; t < 9.5; t += BT) { kick(t, 0.85); if (Math.round(t / BT) % 2 === 1) snare(t, 0.8); bassNote(t, BT * 0.45, 33, 0.9); }
-[57, 60, 64, 69, 72].forEach((m, i) => bell(8.0 + i * 0.012, m, 0.6, (i - 2) * 0.3, 2.0));
-blip(9.0, 84, 1.0); blip(9.06, 88, 0.8);
-pad(8.0, 2.0, CH.Am, 1.2, { atk: 0.05, rel: 0.9 });
+function crackle(t0, dur, g = 1) { for (let n = 0; n < dur * SR; n++) { const t = n / SR; if (hash32(n + at(t0)) > 0.985) { const v = noise() * g * 0.25 * (1 - t / dur); put(at(t0) + n, v, v * 0.8, 0.2); } } }
+function hash32(n) { n = Math.imul(n ^ (n >>> 15), 0x2c1b3c6d); n ^= n >>> 12; return ((n >>> 0) % 100000) / 100000; }
+function drone(t0, dur, m, g = 1) { let p1 = 0, p2 = 0, lp = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + mtof(m) / SR) % 1; p2 = (p2 + mtof(m + 0.08) / SR) % 1; lp += 0.01 * ((2 * p1 - 1) + (2 * p2 - 1) - lp); const env = Math.min(1, t / 0.8) * Math.min(1, (dur - t) / 0.4); const v = lp * env * g * 0.18; put(at(t0) + n, v, v, 0.4); } }
+// ---- 0–6 cold open: drone + typing, the glitch, the drop
+drone(0, 4.1, 26, 1); pad(0.2, 3.9, CH.Dm, 0.7, { atk: 1.5, rel: 0.4, cut: 0.02 });
+[[0.15, 41], [0.9, 37], [1.5, 26], [2.05, 45], [2.75, 30], [3.3, 23]].forEach(([T0, n]) => { for (let i = 0; i < n; i += 2) key(T0 + i * 0.45 / n, 0.45, 2800 + (i % 3) * 300); });
+[1.0, 2.0, 3.0].forEach((t) => e808(t, 0.4, 26, 0.6)); riser(3.0, 1.0, 1.2); zapRise(3.55, 0.45, 1.0); crackle(3.55, 0.45, 1.2);
+bigKick(4.0, 1.2); softImpact(4.0, 1.5); braam(4.0, 1.4, CH.Dm, 1.3); clangS(4.0, 0.9, 46); bigKick(4.5, 1.1); tomHit(4.5, 1, 110); laser(4.9, 0.8, 0, 3000, 200); snap(4.9, 1);
+e808(5.0, 0.9, 26, 0.8); groove(5.0, 5.75, { kick: 0.7, saw: 0.4, arp: 0.5 }); riser(5.4, 0.6, 1.0); whoosh(5.7, 0.3, 1.4, true);
+// ---- 6–12 mainnet: blocks lock, logo impact, word slams, lightning, dateline digits
+for (let i = 0; i < 30; i++) tick(6.05 + i * 0.03, 0.4, 1500 + i * 60); zapRise(6.5, 0.5, 0.9);
+bigKick(7.0, 1.2); softImpact(7.0, 1.4); braam(7.0, 1.2, CH.Dm, 1.1); bell(7.02, 74, 0.35, 0, 1.6); bell(7.05, 81, 0.25, 0.3, 1.4);
+[7.5, 7.75, 8.0, 8.25].forEach((t, i) => [() => lowPop(t, 1, 100), () => tomHit(t, 1, 130), () => lowPop(t, 0.9, 115), () => clangS(t, 0.9, 52)][i]());
+crackle(8.4, 1.4, 1.0); groove(7.0, 11.75, { dbl: true }); for (let i = 0; i < 10; i++) key(9.3 + i * 0.08, 0.6, 2200 + i * 100); popS(10.1, 0.8, 900); riser(11.4, 0.6, 1.0);
+// ---- 12–18 finality: cube staircase, the zoom, 350ms
+[12.0, 12.4, 12.8, 13.2, 13.6].forEach((t, i) => (i % 2 ? tomHit : lowPop)(t, 0.9, 100 + i * 12)); clangS(14.0, 1, 49); bell(14.02, 86, 0.3, 0, 1.0);
+groove(12.0, 14.25, { saw: 0.7 }); whoosh(14.35, 0.5, 1.4, true); drone(14.4, 1.0, 38, 0.8); zapRise(15.0, 0.35, 1.3);
+bigKick(15.35, 1.2); softImpact(15.35, 1.5); braam(15.35, 1.0, CH.F, 1.1); laser(15.35, 0.8, 0, 3200, 300); groove(15.5, 17.75, { dbl: true, bass: 1.1 }); [15.6, 16.2].forEach((t) => metal(t, 0.6)); riser(17.4, 0.6, 1.0);
+// ---- 18–24 economic OS: card per feature, USDC coin
+softImpact(18.0, 1.0); groove(18.0, 21.75, { saw: 0.75 }); for (let i = 0; i < 6; i++) (i % 2 ? popS : lowPop)(18.9 + i * 0.4, 0.8, i % 2 ? 850 + i * 30 : 115);
+whoosh(22.0, 0.25, 1.2, true); bigKick(22.1, 1.1); clangS(22.1, 0.8, 55); bell(22.15, 79, 0.3, 0, 1.4); [0, 0.07, 0.14, 0.21].forEach((d, i) => popS(22.4 + d, 0.5, 1000 + i * 100)); groove(22.5, 23.75, { kick: 0.8, saw: 0.5 }); riser(23.4, 0.6, 1.0);
+// ---- 24–35 THE ELEVEN: title braam, a hit per validator, the grid, the quote
+bigKick(24.0, 1.2); softImpact(24.0, 1.5); braam(24.0, 1.3, CH.Dm, 1.3); drone(24.0, 1.0, 26, 0.9); zapRise(24.6, 0.4, 1.0);
+for (let i = 0; i < 11; i++) { const t = 25.0 + i * 0.5; [() => tomHit(t, 1, 110), () => clangS(t, 0.8, 52), () => lowPop(t, 1, 100), () => metal(t, 0.8)][i % 4](); laser(t, 0.3, i % 2 ? 0.5 : -0.5, 2000 + i * 150, 300); }
+groove(25.0, 30.5, { dbl: true, bass: 1.1 }); for (let i = 0; i < 12; i++) (i % 2 ? popS : lowPop)(30.5 + i * 0.1, 0.6, i % 2 ? 900 + i * 20 : 120); groove(30.5, 32.75, { saw: 0.6 });
+for (let i = 0; i < 11; i++) tick(31.7 + i * 0.1, 0.6, 1800 + i * 90); softImpact(32.9, 1.0); pad(32.9, 2.1, CH.Bb, 1.0, { atk: 0.05, rel: 0.6 }); bell(33.05, 74, 0.3, -0.3, 1.2); bell(33.5, 77, 0.3, 0.3, 1.2); riser(34.4, 0.6, 1.1);
+// ---- 35–42 by the numbers: an impact + counter run per stat
+[35.0, 36.75, 38.5, 40.25].forEach((T0, i) => { bigKick(T0, 1.1); softImpact(T0, 1.1); (i % 2 ? clangS : metal)(T0, 0.8, 50); for (let j = 0; j < 12; j++) tick(T0 + 0.05 + 0.85 * (1 - Math.pow(1 - j / 12, 2)), 0.45, 2200 + j * 80); whoosh(T0 + 1.6, 0.15, 1.0, true); });
+[38.9, 39.05, 39.2].forEach((t) => popS(t, 0.7, 950)); groove(35.0, 41.75, { dbl: true }); riser(41.4, 0.6, 1.0);
+// ---- 42–50 live on Arc: a whoosh + hit per card, then the integrations rain
+for (let i = 0; i < 6; i++) { const t = 42.0 + i * 1.1; whoosh(t - 0.1, 0.3, 1.2, i % 2 === 0); [() => lowPop(t + 0.1, 0.9, 110), () => tomHit(t + 0.1, 0.9, 130)][i % 2](); }
+bell(47.6, 81, 0.3, 0.3, 1.0); groove(42.0, 49.75, { saw: 0.7, arp: 0.55 }); for (let i = 0; i < 8; i++) (i % 2 ? popS : lowPop)(48.9 + i * 0.08, 0.6, i % 2 ? 900 + i * 30 : 115); riser(49.4, 0.6, 1.0);
+// ---- 50–55 the quote: drums out, pad + bells under the words, rebuild
+softImpact(50.0, 1.2); pad(50.0, 4.6, CH.Dm, 1.2, { atk: 0.3, rel: 0.6 }); drone(50.0, 4.6, 26, 0.7);
+[50.2, 50.6, 51.0, 51.4, 51.8].forEach((t, i) => { lowPop(t, 0.7, 95 + i * 6); bell(t + 0.02, [62, 65, 69, 72, 74][i], 0.22, i % 2 ? 0.4 : -0.4, 1.2); });
+for (let s = 0; s < 16; s++) arpSaw(52.5 + s * 0.125, 62 + [0, 3, 7, 10][s % 4] + (s >= 8 ? 12 : 0), 0.4 + s * 0.02, s % 2 ? 0.5 : -0.5); roll(54.0, 55.0, 1); riser(54.0, 1.0, 1.3);
+// ---- 55–60 end card
+bigKick(55.0, 1.25); softImpact(55.0, 1.6); braam(55.0, 2.4, CH.Dm, 1.4); clangS(55.0, 1, 44); bell(55.05, 74, 0.35, 0, 2.0); bell(55.35, 81, 0.25, 0.3, 1.6);
+groove(55.5, 57.0, { kick: 0.8, saw: 0.6 }); whoosh(57.2, 0.4, 1.3, true); tomHit(57.4, 0.9, 120);
+[58.2, 58.45, 58.7].forEach((t, i) => { bigKick(t, 1.1); [() => clangS(t, 0.9, 49), () => tomHit(t, 1, 110), () => metal(t, 0.9)][i](); }); pad(58.2, 1.8, CH.Dm, 1.0, { atk: 0.05, rel: 1.4 });
 
 // ---------- FX + master ----------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }
@@ -151,13 +183,13 @@ delay(0.375, 0.35, 0.45); reverb(0.3);
 let hL = 0, hR = 0, pL = 0, pR = 0, peak = 0;
 for (let n = 0; n < N; n++) {
   hL = 0.9996 * (hL + L[n] - pL); pL = L[n]; hR = 0.9996 * (hR + Rr[n] - pR); pR = Rr[n];
-  const fade = Math.min(1, (N - n) / (0.6 * SR)), fin = Math.min(1, n / (0.004 * SR));
+  const fade = Math.min(1, (N - n) / (0.9 * SR)), fin = Math.min(1, n / (0.004 * SR));
   L[n] = Math.tanh(hL * 1.1) * fade * fin; Rr[n] = Math.tanh(hR * 1.1) * fade * fin; peak = Math.max(peak, Math.abs(L[n]), Math.abs(Rr[n]));
 }
-const g = 0.8 / peak, pcm = Buffer.alloc(44 + N * 4);
+const g = 0.88 / peak, pcm = Buffer.alloc(44 + N * 4);
 pcm.write('RIFF', 0); pcm.writeUInt32LE(36 + N * 4, 4); pcm.write('WAVE', 8); pcm.write('fmt ', 12); pcm.writeUInt32LE(16, 16); pcm.writeUInt16LE(1, 20); pcm.writeUInt16LE(2, 22);
 pcm.writeUInt32LE(SR, 24); pcm.writeUInt32LE(SR * 4, 28); pcm.writeUInt16LE(4, 32); pcm.writeUInt16LE(16, 34); pcm.write('data', 36); pcm.writeUInt32LE(N * 4, 40);
 for (let n = 0; n < N; n++) { pcm.writeInt16LE(Math.round(Math.max(-1, Math.min(1, L[n] * g)) * 32767), 44 + n * 4); pcm.writeInt16LE(Math.round(Math.max(-1, Math.min(1, Rr[n] * g)) * 32767), 46 + n * 4); }
 const out = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'out'); mkdirSync(out, { recursive: true });
-writeFileSync(resolve(out, 'visit_arctown_score.wav'), pcm);
-console.log(`wrote out/visit_arctown_score.wav  ${DUR}s, 120 BPM, ${KICKS.length} kicks`);
+writeFileSync(resolve(out, 'arc_score.wav'), pcm);
+console.log(`wrote out/arc_score.wav  ${DUR}s, 120 BPM, ${KICKS.length} kicks`);
