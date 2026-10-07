@@ -108,7 +108,11 @@
     const L = V ? [['THE SPA', 4.75, NAVY], ['ON WHEELS.', 4.95, CY]] : [['THE SPA ON WHEELS.', 4.75, NAVY]];
     L.forEach(([s, T0, col], i) => { const k = crit(prog(t, T0, T0 + 0.3)); c.save(); c.beginPath(); c.rect(cx0 - 10, cy0 + 50 + i * 130, W, 140); c.clip(); if (V) txt(c, s, cx0, cy0 + 120 + i * 130 + (1 - k) * 140, S(700, 120), col); else { txt(c, 'THE SPA ', cx0, cy0 + 110 + (1 - k) * 140, S(700, 96), NAVY); txt(c, 'ON WHEELS.', cx0 + tw(c, 'THE SPA ', S(700, 96)), cy0 + 110 + (1 - k) * 140, S(700, 96), CY); } c.restore(); });
     const chips = ['Self-contained', 'Climate controlled', 'Water-temp controlled', 'Serving all of OC']; let x = V ? cx0 : 90, y = V ? 1390 : 420;
-    chips.forEach((s, i) => { const k = pop(prog(t, 5.3 + i * 0.12, 5.65 + i * 0.12)), f = G(700, V ? 34 : 30), w = tw(c, s, f) + 80; if (V && x + w > W - 60) { x = cx0; y += 92; } if (!V) { x = 90; } if (k > 0) { c.save(); c.translate(x + w / 2, y); c.scale(k, k); rr(c, -w / 2, -34, w, 68, 34); c.fillStyle = i === 3 ? NAVY : '#fff'; c.shadowColor = 'rgba(0,0,0,0.15)'; c.shadowBlur = 20; c.fill(); c.shadowBlur = 0; c.beginPath(); c.arc(-w / 2 + 34, 0, 9, 0, TAU); c.fillStyle = CY; c.fill(); txt(c, s, -w / 2 + 54, 2, f, i === 3 ? '#fff' : NAVY); c.restore(); } if (V) x += w + 18; else y += 90; });
+    // landscape: a column of small chips beside the bus · vertical: full-width pills stacked under the bus to fill the space
+    chips.forEach((s, i) => { const k = pop(prog(t, 5.3 + i * 0.12, 5.65 + i * 0.12)), f = G(V ? 800 : 700, V ? 48 : 30), w = V ? W - 2 * cx0 : tw(c, s, f) + 80, ph = V ? 100 : 68, dr = V ? 14 : 9, dx = V ? 52 : 34;
+      if (V) { x = cx0; y = 1395 + i * 122; } else x = 90;
+      if (k > 0) { c.save(); c.translate(x + w / 2, y); c.scale(k, k); rr(c, -w / 2, -ph / 2, w, ph, ph / 2); c.fillStyle = i === 3 ? NAVY : '#fff'; c.shadowColor = 'rgba(0,0,0,0.15)'; c.shadowBlur = 20; c.fill(); c.shadowBlur = 0; c.beginPath(); c.arc(-w / 2 + dx, 0, dr, 0, TAU); c.fillStyle = CY; c.fill(); txt(c, s, -w / 2 + dx + dr + (V ? 26 : 11), 2, f, i === 3 ? '#fff' : NAVY); c.restore(); }
+      if (!V) y += 90; });
   }
 
   // ---------- S3 services (6.5–9.5) ----------
