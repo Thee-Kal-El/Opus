@@ -125,7 +125,7 @@
       if (V) { const sc = 0.74; c.scale(1, sc); }
       c.save(); c.shadowColor = 'rgba(8,63,94,0.18)'; c.shadowBlur = 40; c.shadowOffsetY = 16; rr(c, 0, 60, cw, ch - 60, 28); c.fillStyle = '#fff'; c.fill(); c.restore();
       const pw = cw - 100, phh = pw * 430 / 880; cover(c, ph, 50, 0, pw, phh, 24);
-      const ik = pop(prog(t, T0 + 0.3, T0 + 0.65)); c.save(); c.translate(cw / 2, phh); c.scale(ik, ik); c.rotate((1 - ik) * -1.5 + (ph === 'trim' ? Math.sin(t * 12) * 0.06 * pulse(t, T0 + 0.7, 3) : 0)); c.beginPath(); c.arc(0, 0, 105, 0, TAU); c.fillStyle = CY; c.fill(); c.beginPath(); c.arc(0, 0, 100, 0, TAU); c.clip(); contain(c, ic, 0, 0, 220); c.restore();
+      const ik = pop(prog(t, T0 + 0.3, T0 + 0.65)); c.save(); c.translate(cw / 2, phh + 42); c.scale(ik, ik); /* smaller badge tucked under the photo edge so it never covers the dogs */ c.rotate((1 - ik) * -1.5 + (ph === 'trim' ? Math.sin(t * 12) * 0.06 * pulse(t, T0 + 0.7, 3) : 0)); c.beginPath(); c.arc(0, 0, 70, 0, TAU); c.fillStyle = CY; c.fill(); c.beginPath(); c.arc(0, 0, 66, 0, TAU); c.clip(); contain(c, ic, 0, 0, 147); c.restore();
       const dk = io5(prog(t, T0 + 0.45, T0 + 0.7)); c.fillStyle = CY; c.fillRect(cw / 2 - 35 * dk, phh + 140, 70 * dk, 7);
       const tk = A(t, T0 + 0.5, 0.3); c.save(); c.globalAlpha = tk; txt(c, title, cw / 2, phh + 200 + (1 - tk) * 20, S(700, 54), INK, 'center'); c.restore();
       pts.forEach((p, j) => { const pk = A(t, T0 + 0.7 + j * 0.1, 0.25); if (pk <= 0) return; const yy = phh + 262 + j * 48; c.save(); c.globalAlpha = pk; c.translate((1 - pk) * 40, 0); paw(c, 150, yy, 22, CY, 0.2); txt(c, p, 185, yy + 2, G(500, 34), '#333', 'left'); c.restore(); });
