@@ -286,7 +286,7 @@
   }
 
   // ---------- S5 category beat-cuts (11.5–12.75) ----------
-  const CUTV = [['DEVELOP', 'MENT'], ['DESIGN'], ['MARKET', 'ING'], ['WRITING'], ['CONTENT']];
+  const CUTV = [['DEVELOPMENT'], ['DESIGN'], ['MARKETING'], ['WRITING'], ['CONTENT']]; // one line each, scaled to fit the width
   const CUTS = [['DEVELOPMENT', PUR, '#fff'], ['DESIGN', INK, GRN2], ['MARKETING', GRN, '#fff'], ['WRITING', PAPER, PUR], ['CONTENT', PUR, '#fff']];
   function cuts(c, t) {
     if (t < 11.5 || t >= 12.75) return; const i = Math.min(4, Math.floor((t - 11.5) / 0.25)), lt = t - 11.5 - i * 0.25, [s, bg, fg] = CUTS[i];
