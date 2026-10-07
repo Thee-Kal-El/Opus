@@ -198,11 +198,14 @@
     roundBtn(c, 75, 160, 52); crossIco(c, 75, 160, 18); txt(c, 'Submit Work', 160, 162, G(800, 56), INK);
     const ok = pulse(t, 8.05, 8) * (t >= 8.05 ? 1 : 0), ck = 1 + ok * 0.25; c.save(); c.translate(1010, 160); c.scale(ck, ck); roundBtn(c, 0, 0, 52, GRN); c.strokeStyle = '#fff'; c.lineWidth = 8; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(-20, 0); c.lineTo(-6, 15); c.lineTo(22, -14); c.stroke(); c.restore();
     c.fillStyle = '#E4E4E8'; c.fillRect(0, 228, 1080, 3);
-    const s = 'I did this :)', n = Math.floor(clamp((t - 7.5) / 0.4) * s.length), shown = s.slice(0, n); txt(c, shown, 46, 310, G(400, 50), INK); const cx = 46 + tw(c, shown, G(400, 50)) + 4;
-    if (Math.floor(t * 4) % 2 === 0 || t < 7.95) { c.fillStyle = '#7FCFC6'; c.fillRect(cx, 268, 5, 82); }
+    // typed note, word-wrapped to the screen width; the caret follows the last typed character
+    const s = 'This app is exactly what I needed to help my business grow!', n = Math.floor(clamp((t - 7.45) / 0.53) * s.length), tf = G(400, 50), lines = [''];
+    for (const w of s.slice(0, n).split(/(?<= )/)) { const cand = lines[lines.length - 1] + w; if (tw(c, cand.trimEnd(), tf) > 990 && lines[lines.length - 1]) lines.push(w); else lines[lines.length - 1] = cand; }
+    lines.forEach((ln, i) => txt(c, ln, 46, 310 + i * 72, tf, INK)); const cx = 46 + tw(c, lines[lines.length - 1], tf) + 4, cy = 268 + (lines.length - 1) * 72;
+    if (Math.floor(t * 4) % 2 === 0 || t < 7.98) { c.fillStyle = '#7FCFC6'; c.fillRect(cx, cy, 5, 82); }
     ['⌀', 'H', 'B', 'I', 'U', '≡', '∞'].forEach((g, i) => txt(c, g, 75 + i * 155, 1172, G(i === 2 ? 800 : i === 3 ? 400 : 600, 58), '#333', 'center'));
     c.fillStyle = '#1B1B1E'; c.fillRect(0, 1330, 1080, 1010);
-    const key = s[Math.max(0, n - 1)]?.toLowerCase(); KB.forEach((row, r) => { const kw = 88, gap = 6, w0 = (1080 - row.length * (kw + gap)) / 2; [...row].forEach((ch, i) => { const x = w0 + i * (kw + gap), y = 1450 + r * 125, hit = ch === key && t > 7.5 && t < 7.95; rr(c, x, y - 48, kw, 96, 14); c.fillStyle = hit ? '#5A5A66' : '#333338'; c.fill(); txt(c, ch, x + kw / 2, y, G(400, 46), '#fff', 'center'); }); });
+    const key = s[Math.max(0, n - 1)]?.toLowerCase(); KB.forEach((row, r) => { const kw = 88, gap = 6, w0 = (1080 - row.length * (kw + gap)) / 2; [...row].forEach((ch, i) => { const x = w0 + i * (kw + gap), y = 1450 + r * 125, hit = ch === key && t > 7.45 && t < 7.98; rr(c, x, y - 48, kw, 96, 14); c.fillStyle = hit ? '#5A5A66' : '#333338'; c.fill(); txt(c, ch, x + kw / 2, y, G(400, 46), '#fff', 'center'); }); });
     rr(c, 245, 1878, 590, 96, 14); c.fillStyle = '#333338'; c.fill(); txt(c, 'English (US)', 540, 1926, G(400, 36), '#ddd', 'center');
     ripple(c, 1010, 160, t, 8.05, rgba(GRN2, 0.6));
   }
