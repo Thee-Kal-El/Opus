@@ -1,4 +1,4 @@
-// Score for the GIBWORK promo (15s) — bright, punchy 120 BPM groove in F major (F–C–Dm–Bb), synthesized entirely in code.
+// Score for the GIBWORK promo (20s; everything after the bounty board is slowed down) — bright, punchy 120 BPM groove in F major (F–C–Dm–Bb), synthesized entirely in code.
 // Pixel-logo snap 0.75 · headline slams 1.5 · task slot-machine ticks 2.0–2.95 · bounty counter 3.25 · board 4.0 ·
 // phone taps 7.05/8.05, typing 7.5, payout coin cascade 8.55 · earners 9.5 · category cuts 11.5–12.5 · end card 12.75.
 //   node gw/synth.mjs  ->  out/gibwork_score.wav
@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SR = 48000, DUR = 15, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
+const SR = 48000, DUR = 20, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
 const L = new Float32Array(N), Rr = new Float32Array(N), revL = new Float32Array(N), revR = new Float32Array(N), dlyL = new Float32Array(N), dlyR = new Float32Array(N);
 let seed = 777;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -145,25 +145,30 @@ for (let i = 0; i < 14; i++) tick(3.25 + 0.45 * (1 - Math.pow(1 - i / 14, 2)), 0
 bigKick(4.0, 1.1); softImpact(4.0, 1.3); braam(4.0, 0.9, CH.Dm, 1.0); groove(4.0, 6.0, { bass: 1.1 });
 for (let r = 0; r < 12; r++) (r % 2 ? popS : lowPop)(4.0 + r * 0.04, 0.4, r % 2 ? 800 + r * 30 : 120); [4.25, 4.5].forEach((t) => tomHit(t, 0.8, 140));
 whoosh(5.95, 0.4, 1.2, true); zapRise(6.15, 0.35, 1.0); riser(6.0, 0.5, 0.9);
-// 6.5–9.5 phone flow
-bigKick(6.5, 1.1); softImpact(6.5, 1.2); clangS(6.5, 0.9, 52); groove(6.5, 9.25, { saw: 0.7 });
-click(7.05, 1.6, 1300); lowPop(7.05, 0.9, 100); whoosh(7.27, 0.2, 1.0, false); tomHit(7.35, 1, 120); clangS(7.41, 0.6, 60);
-for (let i = 0; i < 26; i++) key(7.45 + i * 0.53 / 26, 0.6, 2600 + (i % 3) * 300); click(8.05, 1.6, 1500); clangS(8.05, 0.8, 58);
-whoosh(8.25, 0.2, 1.0, true); tomHit(8.35, 1, 110); softImpact(8.35, 0.9);
-for (let i = 0; i < 16; i++) { const t = 8.55 + i * 0.032; (i % 3 === 2 ? lowPop : popS)(t, 0.5, i % 3 === 2 ? 130 : 1100 + i * 50); } [79, 84, 88, 91].forEach((m, i) => bell(8.55 + i * 0.06, m, 0.28, i % 2 ? 0.5 : -0.5, 1.0)); clangS(9.05, 0.9, 49); bell(9.05, 96, 0.25, 0, 1.2);
-riser(9.0, 0.5, 0.8);
-// 9.5–11.5 earners
-bigKick(9.5, 1.0); softImpact(9.5, 1.0); groove(9.5, 11.25, { kick: 0.8, saw: 0.6, arp: 0.55 });
-for (let i = 0; i < 9; i++) popS(9.6 + i * 0.04, 0.35, 900 + i * 60); for (let i = 0; i < 8; i++) (i % 2 ? popS : lowPop)(9.75 + i * 0.07, 0.65, i % 2 ? 950 : 115);
-riser(11.0, 0.5, 1.0); whoosh(11.22, 0.28, 1.4, true);
-// 11.5–12.75 category beat cuts
-[11.5, 11.75, 12.0, 12.25, 12.5].forEach((t, i) => { bigKick(t, 1.0); [() => clangS(t, 0.8, 55), () => tomHit(t, 1, 120), () => metal(t, 0.9), () => lowPop(t, 1, 100), () => clangS(t, 0.8, 49)][i](); laser(t, 0.35, i % 2 ? 0.5 : -0.5, 2000 + i * 300, 300); });
-groove(11.5, 12.5, { dbl: true, kick: 0 }); roll(12.5, 12.75, 1);
-// 12.75–15 end card
-bigKick(12.75, 1.15); softImpact(12.75, 1.5); braam(12.75, 2.2, CH.F, 1.3); clangS(12.75, 0.9, 44); pad(12.75, 2.25, CH.F, 1.0, { atk: 0.05, rel: 1.5 });
-for (let i = 0; i < 16; i++) tick(12.78 + i * 0.022, 0.4, 1800 + i * 80); for (let i = 0; i < 7; i++) (i % 2 ? popS : lowPop)(12.95 + i * 0.035, 0.55, i % 2 ? 900 : 115);
-bell(13.3, 77, 0.3, 0, 1.2); popS(13.55, 0.8, 900); lowPop(13.65, 0.8, 110); bell(13.85, 84, 0.3, 0.3, 1.0);
-groove(13.25, 14.5, { kick: 0.55, bass: 0.6, saw: 0.4, arp: 0.4 });
+// ---- 6.5→ is slowed down (film runs 20s): design time d → real time F(d), knots shared with gw.js. Grooves stay on the
+// real 120 BPM grid; every hit is placed at F(design time) so it lands on its picture cue. Section boundaries fall on beats.
+const KN = [[6.5, 6.5], [9.5, 11.5], [11.5, 15], [12.75, 17.5], [15, 20]];
+const F = (d) => { if (d <= 6.5) return d; for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (d <= d1 || i === KN.length - 2) return r0 + (d - d0) * (r1 - r0) / (d1 - d0); } return d; };
+const S = (d) => { for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (d <= d1 || i === KN.length - 2) return (r1 - r0) / (d1 - d0); } return 1; };
+// 6.5–9.5 (real 6.5–11.5) phone flow
+bigKick(6.5, 1.1); softImpact(6.5, 1.2); clangS(6.5, 0.9, 52); groove(6.5, 11.0, { saw: 0.7 });
+click(F(7.05), 1.6, 1300); lowPop(F(7.05), 0.9, 100); whoosh(F(7.27), 0.3, 1.0, false); tomHit(F(7.35), 1, 120); clangS(F(7.41), 0.6, 60);
+for (let i = 0; i < 26; i++) key(F(7.45 + i * 0.53 / 26), 0.6, 2600 + (i % 3) * 300); click(F(8.05), 1.6, 1500); clangS(F(8.05), 0.8, 58);
+whoosh(F(8.25), 0.3, 1.0, true); tomHit(F(8.35), 1, 110); softImpact(F(8.35), 0.9);
+for (let i = 0; i < 16; i++) { const t = F(8.55 + i * 0.032); (i % 3 === 2 ? lowPop : popS)(t, 0.5, i % 3 === 2 ? 130 : 1100 + i * 50); } [79, 84, 88, 91].forEach((m, i) => bell(F(8.55 + i * 0.06), m, 0.28, i % 2 ? 0.5 : -0.5, 1.2)); clangS(F(9.05), 0.9, 49); bell(F(9.05), 96, 0.25, 0, 1.4);
+riser(F(9.0), 0.5 * S(9), 0.8);
+// 9.5–11.5 (real 11.5–15) earners
+bigKick(11.5, 1.0); softImpact(11.5, 1.0); groove(11.5, 14.5, { kick: 0.8, saw: 0.6, arp: 0.55 });
+for (let i = 0; i < 9; i++) popS(F(9.6 + i * 0.04), 0.35, 900 + i * 60); for (let i = 0; i < 8; i++) (i % 2 ? popS : lowPop)(F(9.75 + i * 0.07), 0.65, i % 2 ? 950 : 115);
+riser(F(11.0), 0.5 * S(11), 1.0); whoosh(F(11.22), 0.45, 1.4, true);
+// 11.5–12.75 (real 15–17.5) category cuts, one per beat
+[11.5, 11.75, 12.0, 12.25, 12.5].map(F).forEach((t, i) => { bigKick(t, 1.0); [() => clangS(t, 0.8, 55), () => tomHit(t, 1, 120), () => metal(t, 0.9), () => lowPop(t, 1, 100), () => clangS(t, 0.8, 49)][i](); laser(t, 0.35, i % 2 ? 0.5 : -0.5, 2000 + i * 300, 300); });
+groove(15, 17, { dbl: true, kick: 0 }); roll(17, 17.5, 1);
+// 12.75–15 (real 17.5–20) end card
+bigKick(17.5, 1.15); softImpact(17.5, 1.5); braam(17.5, 2.5, CH.F, 1.3); clangS(17.5, 0.9, 44); pad(17.5, 2.5, CH.F, 1.0, { atk: 0.05, rel: 1.6 });
+for (let i = 0; i < 16; i++) tick(F(12.78 + i * 0.022), 0.4, 1800 + i * 80); for (let i = 0; i < 7; i++) (i % 2 ? popS : lowPop)(F(12.95 + i * 0.035), 0.55, i % 2 ? 900 : 115);
+bell(F(13.3), 77, 0.3, 0, 1.2); popS(F(13.55), 0.8, 900); lowPop(F(13.65), 0.8, 110); bell(F(13.85), 84, 0.3, 0.3, 1.0);
+groove(18.0, 19.5, { kick: 0.55, bass: 0.6, saw: 0.4, arp: 0.4 });
 
 // ---------- FX + master ----------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }

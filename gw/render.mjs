@@ -1,5 +1,5 @@
 // Renders the Gibwork promo frame-by-frame in headless Chromium and muxes its score.
-//   node gw/synth.mjs && node gw/render.mjs   -> out/gibwork_15s_1080p60.mp4
+//   node gw/synth.mjs && node gw/render.mjs   -> out/gibwork_20s_1080p60.mp4
 //   node gw/render.mjs --stills 1,5   -> out/gw_stills/reel_t_<sec>.png
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -22,7 +22,7 @@ if (stills) {
   await browser.close(); process.exit(0);
 }
 const { DUR, FPS } = await page.evaluate(() => ({ DUR: window.FILM.DUR, FPS: window.FILM.FPS }));
-const wav = resolve(out, 'gibwork_score.wav'), mp4 = resolve(out, film === 'gw' ? 'gibwork_15s_1080p60.mp4' : 'gibwork_9x16_15s_60fps.mp4');
+const wav = resolve(out, 'gibwork_score.wav'), mp4 = resolve(out, film === 'gw' ? 'gibwork_20s_1080p60.mp4' : 'gibwork_9x16_20s_60fps.mp4');
 const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-',
   ...(existsSync(wav) ? ['-i', wav, '-c:a', 'aac', '-b:a', '320k', '-ar', '48000'] : []),
   '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPS), '-movflags', '+faststart', '-t', String(DUR), mp4], { stdio: ['pipe', 'inherit', 'inherit'] });

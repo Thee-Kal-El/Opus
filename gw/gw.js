@@ -1,11 +1,15 @@
-// GIBWORK — "Hire the internet, or collect the bounty." 15s, 1920x1080 @ 60fps, cut to 120 BPM.
+// GIBWORK — "Hire the internet, or collect the bounty." 20s (15s design timeline, slowed after 6.5), 1920x1080 @ 60fps, cut to 120 BPM.
 // 0–1.5 pixel logo build · 1.5–4 hero headline (task slot machine + bounty odometer) · 4–6.5 isometric bounty board ·
 // 6.5–9.5 phone flow: bounty → "I can do this" → Submit Work → wallet gets paid · 9.5–11.5 top earners ·
 // 11.5–12.75 category beat-cuts · 12.75–15 end card. All UI rebuilt in vector from the reference screenshots.
 (() => {
   'use strict';
   const K = window.KIT, { TAU, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, rr, hash } = K;
-  const W = 1920, H = 1080, FPS = 60, DUR = 15;
+  const W = 1920, H = 1080, FPS = 60, DUR = 20;
+  // Everything is authored in 15s "design time"; after the bounty board (6.5) it plays slower so the film runs 20s.
+  // Knots are [design, real] and match the score's F(): phone 3s→5s, earners 2s→3.5s, category cuts 1.25s→2.5s, end 2.25s→2.5s.
+  const KN = [[0, 0], [6.5, 6.5], [9.5, 11.5], [11.5, 15], [12.75, 17.5], [15, 20]];
+  const toDesign = (r) => { for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (r <= r1 || i === KN.length - 2) return d0 + (r - r0) * (d1 - d0) / (r1 - r0); } return r; };
   const V = !!window.VERTICAL;
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
   const PUR = '#8151FD', PUR2 = '#A98BFF', GRN = '#139A6B', GRN2 = '#1FD18E', INK = '#111114', PAPER = '#FAFAFA', MUTE = '#6E6E78', PILL = '#EFEFF1', DARK = '#0D0A16', USDC = '#2775CA';
@@ -35,7 +39,6 @@
   function logoDisc(c, x, y, r) { c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = PUR; c.fill(); glyph(c, x, y, r / 6.8); }
   function appIcon(c, x, y, s) { rr(c, x - s / 2, y - s / 2, s, s, s * 0.22); c.fillStyle = PUR; c.fill(); glyph(c, x, y + s * 0.02, s / 11); }
   function verified(c, x, y, r, col = PUR) { c.beginPath(); for (let i = 0; i < 24; i++) { const a = i / 24 * TAU, rr2 = i % 2 ? r * 0.86 : r; c.lineTo(x + Math.cos(a) * rr2, y + Math.sin(a) * rr2); } c.closePath(); c.fillStyle = col; c.fill(); c.strokeStyle = '#fff'; c.lineWidth = r * 0.24; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(x - r * 0.38, y + r * 0.02); c.lineTo(x - r * 0.1, y + r * 0.3); c.lineTo(x + r * 0.42, y - r * 0.3); c.stroke(); }
-  function xLogo(c, x, y, s, col = '#fff') { c.save(); c.translate(x, y); c.strokeStyle = col; c.lineCap = 'butt'; c.lineWidth = s * 0.13; c.beginPath(); c.moveTo(-s * 0.42, -s * 0.48); c.lineTo(s * 0.42, s * 0.48); c.stroke(); c.lineWidth = s * 0.07; c.beginPath(); c.moveTo(s * 0.4, -s * 0.48); c.lineTo(-s * 0.4, s * 0.48); c.stroke(); c.restore(); }
   function bolt(c, x, y, s, col) { c.save(); c.translate(x, y); c.scale(s / 20, s / 20); c.beginPath(); c.moveTo(3, -10); c.lineTo(-6, 2); c.lineTo(0, 2); c.lineTo(-3, 10); c.lineTo(6, -2); c.lineTo(0, -2); c.closePath(); c.fillStyle = col; c.fill(); c.restore(); }
   function coinUSD(c, x, y, r) { c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = USDC; c.fill(); c.strokeStyle = '#fff'; c.lineWidth = r * 0.1; c.beginPath(); c.arc(x, y, r * 0.66, 0, TAU); c.stroke(); txt(c, '$', x, y + r * 0.05, G(800, r * 0.95), '#fff', 'center', 'middle'); }
   function coinXP(c, x, y, r) { c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = PUR; c.fill(); bolt(c, x, y, r * 1.1, '#FFD84A'); }
@@ -82,10 +85,10 @@
   const o3 = (p) => 1 - Math.pow(1 - p, 3);
 
   // ---------- S1 hero (1.5–4.0) ----------
-  const TASKS = [['Find 15 sales leads', 'lead'], ['Build a Solana dApp', 'dev'], ['Design a new logo', 'design'], ['Edit a UGC video', 'video'], ['Write a launch thread', 'write'], ['Verify 50 emails', 'mail'], ['Create X Content', 'x']];
+  const TASKS = [['Find 15 sales leads', 'lead'], ['Build a Solana dApp', 'dev'], ['Design a new logo', 'design'], ['Edit a UGC video', 'video'], ['Write a launch thread', 'write'], ['Verify 50 emails', 'mail'], ['Try out Gibwork', 'gib']];
   function taskIcon(c, kind, x, y, r) {
-    const cols = { lead: '#FF7A1A', dev: INK, design: '#E84393', video: '#E53935', write: GRN, mail: USDC, x: '#000' }; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = cols[kind]; c.fill();
-    if (kind === 'x') return xLogo(c, x, y, r * 0.95);
+    const cols = { lead: '#FF7A1A', dev: INK, design: '#E84393', video: '#E53935', write: GRN, mail: USDC, gib: PUR }; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = cols[kind]; c.fill();
+    if (kind === 'gib') return logoDisc(c, x, y, r);
     const gl = { lead: '◎', dev: '</>', design: '✦', video: '▶', write: '✎', mail: '@' }[kind]; txt(c, gl, x, y + r * 0.04, G(800, kind === 'dev' ? r * 0.7 : r * 1.05), '#fff', 'center', 'middle');
   }
   function hero(c, t) {
@@ -299,16 +302,16 @@
 
   // ---------- finishing ----------
   const HITS = [0.75, 1.5, 4.0, 4.5, 5.0, 6.0, 6.5, 7.05, 7.35, 8.05, 8.35, 9.05, 9.5, 11.5, 11.75, 12.0, 12.25, 12.5, 12.75];
-  let BUF = null, GRAIN = null;
+  let BUF = null, GRAIN = null, TREAL = 0;
   function finish(c, t) {
     let h = 0; for (const T0 of HITS) h = Math.max(h, pulse(t, T0, 15));
     if (h > 0.05) { if (!BUF) { BUF = document.createElement('canvas'); BUF.width = W; BUF.height = H; } const b = BUF.getContext('2d'); b.clearRect(0, 0, W, H); b.drawImage(cv, 0, 0); c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = 0.14 * h; c.drawImage(BUF, -12 * h, 0); c.drawImage(BUF, 12 * h, 0); c.restore(); }
     if (!GRAIN) { GRAIN = document.createElement('canvas'); GRAIN.width = GRAIN.height = 256; const g = GRAIN.getContext('2d'), d = g.createImageData(256, 256); for (let i = 0; i < d.data.length; i += 4) { const v = hash(i, 11) * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 12; } g.putImageData(d, 0, 0); }
-    const fr = Math.round(t * FPS); c.save(); c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(GRAIN, 'repeat'); c.translate(-(hash(fr, 1) * 256 | 0), -(hash(fr, 2) * 256 | 0)); c.fillRect(0, 0, W + 256, H + 256); c.restore();
+    const fr = Math.round(TREAL * FPS); c.save(); c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(GRAIN, 'repeat'); c.translate(-(hash(fr, 1) * 256 | 0), -(hash(fr, 2) * 256 | 0)); c.fillRect(0, 0, W + 256, H + 256); c.restore();
     const fo = prog(t, 14.6, 15); if (fo > 0) { c.fillStyle = `rgba(0,0,0,${fo})`; c.fillRect(0, 0, W, H); }
   }
-  function renderAt(t) {
-    const c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
+  function renderAt(tReal) {
+    const t = toDesign(tReal), c = ctx; TREAL = tReal; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
     let sh = 0; for (const T0 of HITS) sh = Math.max(sh, pulse(t, T0, 18) * 9); c.save(); c.translate((hash(Math.round(t * FPS), 3) - 0.5) * 2 * sh, (hash(Math.round(t * FPS), 4) - 0.5) * 2 * sh);
     intro(c, t); if (t >= 1.5 && t < 4.0) hero(c, t); board(c, t); phone(c, t); earners(c, t); cuts(c, t); endCard(c, t); c.restore(); finish(c, t);
   }
