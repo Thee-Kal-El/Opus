@@ -1,11 +1,15 @@
-// ANAHEIM PRANCING PUPS — "We bring the spa to your paws." 15s, 1920x1080 @ 60fps, cut to 120 BPM.
+// ANAHEIM PRANCING PUPS — "We bring the spa to your paws." 20s (15s design timeline, slowed), 1920x1080 @ 60fps, cut to 120 BPM.
 // 0–1.5 wolf crest reveal + logo ring build · 1.5–4 headline with paw-print stamps and soap bubbles · 4–6.5 the grooming bus ·
 // 6.5–9.5 services (Hair Trimming, Deshedding Package) · 9.5–12 happy pups + 07+ years · 12–15 book / call end card.
 // Scene changes ride the site's slanted cyan/navy/black stripe. renderAt(t) is deterministic.
 (() => {
   'use strict';
   const K = window.KIT, { TAU, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, rr, hash } = K;
-  const V = !!window.VERTICAL, W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 15;
+  const V = !!window.VERTICAL, W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 20;
+  // Authored on a 15s "design" timeline, played back over 20s for reading time. Knots are [design, real] (shared with the
+  // score's F()): crest 1.5→2s, headline 2.5→3.5s, bus 2.5→3s, services 3→4.5s, pups 2.5→3.5s, end card 3→3.5s.
+  const KN = [[0, 0], [1.5, 2], [4, 5.5], [6.5, 8.5], [9.5, 13], [12, 16.5], [15, 20]];
+  const toDesign = (r) => { for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (r <= r1 || i === KN.length - 2) return d0 + (r - r0) * (d1 - d0) / (r1 - r0); } return r; };
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
   const CY = '#1BBEF2', NAVY = '#083F5E', NAVY2 = '#0B2C44', ICE = '#EAF2F8', INK = '#111418', GREY = '#5A6068';
   const S = (w, s) => `${w} ${s}px "DejaVu Serif", "Liberation Serif", serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`, M = (w, s) => `${w} ${s}px "JetBrains Mono", monospace`;
@@ -166,16 +170,16 @@
   // ---------- finishing ----------
   const HITS = [0.75, 1.5, 1.8, 2.3, 2.55, 4.0, 4.55, 6.5, 7.0, 8.75, 9.5, 10.0, 12.0, 13.6];
   const WIPES = [1.5, 4.0, 6.5, 9.5, 12.0];
-  let BUF = null, GRAIN = null;
+  let BUF = null, GRAIN = null, TREAL = 0;
   function finish(c, t) {
     let h = 0; for (const T0 of HITS) h = Math.max(h, pulse(t, T0, 15));
     if (h > 0.05) { if (!BUF) { BUF = document.createElement('canvas'); BUF.width = W; BUF.height = H; } const b = BUF.getContext('2d'); b.clearRect(0, 0, W, H); b.drawImage(cv, 0, 0); c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = 0.12 * h; c.drawImage(BUF, -10 * h, 0); c.drawImage(BUF, 10 * h, 0); c.restore(); }
     if (!GRAIN) { GRAIN = document.createElement('canvas'); GRAIN.width = GRAIN.height = 256; const g = GRAIN.getContext('2d'), d = g.createImageData(256, 256); for (let i = 0; i < d.data.length; i += 4) { const v = hash(i, 11) * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 12; } g.putImageData(d, 0, 0); }
-    const fr = Math.round(t * FPS); c.save(); c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(GRAIN, 'repeat'); c.translate(-(hash(fr, 1) * 256 | 0), -(hash(fr, 2) * 256 | 0)); c.fillRect(0, 0, W + 256, H + 256); c.restore();
+    const fr = Math.round(TREAL * FPS); c.save(); c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(GRAIN, 'repeat'); c.translate(-(hash(fr, 1) * 256 | 0), -(hash(fr, 2) * 256 | 0)); c.fillRect(0, 0, W + 256, H + 256); c.restore();
     const fo = prog(t, 14.6, 15); if (fo > 0) { c.fillStyle = `rgba(0,0,0,${fo})`; c.fillRect(0, 0, W, H); }
   }
-  function renderAt(t) {
-    const c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
+  function renderAt(tReal) {
+    const t = toDesign(tReal), c = ctx; TREAL = tReal; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
     let sh = 0; for (const T0 of HITS) sh = Math.max(sh, pulse(t, T0, 18) * 8); c.save(); c.translate((hash(Math.round(t * FPS), 3) - 0.5) * 2 * sh, (hash(Math.round(t * FPS), 4) - 0.5) * 2 * sh);
     intro(c, t); headline(c, t); bus(c, t); services(c, t); pups(c, t); endCard(c, t); c.restore();
     for (const T0 of WIPES) stripeWipe(c, t, T0); finish(c, t);

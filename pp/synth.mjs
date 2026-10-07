@@ -1,4 +1,4 @@
-// Score for the ANAHEIM PRANCING PUPS promo (15s) — bright, bouncy 120 BPM groove in A major (A–E–F#m–D), synthesized in code.
+// Score for the ANAHEIM PRANCING PUPS promo (20s; the 15s design timeline is slowed for reading time) — bright, bouncy 120 BPM groove in A major (A–E–F#m–D), synthesized in code.
 // Crest reveal 0.75 · headline slams + paw stamps 1.5–2.9 · bus drive-in + horn 4.0–4.6 · service cards 6.55/7.05 with scissor snips ·
 // pups + 07+ badge 9.5–10.8 · end card 12.0, button tap 13.6. Bubble "bloops" throughout.
 //   node pp/synth.mjs  ->  out/prancing_pups_score.wav
@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SR = 48000, DUR = 15, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
+const SR = 48000, DUR = 20, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
 const L = new Float32Array(N), Rr = new Float32Array(N), revL = new Float32Array(N), revR = new Float32Array(N), dlyL = new Float32Array(N), dlyR = new Float32Array(N);
 let seed = 2019;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -137,33 +137,38 @@ function bloop(t0, g = 1, f = 500, p = 0) { const [a, b] = pan(p); let ph = 0; f
 function snip(t0, g = 1) { for (const [d, f] of [[0, 5200], [0.045, 4300]]) for (let n = 0; n < 0.04 * SR; n++) { const t = n / SR, v = (Math.sin(TAU * f * t) * 0.5 + noise() * 0.5) * Math.exp(-t * 150) * g * 0.14; put(at(t0 + d) + n, v, v, 0.15); } }
 // friendly bus horn: two detuned square-ish tones through a soft filter
 function honk(t0, dur, g = 1) { let lp = 0, p1 = 0, p2 = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + 349 / SR) % 1; p2 = (p2 + 440 / SR) % 1; const x = (p1 < 0.5 ? 1 : -1) + (p2 < 0.5 ? 1 : -1); lp += 0.08 * (x - lp); const v = Math.tanh(lp * 1.5) * Math.min(1, t / 0.01) * Math.min(1, (dur - t) / 0.03) * g * 0.09; put(at(t0) + n, v, v * 0.9, 0.25); } }
-// 0–1.5 crest: rising shimmer, the reveal, eye glints
-riser(0, 0.75, 1.0); swell(0.75, 0.7, 0.7); for (let i = 0; i < 10; i++) bloop(0.05 + i * 0.07, 0.4, 400 + i * 50, (i % 2 ? 0.5 : -0.5));
-bigKick(0.75, 1.1); softImpact(0.75, 1.3); braam(0.75, 0.9, CH.A, 1.0); clangS(0.75, 0.8, 55); bell(0.77, 81, 0.35, 0, 1.4);
-bell(1.05, 88, 0.25, -0.4, 1.0); bell(1.1, 93, 0.22, 0.4, 1.0); whoosh(1.25, 0.25, 1.3, true);
-// 1.5–4.0 headline: word slams, paw stamps, big paw
-softImpact(1.5, 1.0); groove(1.5, 3.75, { dbl: true });
-[1.55, 1.64, 1.73, 1.82].forEach((t, i) => (i % 2 ? tomHit : lowPop)(t, 0.85, i % 2 ? 140 : 110)); [2.3, 2.39, 2.48].forEach((t, i) => (i % 2 ? popS : lowPop)(t, 0.85, i % 2 ? 900 : 105));
-for (let i = 0; i < 8; i++) lowPop(1.6 + i * 0.25, 0.35, 160 + i * 8); tomHit(2.85, 1, 120); clangS(2.85, 0.6, 60);
-for (let i = 0; i < 6; i++) bloop(3.0 + i * 0.09, 0.5, 600 + i * 70, i % 2 ? 0.4 : -0.4); riser(3.5, 0.5, 1.0); whoosh(3.8, 0.3, 1.4, true);
-// 4.0–6.5 the bus rolls in
-bigKick(4.0, 1.1); softImpact(4.0, 1.2); groove(4.0, 6.25, { bass: 1.1 }); whoosh(4.0, 0.5, 1.4, false); tomHit(4.55, 1, 90);
-honk(4.62, 0.16, 1); honk(4.84, 0.3, 1); popS(4.5, 0.7, 900); [4.75, 4.95].forEach((t) => lowPop(t, 0.8, 110));
-for (let i = 0; i < 4; i++) (i % 2 ? popS : bloop)(5.3 + i * 0.12, 0.7, i % 2 ? 950 : 520); riser(6.0, 0.5, 0.9); whoosh(6.3, 0.25, 1.3, true);
-// 6.5–9.5 services
-bigKick(6.5, 1.0); softImpact(6.5, 1.0); groove(6.5, 9.25, { saw: 0.7 });
-[6.55, 7.05].forEach((T0, i) => { whoosh(T0, 0.3, 1.0, i === 0); lowPop(T0 + 0.3, 0.9, 100); clangS(T0 + 0.3, 0.6, 58 + i * 6); snip(T0 + 0.7, 1.0); snip(T0 + 0.82, 0.8); for (let j = 0; j < 4; j++) bloop(T0 + 0.7 + j * 0.1, 0.4, 700 + j * 60, i ? 0.4 : -0.4); popS(T0 + 1.15, 0.7, 950); });
-click(8.75, 1.6, 1400); click(8.87, 1.4, 1500); lowPop(8.75, 0.8, 120); whoosh(9.2, 0.3, 1.3, true);
-// 9.5–12.0 happy pups + 07+ years
-bigKick(9.5, 1.0); softImpact(9.5, 1.0); groove(9.5, 11.75, { kick: 0.85, saw: 0.6, arp: 0.55 });
-[9.55, 9.7, 9.85].forEach((t, i) => (i % 2 ? popS : lowPop)(t, 0.8, i % 2 ? 900 : 115)); clangS(10.0, 0.9, 52);
-for (let i = 1; i <= 7; i++) tick(10.1 + 0.7 * (1 - Math.pow(1 - i / 7, 1 / 3)) * 0.98, 0.7, 2000 + i * 120);
-[10.4, 10.65, 10.9].forEach((t, i) => bell(t, 88 + i * 3, 0.22, i % 2 ? 0.5 : -0.5, 0.8)); riser(11.4, 0.6, 1.0); whoosh(11.75, 0.3, 1.4, true);
-// 12.0–15.0 end card
-bigKick(12.0, 1.15); softImpact(12.0, 1.4); braam(12.0, 2.2, CH.A, 1.2); clangS(12.0, 0.9, 49); pad(12.0, 3.0, CH.A, 1.0, { atk: 0.05, rel: 1.6 });
-[12.35, 12.5].forEach((t, i) => (i ? tomHit : lowPop)(t, 0.8, i ? 130 : 110)); popS(12.9, 0.8, 900); bloop(13.2, 0.5, 600); lowPop(13.35, 0.8, 115);
-click(13.6, 1.6, 1400); bell(13.62, 85, 0.3, 0, 1.2); bloop(13.7, 0.6, 700, 0.3);
-groove(12.5, 14.5, { kick: 0.6, bass: 0.6, saw: 0.45, arp: 0.45 });
+// ---- 20s cut: the 15s design timeline plays slower (more reading time). Design time d → real time F(d); knots shared with pp.js.
+// Grooves stay on the real 120 BPM grid; every hit sits at F(its picture cue). Scene boundaries land on beats.
+const KN = [[0, 0], [1.5, 2], [4, 5.5], [6.5, 8.5], [9.5, 13], [12, 16.5], [15, 20]];
+const F = (d) => { for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (d <= d1 || i === KN.length - 2) return r0 + (d - d0) * (r1 - r0) / (d1 - d0); } return d; };
+const span = (a, b) => F(b) - F(a);
+// crest (real 0–2): rising shimmer, the reveal, eye glints
+riser(0, F(0.75), 1.0); swell(F(0.75), 0.9, 0.7); for (let i = 0; i < 10; i++) bloop(F(0.05 + i * 0.07), 0.4, 400 + i * 50, (i % 2 ? 0.5 : -0.5));
+bigKick(F(0.75), 1.1); softImpact(F(0.75), 1.3); braam(F(0.75), 1.1, CH.A, 1.0); clangS(F(0.75), 0.8, 55); bell(F(0.77), 81, 0.35, 0, 1.6);
+bell(F(1.05), 88, 0.25, -0.4, 1.0); bell(F(1.1), 93, 0.22, 0.4, 1.0); whoosh(F(1.25), span(1.25, 1.55), 1.3, true);
+// headline (real 2–5.5): word slams, paw stamps, big paw
+softImpact(2.0, 1.0); groove(2.0, 5.25, { dbl: true });
+[1.55, 1.64, 1.73, 1.82].map(F).forEach((t, i) => (i % 2 ? tomHit : lowPop)(t, 0.85, i % 2 ? 140 : 110)); [2.3, 2.39, 2.48].map(F).forEach((t, i) => (i % 2 ? popS : lowPop)(t, 0.85, i % 2 ? 900 : 105));
+for (let i = 0; i < 8; i++) lowPop(F(1.6 + i * 0.25), 0.35, 160 + i * 8); tomHit(F(2.85), 1, 120); clangS(F(2.85), 0.6, 60);
+for (let i = 0; i < 6; i++) bloop(F(3.0 + i * 0.09), 0.5, 600 + i * 70, i % 2 ? 0.4 : -0.4); riser(F(3.5), span(3.5, 4.0), 1.0); whoosh(F(3.8), span(3.8, 4.1), 1.4, true);
+// the bus (real 5.5–8.5)
+bigKick(5.5, 1.1); softImpact(5.5, 1.2); groove(5.5, 8.25, { bass: 1.1 }); whoosh(5.5, span(4.0, 4.55), 1.4, false); tomHit(F(4.55), 1, 90);
+honk(F(4.62), 0.18, 1); honk(F(4.84), 0.34, 1); popS(F(4.5), 0.7, 900); [4.75, 4.95].map(F).forEach((t) => lowPop(t, 0.8, 110));
+for (let i = 0; i < 4; i++) (i % 2 ? popS : bloop)(F(5.3 + i * 0.12), 0.7, i % 2 ? 950 : 520); riser(F(6.0), span(6.0, 6.5), 0.9); whoosh(F(6.3), span(6.3, 6.6), 1.3, true);
+// services (real 8.5–13)
+bigKick(8.5, 1.0); softImpact(8.5, 1.0); groove(8.5, 12.75, { saw: 0.7 });
+[6.55, 7.05].forEach((T0, i) => { whoosh(F(T0), 0.4, 1.0, i === 0); lowPop(F(T0 + 0.3), 0.9, 100); clangS(F(T0 + 0.3), 0.6, 58 + i * 6); snip(F(T0 + 0.7), 1.0); snip(F(T0 + 0.82), 0.8); for (let j = 0; j < 4; j++) bloop(F(T0 + 0.7 + j * 0.1), 0.4, 700 + j * 60, i ? 0.4 : -0.4); popS(F(T0 + 1.15), 0.7, 950); });
+click(F(8.75), 1.6, 1400); click(F(8.87), 1.4, 1500); lowPop(F(8.75), 0.8, 120); whoosh(F(9.2), span(9.2, 9.55), 1.3, true);
+// happy pups + 07+ years (real 13–16.5)
+bigKick(13.0, 1.0); softImpact(13.0, 1.0); groove(13.0, 16.25, { kick: 0.85, saw: 0.6, arp: 0.55 });
+[9.55, 9.7, 9.85].map(F).forEach((t, i) => (i % 2 ? popS : lowPop)(t, 0.8, i % 2 ? 900 : 115)); clangS(F(10.0), 0.9, 52);
+for (let i = 1; i <= 7; i++) tick(F(10.1 + 0.7 * (1 - Math.pow(1 - i / 7, 1 / 3)) * 0.98), 0.7, 2000 + i * 120);
+[10.4, 10.65, 10.9].map(F).forEach((t, i) => bell(t, 88 + i * 3, 0.22, i % 2 ? 0.5 : -0.5, 0.9)); riser(F(11.4), span(11.4, 12.0), 1.0); whoosh(F(11.75), span(11.75, 12.1), 1.4, true);
+// end card (real 16.5–20)
+bigKick(16.5, 1.15); softImpact(16.5, 1.4); braam(16.5, 2.6, CH.A, 1.2); clangS(16.5, 0.9, 49); pad(16.5, 3.5, CH.A, 1.0, { atk: 0.05, rel: 1.8 });
+[12.35, 12.5].map(F).forEach((t, i) => (i ? tomHit : lowPop)(t, 0.8, i ? 130 : 110)); popS(F(12.9), 0.8, 900); bloop(F(13.2), 0.5, 600); lowPop(F(13.35), 0.8, 115);
+click(F(13.6), 1.6, 1400); bell(F(13.62), 85, 0.3, 0, 1.2); bloop(F(13.7), 0.6, 700, 0.3);
+groove(17.0, 19.5, { kick: 0.6, bass: 0.6, saw: 0.45, arp: 0.45 });
 
 // ---------- FX + master ----------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }
