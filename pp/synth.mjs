@@ -135,8 +135,8 @@ function groove(t0, t1, o = {}) {
 function bloop(t0, g = 1, f = 500, p = 0) { const [a, b] = pan(p); let ph = 0; for (let n = 0; n < 0.12 * SR; n++) { const t = n / SR; ph += TAU * f * (1 + 2.2 * (1 - Math.exp(-t * 40))) / SR; const v = Math.sin(ph) * Math.min(1, t / 0.003) * Math.exp(-t * 30) * g * 0.13; put(at(t0) + n, v * a, v * b, 0.3, 0.2); } }
 // scissor snip: two bright metallic ticks
 function snip(t0, g = 1) { for (const [d, f] of [[0, 5200], [0.045, 4300]]) for (let n = 0; n < 0.04 * SR; n++) { const t = n / SR, v = (Math.sin(TAU * f * t) * 0.5 + noise() * 0.5) * Math.exp(-t * 150) * g * 0.14; put(at(t0 + d) + n, v, v, 0.15); } }
-// friendly bus horn: two detuned square-ish tones through a soft filter
-function honk(t0, dur, g = 1) { let lp = 0, p1 = 0, p2 = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + 349 / SR) % 1; p2 = (p2 + 440 / SR) % 1; const x = (p1 < 0.5 ? 1 : -1) + (p2 < 0.5 ? 1 : -1); lp += 0.08 * (x - lp); const v = Math.tanh(lp * 1.5) * Math.min(1, t / 0.01) * Math.min(1, (dur - t) / 0.03) * g * 0.09; put(at(t0) + n, v, v * 0.9, 0.25); } }
+// friendly bus horn: two bright, light tones (major third, ~C5/E5) with a little air so it cuts through the groove
+function honk(t0, dur, g = 1) { let lp = 0, p1 = 0, p2 = 0; for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + 523 / SR) % 1; p2 = (p2 + 659 / SR) % 1; const x = (p1 < 0.5 ? 1 : -1) * 0.7 + (p2 < 0.5 ? 1 : -1) * 0.7 + Math.sin(TAU * 1046 * t) * 0.3; lp += 0.22 * (x - lp); const v = Math.tanh(lp * 1.3) * Math.min(1, t / 0.008) * Math.min(1, (dur - t) / 0.03) * g * 0.16; put(at(t0) + n, v, v * 0.95, 0.2); } }
 // ---- 20s cut: the 15s design timeline plays slower (more reading time). Design time d → real time F(d); knots shared with pp.js.
 // Grooves stay on the real 120 BPM grid; every hit sits at F(its picture cue). Scene boundaries land on beats.
 const KN = [[0, 0], [1.5, 2], [4, 5.5], [6.5, 8.5], [9.5, 13], [12, 16.5], [15, 20]];
