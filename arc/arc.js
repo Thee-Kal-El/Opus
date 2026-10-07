@@ -220,12 +220,145 @@
     const fk = crit(prog(t, 58.2, 58.5)); if (fk > 0) { c.save(); c.globalAlpha = clamp(fk * 2); ct(c, 'FINAL. IRREVERSIBLE. WEEKLY.', W / 2, 1010, 120, GR, 'center'); c.restore(); }
   }
 
+
+  // =====================================================================================================
+  // VERTICAL EDITION (1080x1920): same timeline, sounds and assets; every scene re-laid out as a tall stack.
+  // =====================================================================================================
+  const LX = 70, CW9 = W - 2 * LX;
+  function wrap(c, s, font, maxW) { const out = ['']; for (const w of s.split(' ')) { const cand = out[out.length - 1] ? out[out.length - 1] + ' ' + w : w; if (tw(c, cand, font) > maxW && out[out.length - 1]) out.push(w); else out[out.length - 1] = cand; } return out; }
+  function slam(c, s, x, y, size, col, k, align = 'left', from = 1.6) { if (k <= 0) return; c.save(); c.translate(x, y); c.scale(lerp(from, 1, k), lerp(from, 1, k)); c.globalAlpha = clamp(k * 2.5); ct(c, s, 0, 0, size, col, align); c.restore(); }
+  function coldOpenV(c, t) {
+    if (t >= 6) return; terminalBg(c, t, 0.08);
+    if (t < 4.0) {
+      const f = M(700, 40); txt(c, 'FINALITY // ISSUE 01', LX, 560, M(700, 24), rgba(GR, 0.6), 'left', 'middle', 4); txt(c, "// EDITOR'S LETTER", LX, 600, M(700, 24), rgba(GR, 0.6), 'left', 'middle', 4);
+      let row = 0; PROB.forEach(([s, T0], i) => { if (t < T0) return; const n = Math.floor(clamp((t - T0) / 0.45) * s.length), last = i === PROB.length - 1, lines = wrap(c, s.slice(0, n), f, CW9 - 30), jit = last && t > 3.6 ? (hash(Math.floor(t * 30), i) - 0.5) * 16 : 0;
+        lines.forEach((ln, j) => { const y = 720 + (row + j) * 74; txt(c, ln, LX + jit, y, f, last && t > 3.6 ? RED : GR); if (j === lines.length - 1 && (n < s.length || (last && Math.floor(t * 4) % 2))) { c.fillStyle = GR; c.fillRect(LX + tw(c, ln, f) + 6, y - 22, 20, 44); } }); row += wrap(c, s, f, CW9 - 30).length; });
+      if (t > 3.55) { const g = prog(t, 3.55, 4.0); for (let i = 0; i < 18; i++) { const y = hash(i, Math.floor(t * 24)) * H, h = 6 + hash(i, 2, Math.floor(t * 24)) * 40; c.drawImage(cv, 0, y, W, h, (hash(i, 3, Math.floor(t * 24)) - 0.5) * 120 * g, y, W, h); } }
+      return;
+    }
+    c.fillStyle = '#000'; c.fillRect(0, 0, W, H); pixelBlocks(c, W - 460, 100, 7, 7, 64, t, 4, 0.5); pixelBlocks(c, 0, H - 520, 6, 7, 64, t, 5, 0.35);
+    const k1 = crit(prog(t, 4.0, 4.25)), k2 = crit(prog(t, 4.5, 4.75)), out = ease(t, 5.6, 6.0, (p) => p * p);
+    c.save(); c.translate(0, -out * 120); c.globalAlpha = 1 - out;
+    const s1 = fit(c, "ARC DOESN'T", 220, CW9), s2 = fit(c, 'PROBABLY.', 330, CW9);
+    slam(c, "ARC DOESN'T", LX, 640, s1, INK, k1); slam(c, 'DO', LX, 640 + s1 * 0.95, s1, INK, k1); slam(c, 'PROBABLY.', LX, 1150, s2, GR, k2, 'left', 1.8);
+    const sk = io5(prog(t, 4.9, 5.2)); if (sk > 0 && k2 > 0) { c.save(); c.strokeStyle = RED; c.lineWidth = 24; c.lineCap = 'round'; c.beginPath(); c.moveTo(LX - 10, 1175); c.lineTo(LX - 10 + (ctw(c, 'PROBABLY.', s2) + 20) * sk, 1130); c.stroke(); c.restore(); }
+    const fk = A(t, 5.15, 0.3); c.save(); c.globalAlpha = fk; const L = wrap(c, "When a supermajority of validators commits a block, it's final.", G(600, 44), CW9); L.forEach((l, i) => txt(c, l, LX, 1400 + i * 60, G(600, 44), INK)); src(c, '[3]', LX, 1400 + L.length * 60, 32); c.restore();
+    c.restore();
+  }
+  function mainnetV(c, t) {
+    if (t < 6 || t >= 12) return; terminalBg(c, t, 0.14);
+    const lx = W / 2, ly = 500, s = 280;
+    for (let i = 0; i < 49; i++) { if (t > 7.05) break; const gx = i % 7, gy = Math.floor(i / 7), T0 = 6.0 + hash(i, 6) * 0.6, k = crit(prog(t, T0, T0 + 0.5)), a = hash(i, 7) * TAU, d = 1000 + hash(i, 8) * 700, tx = lx - s / 2 + gx * s / 7, ty = ly - s / 2 + gy * s / 7;
+      c.save(); c.globalAlpha = clamp(k * 3); c.translate(lerp(tx + Math.cos(a) * d, tx, k), lerp(ty + Math.sin(a) * d, ty, k)); c.rotate((1 - k) * (hash(i, 9) - 0.5) * 8); c.fillStyle = hash(i, 10) > 0.5 ? GR : ABLUE; c.fillRect(0, 0, s / 7 - 3, s / 7 - 3); c.restore(); }
+    if (t >= 7.0) { const k = pop(prog(t, 7.0, 7.35)); c.save(); c.translate(lx, ly); c.scale(k, k); c.shadowColor = '#5B8CFF'; c.shadowBlur = 80 * pulse(t, 7.0, 3) + 30; arcIcon(c, 0, 0, s); c.restore();
+      const rg = prog(t, 7.0, 7.6); if (rg < 1) { c.save(); c.strokeStyle = rgba(GR, 1 - rg); c.lineWidth = 12 * (1 - rg); c.beginPath(); c.arc(lx, ly, s * 0.7 + 1100 * o3(rg), 0, TAU); c.stroke(); c.restore(); } }
+    const rows = [[['ARC', 7.5], ['MAINNET', 7.75]], [['IS', 8.0], ['LIVE.', 8.25]]], size = fit(c, 'ARC MAINNET', 230, CW9 - 40);
+    rows.forEach((ws, r) => { const tot = ws.reduce((a, [w]) => a + ctw(c, w, size) + 36, -36); let x = W / 2 - tot / 2; ws.forEach(([w, T0]) => { const k = crit(prog(t, T0, T0 + 0.22)), ww = ctw(c, w, size); c.save(); c.translate(x + ww / 2, 900 + r * size * 0.95); if (k > 0) { c.scale(lerp(2, 1, k), lerp(2, 1, k)); c.globalAlpha = clamp(k * 2); ct(c, w, 0, 0, size, w === 'LIVE.' ? GR : INK, 'center'); } c.restore(); x += ww + 36; }); });
+    if (t > 8.4) for (let i = 0; i < 4; i++) { const seed = Math.floor(t * 14) + i * 7; if (hash(seed, 1) > 0.55) lightning(c, 40 + hash(seed, 2) * 200, 780 + hash(seed, 3) * 400, W - 40 - hash(seed, 4) * 200, 780 + hash(seed, 5) * 400, seed, 2.2); }
+    const bk = io5(prog(t, 9.0, 9.4)); if (bk > 0) { const bw = CW9, bx = LX, by = 1360, bh = 360; c.save(); c.globalAlpha = bk; c.strokeStyle = GR; c.lineWidth = 3; c.shadowColor = GR; c.shadowBlur = 20; c.strokeRect(bx, by, bw * bk, bh); c.shadowBlur = 0;
+      txt(c, 'MAINNET LAUNCH · DATELINE', bx + 34, by + 40, M(700, 24), GR, 'left', 'middle', 3); src(c, '[1]', bx + 54 + tw(c, 'MAINNET LAUNCH · DATELINE', M(700, 24), 3), by + 40);
+      const date = '2026-09-16', fin = clamp((t - 9.3) / 0.8), df = M(800, 120); let dx = bx + 34; [...date].forEach((ch, i) => { const lock = fin * date.length > i, d = lock ? ch : (/\d/.test(ch) ? String(Math.floor(hash(i, Math.floor(t * 30)) * 10)) : ch); txt(c, d, dx, by + 140, df, lock ? GR : rgba(GR, 0.5)); dx += tw(c, '0', df); });
+      if (A(t, 10.1, 0.3) > 0) txt(c, 'NEW YORK', bx + 34, by + 260, df, GR); txt(c, 'STATE: FINAL', bx + bw - 34, by + bh - 34, M(700, 22), GR, 'right', 'middle', 3); txt(c, 'SOURCE: CIRCLE PRESS RELEASE', bx + 34, by + bh - 34, M(600, 20), rgba(GR, 0.7), 'left', 'middle', 2); c.restore(); }
+  }
+  function finalityV(c, t) {
+    if (t < 12 || t >= 18) return; terminalBg(c, t, 0.12);
+    const zoom = ease(t, 14.4, 14.9, io5);
+    if (zoom < 1) { c.save(); c.globalAlpha = 1 - zoom; c.translate(W / 2, H / 2); c.scale(1 + zoom * 2.5, 1 + zoom * 2.5); c.translate(-W / 2, -H / 2);
+      txt(c, 'BLOCK HEIGHT  //  ARC MAINNET', LX, 330, M(700, 26), rgba(GR, 0.7), 'left', 'middle', 3); c.strokeStyle = rgba(GR, 0.4); c.lineWidth = 2; c.beginPath(); c.moveTo(LX - 10, 360); c.lineTo(LX - 10, 1560); c.lineTo(W - 50, 1560); c.stroke();
+      const B = [['#0001', 12.0], ['#0002', 12.4], ['#0003', 12.8], ['#0004', 13.2], ['#0005', 13.6], ['FINAL', 14.0]];
+      B.forEach(([l, T0], i) => { const k = pop(prog(t, T0, T0 + 0.35)); if (k <= 0) return; const s = 92 + i * 22, x = 100 + i * 150, y = 1500 - i * 190; c.save(); c.translate(x + s / 2, y - s / 2); c.scale(k, k); c.translate(-x - s / 2, -y + s / 2); cube(c, x, y, s, l, 1, l === 'FINAL' ? 1 : 0); c.restore();
+        c.save(); c.setLineDash([8, 8]); c.strokeStyle = rgba(GR, 0.5); c.beginPath(); c.moveTo(x + s / 2, y + 6); c.lineTo(x + s / 2, 1558); c.stroke(); c.restore(); if (i) { c.strokeStyle = GR; c.lineWidth = 3; c.beginPath(); c.moveTo(x - 50, y + 80); c.lineTo(x, y - s / 2 + 20); c.stroke(); } });
+      txt(c, 'GENESIS 2026-09-16 · EVERY BLOCK FINAL →', LX, 1610, M(700, 22), rgba(GR, 0.7), 'left', 'middle', 2); c.restore(); }
+    if (zoom > 0) { const ms = Math.round(350 * clamp((t - 15.0) / 0.35)); c.save(); c.globalAlpha = zoom; const big = 470; ct(c, String(ms), LX, 820, big, GR, 'left', -6); ct(c, 'ms', LX + ctw(c, '350', big, -6) + 20, 930, 200, GR, 'left');
+      if (t > 15.35) { const fl = pulse(t, 15.35, 6); c.fillStyle = rgba(GR, 0.25 * fl); c.fillRect(0, 0, W, H); }
+      txt(c, 'FINALITY TEST  ~350ms', LX, 330, M(800, 30), INK, 'left', 'middle', 3); src(c, '[3]', LX + 20 + tw(c, 'FINALITY TEST  ~350ms', M(800, 30), 3), 330, 26); bars(c, LX, 1690, CW9, 260, 16, t, A(t, 15.0, 0.4));
+      const L = [['SUB-SECOND.', 15.6, INK, G(800, 72)], ['DETERMINISTIC.', 15.75, INK, G(800, 72)], ['NO REORG. NO ROLLBACK.', 16.2, GR, M(800, 40)], ['NO SECOND CONFIRMATION.', 16.35, GR, M(800, 40)]];
+      L.forEach(([s2, T0, col, f], i) => { const k = A(t, T0, 0.3); c.save(); c.globalAlpha = k * zoom; txt(c, s2, LX + (1 - k) * 60, 1100 + i * 80 + (i > 1 ? 20 : 0), f, col); c.restore(); });
+      src(c, '[1][3][4]', LX, 1390, 24); txt(c, 'Malachite BFT · Proof of Authority', LX + 160, 1390, M(600, 24), rgba(GR, 0.75)); c.restore(); }
+  }
+  function econOSV(c, t) {
+    if (t < 18 || t >= 24) return; terminalBg(c, t, 0.1);
+    const hk = crit(prog(t, 18.0, 18.3)), L1 = 'AN ECONOMIC OPERATING', L2 = 'SYSTEM FOR THE INTERNET.', hs = fit(c, L2, 130, CW9 - 20);
+    c.save(); c.beginPath(); c.rect(0, 140, W, 300); c.clip(); txt(c, 'WHAT ARC IS BUILDING', LX, 180 + (1 - hk) * 80, M(800, 26), GR, 'left', 'middle', 4); ct(c, L1, LX - 4, 270 + (1 - hk) * 200, hs, INK); ct(c, L2, LX - 4, 270 + hs * 0.95 + (1 - hk) * 200, hs, INK); c.restore(); src(c, '[1][2]', LX, 270 + hs * 1.6, 26);
+    const coinT = 22.1, gridOut = ease(t, coinT - 0.1, coinT + 0.25);
+    FEAT.forEach(([title, line, s, ic], i) => { const T0 = 18.9 + i * 0.4, k = crit(prog(t, T0, T0 + 0.35)); if (k <= 0) return; const cw = CW9, chh = 196, x = LX, y = 560 + i * 216;
+      c.save(); c.globalAlpha = clamp(k * 2) * (1 - gridOut); c.translate(x + cw / 2 + (1 - k) * (i % 2 ? 300 : -300), y + chh / 2); c.translate(-cw / 2, -chh / 2);
+      c.fillStyle = 'rgba(0,0,0,0.7)'; c.fillRect(0, 0, cw, chh); c.strokeStyle = GR; c.lineWidth = 3; c.shadowColor = GR; c.shadowBlur = 16 * (1 + pulse(t, T0, 6)); c.strokeRect(0, 0, cw, chh); c.shadowBlur = 0; c.fillStyle = GR; c.fillRect(0, 0, 70, 7);
+      icon(c, ic, 76, 98, 84, t); txt(c, title, 150, 66, G(800, 40), GR); src(c, s, cw - 24, 36, 20, 'right'); wrap(c, line, G(500, 32), cw - 190).forEach((l, j) => txt(c, l, 150, 126 + j * 40, G(500, 32), INK)); c.restore(); });
+    if (t > coinT) { const k = pop(prog(t, coinT, coinT + 0.4)); c.save(); c.translate(W / 2, 820); c.scale(k, k); c.shadowColor = USDC; c.shadowBlur = 60; usdcCoin(c, 0, 0, 230, (t - coinT) * 5); c.restore();
+      const lk = A(t, coinT + 0.25, 0.3); c.save(); c.globalAlpha = lk; ct(c, 'USDC IS THE GAS.', W / 2, 1210 + (1 - lk) * 60, fit(c, 'USDC IS THE GAS.', 200, CW9), INK, 'center');
+      ['Payments, lending, FX, treasury:', 'fees in dollars, final in under a second.'].forEach((l, i) => txt(c, l, W / 2, 1380 + i * 56, G(600, 40), GR, 'center')); src(c, '[1][4]', W / 2, 1490, 26, 'center'); txt(c, 'EURC and USYC supported natively.', W / 2, 1560, M(600, 28), rgba(INK, 0.7), 'center'); c.restore(); }
+  }
+  function cellV(i) { const row = Math.floor(i / 3), col = row % 2 ? 2 - (i % 3) : i % 3; return [col, row]; }
+  function elevenV(c, t) {
+    if (t < 24 || t >= 35) return; terminalBg(c, t, 0.1);
+    if (t < EL0) { const k = crit(prog(t, 24.0, 24.3)), k2 = A(t, 24.4, 0.3); slam(c, 'THE', W / 2, 640, 300, INK, k, 'center', 1.8); slam(c, '“ELEVEN”', W / 2, 920, fit(c, '“ELEVEN”', 380, CW9), INK, k, 'center', 1.8);
+      c.save(); c.globalAlpha = k2; txt(c, 'Founding Cohort', W / 2, 1180, M(800, 76), GR, 'center'); wrap(c, 'Block production sits within the institutions that already run global money.', M(600, 30), CW9).forEach((l, i) => txt(c, l, W / 2, 1300 + i * 46, M(600, 30), rgba(GR, 0.8), 'center')); src(c, '[1][5]', W / 2, 1450, 26, 'center'); c.restore(); return; }
+    const gridT = EL0 + ELEVEN.length * ELD;
+    if (t < gridT) { const i = Math.floor((t - EL0) / ELD), lt = t - EL0 - i * ELD, [name, role, stat, cap, s] = ELEVEN[i], k = crit(prog(lt, 0, 0.16));
+      pixelBlocks(c, W - 450, 1480, 7, 6, 64, t, 10 + i, 0.35);
+      txt(c, `VALIDATOR ${String(i + 1).padStart(2, '0')} / 11`, LX, 360, M(800, 36), GR, 'left', 'middle', 4); wrap(c, 'ROLE: VALIDATOR · ' + role, M(700, 28), CW9).forEach((l, j) => txt(c, l, LX, 420 + j * 40, M(700, 28), rgba(GR, 0.85), 'left', 'middle', 2));
+      const nl = name.split(' '), ns = Math.min(...nl.map((w) => fit(c, w, 300, CW9))); c.save(); c.globalAlpha = clamp(k * 3); nl.forEach((w, j) => { c.save(); c.translate(LX, 680 + j * ns * 0.92); c.scale(lerp(1.25, 1, k), lerp(1.25, 1, k)); ct(c, w, 0, 0, ns, INK, 'left', -4); c.restore(); }); c.restore();
+      const sk = crit(prog(lt, 0.06, 0.24)), sy = 680 + nl.length * ns * 0.92 + 200; c.save(); c.globalAlpha = clamp(sk * 2); ct(c, stat, LX, sy, fit(c, stat, 280, CW9), GR, 'left', -4); src(c, s, LX, sy + 170, 28); wrap(c, cap, G(600, 44), CW9).forEach((l, j) => txt(c, l, LX, sy + 230 + j * 56, G(600, 44), INK)); c.restore();
+      c.fillStyle = rgba(GR, 0.2); c.fillRect(LX, 1800, CW9, 8); c.fillStyle = GR; c.fillRect(LX, 1800, CW9 * (i + lt / ELD) / 11, 8); return; }
+    const names = [...ELEVEN.map((e) => e[0]), 'Circle'], gw = 300, gh = 180, gap = 20, gx = LX, gy = (H - (4 * gh + 3 * gap)) / 2 - 40, qT = 32.9, qk = ease(t, qT, qT + 0.3);
+    const pt = (i) => { const [col, row] = cellV(i); return [gx + col * (gw + gap), gy + row * (gh + gap)]; };
+    names.forEach((n, i) => { const [x, y] = pt(i), T0 = gridT + i * 0.1, k = pop(prog(t, T0, T0 + 0.3)); if (k <= 0) return;
+      c.save(); c.translate(x + gw / 2, y + gh / 2 - qk * 60); c.scale(k * (1 - qk * 0.15), k * (1 - qk * 0.15)); c.globalAlpha = 1 - qk * 0.75; c.translate(-gw / 2, -gh / 2); const op = i === 11; c.fillStyle = op ? rgba(GR, 0.12) : '#020604'; c.fillRect(0, 0, gw, gh); c.strokeStyle = GR; c.lineWidth = op ? 4 : 2; c.shadowColor = GR; c.shadowBlur = op ? 30 : 10; c.strokeRect(0, 0, gw, gh); c.shadowBlur = 0;
+      txt(c, op ? 'OPERATOR' : `VALIDATOR ${String(i + 1).padStart(2, '0')}`, 20, 30, M(700, 18), GR, 'left', 'middle', 2); const nl = n.split(' '), fs = n.length > 10 && nl.length > 1 ? Math.min(...nl.map((w) => fit(c, w, 64, gw - 40))) : fit(c, n, 80, gw - 40);
+      if (n.length > 10 && nl.length > 1) nl.forEach((w, j) => ct(c, w, 20, 90 + j * fs * 0.9, fs, INK)); else ct(c, n, 20, 110, fs, INK); c.restore(); });
+    const trav = prog(t, gridT + 1.2, gridT + 2.3); if (trav > 0 && trav < 1 && qk < 1) { const p = trav * 11, a = Math.floor(p), f = p - a, [x0, y0] = pt(a), [x1, y1] = pt(Math.min(11, a + 1)); c.save(); c.fillStyle = '#fff'; c.shadowColor = GR; c.shadowBlur = 40; c.beginPath(); c.arc(lerp(x0, x1, f) + gw / 2, lerp(y0, y1, f) + gh / 2, 16, 0, TAU); c.fill(); c.restore(); }
+    if (qk > 0) { c.save(); c.globalAlpha = qk; c.fillStyle = 'rgba(0,0,0,0.78)'; c.fillRect(0, 0, W, H); const L = ['“Wall Street didn\'t', 'come to crypto.', 'Crypto built Wall', 'Street a chain.”']; L.forEach((s, i) => { const k = A(t, qT + 0.15 + Math.floor(i / 2) * 0.45, 0.35); c.save(); c.globalAlpha = k; txt(c, s, W / 2, 700 + i * 100 + (i > 1 ? 40 : 0) + (1 - k) * 30, M(800, 70), i > 1 ? GR : INK, 'center'); c.restore(); }); txt(c, '— FINALITY', W / 2, 1200, M(800, 44), GR, 'center'); c.restore(); }
+  }
+  function numbersV(c, t) {
+    if (t < 35 || t >= 42) return; terminalBg(c, t, 0.12);
+    const i = NUMS.findLastIndex(([T0]) => t >= T0), [T0, , val, suf, cap, s, sub] = NUMS[i], lt = t - T0, k = crit(prog(lt, 0, 0.3));
+    txt(c, ['MINT LEDGER · STATUS: FINAL', 'TESTNET · PRE-LAUNCH', 'ECOSYSTEM · DAY ONE', 'ONE WEEK ON ARC MAINNET'][i], LX, 330, M(800, 30), GR, 'left', 'middle', 3);
+    const v = val * oexp(prog(lt, 0.05, 0.9)), shown = (i === 3 ? '$' : '') + (val < 10 ? v.toFixed(1) : Math.round(v)) + suf, fin = (i === 3 ? '$' : '') + (val < 10 ? val.toFixed(1) : val) + suf; c.save(); c.translate(LX, 640); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k)); c.globalAlpha = clamp(k * 2); ct(c, shown, 0, 0, fit(c, fin, 520, CW9, -8), GR, 'left', -8); c.restore();
+    const ck = A(t, T0 + 0.35, 0.3); c.save(); c.globalAlpha = ck; const cl = wrap(c, cap, G(700, 56), CW9); cl.forEach((l, j) => txt(c, l, LX, 960 + j * 70, G(700, 56), INK)); src(c, s, LX, 960 + cl.length * 70, 32); wrap(c, sub, M(600, 28), CW9).forEach((l, j) => txt(c, l, LX, 1050 + cl.length * 70 + j * 42, M(600, 28), rgba(GR, 0.85))); c.restore();
+    if (i === 0) { const lk = A(t, T0 + 0.3, 0.3); c.save(); c.globalAlpha = lk; [['ASSET:', 'ARC'], ['AMOUNT:', '10,000,000,000'], ['ACTION:', 'genesis mint'], ['INITIATOR:', 'Circle (U.S.)'], ['STATUS:', 'no public launch']].forEach(([a, b], j) => { txt(c, a, LX, 1400 + j * 66, M(800, 30), GR); txt(c, b, LX + 260, 1400 + j * 66, G(700, 34), INK); }); c.restore(); }
+    if (i === 1) bars(c, LX, 1780, CW9, 440, 18, t, A(t, T0 + 0.2, 0.5));
+    if (i === 2) ['Aave V4', 'Morpho', 'Uniswap'].forEach((n, j) => { const kk = pop(prog(t, T0 + 0.4 + j * 0.15, T0 + 0.75 + j * 0.15)); if (kk <= 0) return; c.save(); c.translate(W / 2, 1420 + j * 140); c.scale(kk, kk); rr(c, -300, -55, 600, 110, 55); c.fillStyle = '#04140A'; c.fill(); c.strokeStyle = GR; c.lineWidth = 3; c.stroke(); txt(c, n, 0, 3, G(800, 50), INK, 'center'); c.restore(); });
+    if (i === 3) { const kk = A(t, T0 + 0.3, 0.4); c.save(); c.globalAlpha = kk; c.translate(LX + (1 - kk) * 100, 1380); c.rotate(-0.02); const w = CW9, h = w * 321 / 586; rr(c, -12, -12, w + 24, h + 24, 22); c.fillStyle = 'rgba(255,255,255,0.1)'; c.fill(); cover(c, 'week', 0, 0, w, h, 16); c.restore(); }
+    const nx = NUMS[i + 1] ? NUMS[i + 1][0] : 42, ex = prog(t, nx - 0.12, nx); if (ex > 0) { c.fillStyle = rgba(GR, ex * 0.6); c.fillRect(0, 0, W, H); }
+  }
+  function liveOnArcV(c, t) {
+    if (t < 42 || t >= 50) return; const bg = c.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#05081A'); bg.addColorStop(1, '#030504'); c.fillStyle = bg; c.fillRect(0, 0, W, H); terminalBg(c, t, 0.0);
+    const endC = CA0 + CARDS.length * CAD; txt(c, '{ LIVE ON ARC }', LX, 200, M(800, 36), GR, 'left', 'middle', 6);
+    if (t < endC) { const i = Math.floor((t - CA0) / CAD), lt = t - CA0 - i * CAD, [, title, line, tag] = CARDS[i];
+      for (let j = Math.max(0, i - 2); j <= i; j++) { const a = j === i ? crit(prog(lt, 0, 0.45)) : 1, isM = CARDS[j][0] === 'mascot', cw = isM ? 760 : CW9, im = IMG[CARDS[j][0]], ch = im ? cw * im.height / im.width : 470, sc = j === i ? lerp(0.6, 1, a) : Math.max(0.5, 1 - 0.12 * (i - j) - 0.12 * clamp(lt / 0.45)), x = W / 2 + (j === i ? (1 - a) * 1100 : 0), y = 1270 - (j === i ? 0 : (i - j) * 90);
+        c.save(); c.translate(x, y); c.rotate(j === i ? (1 - a) * 0.4 - 0.03 : -0.06 * (i - j)); c.scale(sc, sc); c.globalAlpha = j === i ? clamp(a * 2) : 0.45 / (i - j); c.shadowColor = j === i ? rgba(GR, 0.6) : 'rgba(0,0,0,0.6)'; c.shadowBlur = 60; rr(c, -cw / 2 - 8, -ch / 2 - 8, cw + 16, ch + 16, 26); c.fillStyle = j === i ? GR : '#111'; c.fill(); c.shadowBlur = 0; cover(c, CARDS[j][0], -cw / 2, -ch / 2, cw, ch, 20); c.restore(); }
+      const tk = crit(prog(lt, 0.1, 0.4)); c.save(); c.beginPath(); c.rect(0, 260, W, 520); c.clip(); txt(c, tag, LX, 320 - (1 - tk) * 40, M(800, 30), YEL, 'left', 'middle', 4); ct(c, title, LX - 4, 450 + (1 - tk) * 200, fit(c, title, 170, CW9), INK);
+      c.globalAlpha = A(lt, 0.3, 0.3); wrap(c, line, G(600, 42), CW9).forEach((l, j) => txt(c, l, LX, 600 + j * 56, G(600, 42), GR)); c.restore();
+      c.fillStyle = rgba(GR, 0.2); c.fillRect(LX, 1800, CW9, 8); c.fillStyle = GR; c.fillRect(LX, 1800, CW9 * (i + lt / CAD) / CARDS.length, 8); return; }
+    const k0 = crit(prog(t, endC, endC + 0.3)), h1 = 'A FULL-STACK FINANCIAL', h2 = 'PLATFORM. LIVE FROM DAY ONE.', hs = Math.min(fit(c, h1, 120, CW9), fit(c, h2, 120, CW9)); c.save(); c.globalAlpha = k0; ct(c, h1, W / 2, 380, hs, INK, 'center'); ct(c, h2, W / 2, 380 + hs * 0.95, hs, INK, 'center'); c.restore();
+    INTEG.forEach((n, i) => { const T0 = endC + 0.2 + i * 0.08, k = crit(prog(t, T0, T0 + 0.35)); if (k <= 0) return; const col = i % 2, row = Math.floor(i / 2), w = (CW9 - 30) / 2, x = LX + col * (w + 30), y = 660 + row * 170; c.save(); c.translate(x + w / 2, y + 60 + (1 - k) * 900); rr(c, -w / 2, -60, w, 120, 60); c.fillStyle = '#04140A'; c.fill(); c.strokeStyle = GR; c.lineWidth = 3; c.shadowColor = GR; c.shadowBlur = 20 * pulse(t, T0 + 0.35, 5) + 6; c.stroke(); c.shadowBlur = 0; txt(c, n, 0, 3, G(800, Math.min(42, 42 * (w - 50) / tw(c, n, G(800, 42)))), INK, 'center'); c.restore(); });
+    const sk = A(t, endC + 0.9, 0.3); c.save(); c.globalAlpha = sk; ['USDC as native gas · sub-second finality', 'EVM compatibility · institutional validators'].forEach((l, i) => txt(c, l, W / 2, 1420 + i * 48, M(600, 28), rgba(GR, 0.85), 'center')); src(c, '— @arc, Sept 16, 2026', W / 2, 1540, 28, 'center'); c.restore();
+  }
+  function quoteV(c, t) {
+    if (t < 50 || t >= 55) return; terminalBg(c, t, 0.08); globe(c, W / 2, 1560, 360, t, 0.75);
+    const L = [['MONEY', 50.2], ['SHOULD WORK', 50.6], ['THE WAY THE', 51.0], ['INTERNET', 51.4], ['WORKS.', 51.8]], qs = fit(c, 'SHOULD WORK', 200, CW9);
+    L.forEach(([s, T0], i) => { const k = crit(prog(t, T0, T0 + 0.3)); if (k <= 0) return; c.save(); c.beginPath(); c.rect(0, 220 + i * qs * 0.9 - qs * 0.5, W, qs * 0.95); c.clip(); ct(c, s, LX - 4, 220 + i * qs * 0.9 + (1 - k) * qs, qs, i >= 3 ? GR : INK); c.restore(); });
+    const ak = A(t, 52.5, 0.4); c.save(); c.globalAlpha = ak; txt(c, '— Jeremy Allaire', LX, 1080, G(800, 44), INK); txt(c, 'Co-founder, Chairman & CEO, Circle', LX, 1136, G(600, 34), INK); src(c, '[1][2]', LX, 1190, 28);
+    wrap(c, '“Arc is the single most significant launch in Circle\'s history since USDC itself.”', M(600, 26), CW9).forEach((l, i) => txt(c, l, LX, 1250 + i * 38, M(600, 26), rgba(GR, 0.8))); c.restore();
+  }
+  function endCardV(c, t) {
+    if (t < 55) return; terminalBg(c, t, 0.16);
+    const ik = pop(prog(t, 55.0, 55.4)), mv = io5(prog(t, 57.2, 57.7)); c.save(); c.translate(W / 2, lerp(560, 330, mv)); c.scale(ik * lerp(1.15, 0.62, mv), ik * lerp(1.15, 0.62, mv)); c.shadowColor = '#5B8CFF'; c.shadowBlur = 70; arcIcon(c, 0, 0, 260); c.restore();
+    const wk = crit(prog(t, 55.3, 55.6)); c.save(); c.globalAlpha = clamp(wk * 2) * (1 - mv); ct(c, 'ARC', W / 2, 960 + (1 - wk) * 100, 340, INK, 'center', -4);
+    txt(c, 'THE ECONOMIC OS', W / 2, 1200, M(800, 52), GR, 'center', 'middle', 4); txt(c, 'FOR THE INTERNET.', W / 2, 1270, M(800, 52), GR, 'center', 'middle', 4); txt(c, 'arc.io', W / 2, 1400, M(800, 50), INK, 'center', 'middle', 6); c.restore();
+    if (mv > 0) { c.save(); c.globalAlpha = mv; ct(c, 'ARC', W / 2, 560, 170, INK, 'center', -4); txt(c, 'arc.io', W / 2, 690, M(800, 42), GR, 'center', 'middle', 6);
+      const ck = io5(prog(t, 57.4, 58.0)); c.save(); c.translate(W / 2 + (1 - ck) * 900, 1000); c.rotate(0.04 - (1 - ck) * 0.3); c.shadowColor = GR; c.shadowBlur = 50; const cw = 360, chh = cw * 2000 / 1545; c.fillStyle = GR; c.fillRect(-cw / 2 - 6, -chh / 2 - 6, cw + 12, chh + 12); c.shadowBlur = 0; cover(c, 'cover', -cw / 2, -chh / 2, cw, chh); c.restore();
+      const tk = A(t, 57.9, 0.3); c.globalAlpha = tk * mv; txt(c, 'Covered every week by', W / 2, 1300, M(700, 28), rgba(GR, 0.8), 'center'); txt(c, 'FINALITY · @FINALITYmag', W / 2, 1355, G(900, 46), INK, 'center'); c.restore(); }
+    const fk = crit(prog(t, 58.2, 58.5)); if (fk > 0) { c.save(); c.globalAlpha = clamp(fk * 2); const fs = Math.min(140, fit(c, 'IRREVERSIBLE.', 170, CW9)); ['FINAL.', 'IRREVERSIBLE.', 'WEEKLY.'].forEach((w, i) => { const kk = crit(prog(t, 58.2 + i * 0.25, 58.45 + i * 0.25)); if (kk > 0) slam(c, w, W / 2, 1510 + i * fs * 0.95, fs, GR, kk, 'center', 1.5); }); c.restore(); }
+  }
+
   // ---------- HUD + transitions ----------
   const ACTS = [[0, 'COLD OPEN'], [6, 'MAINNET'], [12, 'FINALITY'], [18, 'ECONOMIC OS'], [24, 'THE ELEVEN'], [35, 'BY THE NUMBERS'], [42, 'LIVE ON ARC'], [50, 'ON THE RECORD'], [55, 'FINAL']];
   function hud(c, t) {
     if (t < 4) return; c.save(); c.globalAlpha = 0.85 * (1 - prog(t, 59.2, 59.8)); const m = 40;
     c.strokeStyle = rgba(GR, 0.7); c.lineWidth = 2; for (const [x, y, sx, sy] of [[m, m, 1, 1], [W - m, m, -1, 1], [m, H - m, 1, -1], [W - m, H - m, -1, -1]]) { c.beginPath(); c.moveTo(x, y + sy * 30); c.lineTo(x, y); c.lineTo(x + sx * 30, y); c.stroke(); }
-    const blk = 1 + Math.floor(t / 0.35); txt(c, `ARC // MAINNET   BLOCK #${String(blk).padStart(6, '0')}   STATE: FINAL`, W - m - 20, m + 18, M(700, 18), rgba(GR, 0.8), 'right', 'middle', 2);
+    const blk = 1 + Math.floor(t / 0.35); txt(c, `ARC // MAINNET   BLOCK #${String(blk).padStart(6, '0')}   STATE: FINAL`, W - m - 20, V ? H - m - 18 : m + 18, M(700, 18), rgba(GR, 0.8), 'right', 'middle', 2);
     const act = ACTS.filter(([a]) => t >= a).pop(); txt(c, `FINALITY × ARC  ·  ${act[1]}`, m + 20, m + 18, M(700, 18), rgba(GR, 0.8), 'left', 'middle', 2);
     c.restore();
   }
@@ -246,7 +379,9 @@
   function renderAt(t) {
     const c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.filter = 'none'; c.imageSmoothingQuality = 'high';
     let sh = 0; for (const T0 of HITS) sh = Math.max(sh, pulse(t, T0, 18) * 9); c.save(); c.translate((hash(Math.round(t * FPS), 3) - 0.5) * 2 * sh, (hash(Math.round(t * FPS), 4) - 0.5) * 2 * sh);
-    coldOpen(c, t); mainnet(c, t); finality(c, t); econOS(c, t); eleven(c, t); numbers(c, t); liveOnArc(c, t); quote(c, t); endCard(c, t); c.restore();
+    if (V) { coldOpenV(c, t); mainnetV(c, t); finalityV(c, t); econOSV(c, t); elevenV(c, t); numbersV(c, t); liveOnArcV(c, t); quoteV(c, t); endCardV(c, t); }
+    else { coldOpen(c, t); mainnet(c, t); finality(c, t); econOS(c, t); eleven(c, t); numbers(c, t); liveOnArc(c, t); quote(c, t); endCard(c, t); }
+    c.restore();
     c.globalAlpha = 1; hud(c, t); for (const T0 of WIPES) blockWipe(c, t, T0); finish(c, t);
   }
   window.FILM = { W, H, FPS, DUR, renderAt };
