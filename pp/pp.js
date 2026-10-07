@@ -84,7 +84,7 @@
     for (let i = 0; i < 8; i++) { const T0 = 1.6 + i * 0.25, k = pop(prog(t, T0, T0 + 0.25)); if (k <= 0) continue; const x = (V ? 120 : 140) + i * (V ? 120 : 240), y = (V ? 1350 : 860) + (i % 2 ? -70 : 50) - i * (V ? 70 : 30); paw(c, x, y, 70 * k, rgba(CY, 0.18), 0.5 + (i % 2 ? 0.25 : -0.1)); }
     bubbles(c, t, 5, 18, 0.8); c.restore();
     slashDeco(c, H * (V ? 0.79 : 0.78), t, ease(t, 1.5, 1.9));
-    const f = S(700, V ? 128 : 150), lines = V ? [['WE BRING', 1.55], ['THE SPA', 1.8], ['TO YOUR', 2.3], ['PAWS', 2.55]] : [['WE BRING THE SPA', 1.55], ['TO YOUR PAWS', 2.3]], ly0 = V ? 380 : 300, lh = V ? 165 : 185;
+    const f = S(700, V ? 128 : 150), lines = V ? [['WE BRING', 1.55], ['THE SPA', 1.8], ['TO YOUR', 2.3], ['PAWS', 2.55]] : [['WE BRING THE SPA', 1.55], ['TO YOUR PAWS', 2.3]], ly0 = V ? 560 : 300, lh = V ? 165 : 185;
     lines.forEach(([s, T0], li) => { const words = s.split(' '); let total = tw(c, s, f); let x = W / 2 - total / 2; words.forEach((w, wi) => { const T = T0 + wi * 0.09, k = crit(prog(t, T, T + 0.25)), ww = tw(c, w, f); if (k > 0) { c.save(); c.translate(x + ww / 2, ly0 + li * lh); c.scale(lerp(2.2, 1, k), lerp(2.2, 1, k)); c.globalAlpha = clamp(k * 2.5); const isPaws = w === 'PAWS'; txt(c, w, 0, 0, f, isPaws ? CY : '#fff', 'center', 'middle'); c.restore(); } x += ww + tw(c, ' ', f); }); });
     const pk = pop(prog(t, 2.85, 3.15)); if (pk > 0) { const px = V ? W / 2 + 260 : W / 2 + 560, py = V ? ly0 + 3 * lh : ly0 + lh; paw(c, px, py - 10, 70 * pk, CY, 0.3); }
     const sk = A(t, 3.0, 0.35); c.save(); c.globalAlpha = sk; const sub = V ? ['Luxury mobile dog grooming', 'Orange County & surrounding areas'] : ['Luxury mobile dog grooming · now serving Orange County & surrounding areas'];
@@ -97,17 +97,17 @@
     if (t < 4.0 || t >= 6.5) return; const sky = c.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#CDEBFA'); sky.addColorStop(1, '#F4FAFD'); c.fillStyle = sky; c.fillRect(0, 0, W, H);
     // the photo drives in from the right with speed streaks, settles with a suspension bounce, then a slow push
     const drive = ease(t, 4.0, 4.55, (p) => 1 - Math.pow(1 - p, 4)), settle = Math.sin(prog(t, 4.55, 4.9) * Math.PI * 2) * 8 * (1 - prog(t, 4.55, 4.9)), push = 1 + 0.08 * prog(t, 4.6, 6.5);
-    const bw = V ? 1000 * 1.75 : 1240, bh = bw * 673 / 1080, bx = W / 2 - bw / 2 + (1 - drive) * W * 1.1 + (V ? 0 : 260), by = (V ? 520 : 275) + settle;
+    const bw = V ? 1000 : 1240, bh = bw * 673 / 1080, bx = W / 2 - bw / 2 + (1 - drive) * W * 1.1 + (V ? 0 : 260), by = (V ? 640 : 275) + settle;
     c.save(); c.translate(W / 2, H / 2); c.scale(push, push); c.translate(-W / 2, -H / 2);
     if (drive < 1) { c.save(); c.strokeStyle = rgba(NAVY, 0.25 * (1 - drive)); c.lineWidth = 6; for (let i = 0; i < 14; i++) { const y = by + hash(i, 4) * bh, l = 300 + hash(i, 5) * 600; c.beginPath(); c.moveTo(bx + bw + 40, y); c.lineTo(bx + bw + 40 + l, y); c.stroke(); } c.restore(); }
     c.save(); c.shadowColor = 'rgba(0,0,0,0.35)'; c.shadowBlur = 50; c.shadowOffsetY = 20; rr(c, bx, by, bw, bh, 34); c.fillStyle = '#fff'; c.fill(); c.restore(); cover(c, 'bus', bx, by, bw, bh, 34);
     c.restore();
     // copy block
-    const cx0 = V ? 80 : 90, cy0 = V ? 1330 : 80;
+    const cx0 = V ? 80 : 90, cy0 = V ? 200 : 80;
     const tag = A(t, 4.5, 0.3); c.save(); c.globalAlpha = tag; rr(c, cx0, cy0 - 34, tw(c, 'MOBILE PET GROOMING SERVICE', G(800, 28), 4) + 50, 68, 34); c.fillStyle = '#E53935'; c.fill(); txt(c, 'MOBILE PET GROOMING SERVICE', cx0 + 25, cy0 + 1, G(800, 28), '#fff', 'left', 'middle', 4); c.restore();
     const L = V ? [['THE SPA', 4.75, NAVY], ['ON WHEELS.', 4.95, CY]] : [['THE SPA ON WHEELS.', 4.75, NAVY]];
     L.forEach(([s, T0, col], i) => { const k = crit(prog(t, T0, T0 + 0.3)); c.save(); c.beginPath(); c.rect(cx0 - 10, cy0 + 50 + i * 130, W, 140); c.clip(); if (V) txt(c, s, cx0, cy0 + 120 + i * 130 + (1 - k) * 140, S(700, 120), col); else { txt(c, 'THE SPA ', cx0, cy0 + 110 + (1 - k) * 140, S(700, 96), NAVY); txt(c, 'ON WHEELS.', cx0 + tw(c, 'THE SPA ', S(700, 96)), cy0 + 110 + (1 - k) * 140, S(700, 96), CY); } c.restore(); });
-    const chips = ['Self-contained', 'Climate controlled', 'Water-temp controlled', 'Serving all of OC']; let x = V ? cx0 : 90, y = V ? cy0 + 380 : 420;
+    const chips = ['Self-contained', 'Climate controlled', 'Water-temp controlled', 'Serving all of OC']; let x = V ? cx0 : 90, y = V ? 1390 : 420;
     chips.forEach((s, i) => { const k = pop(prog(t, 5.3 + i * 0.12, 5.65 + i * 0.12)), f = G(700, V ? 34 : 30), w = tw(c, s, f) + 80; if (V && x + w > W - 60) { x = cx0; y += 92; } if (!V) { x = 90; } if (k > 0) { c.save(); c.translate(x + w / 2, y); c.scale(k, k); rr(c, -w / 2, -34, w, 68, 34); c.fillStyle = i === 3 ? NAVY : '#fff'; c.shadowColor = 'rgba(0,0,0,0.15)'; c.shadowBlur = 20; c.fill(); c.shadowBlur = 0; c.beginPath(); c.arc(-w / 2 + 34, 0, 9, 0, TAU); c.fillStyle = CY; c.fill(); txt(c, s, -w / 2 + 54, 2, f, i === 3 ? '#fff' : NAVY); c.restore(); } if (V) x += w + 18; else y += 90; });
   }
 
@@ -115,21 +115,20 @@
   const SERV = [['trim', 'ico_trim', 'Hair Trimming', ['Breed-specific haircuts', 'Face & ear grooming', 'Nail clipping', 'Paw pad trimming'], 6.55], ['deshed', 'ico_deshed', 'Deshedding Package', ['Thorough brushing', 'Deshedding treatments', 'Coat conditioning', 'A sleek, healthy coat'], 7.05]];
   function services(c, t) {
     if (t < 6.5 || t >= 9.5) return; c.fillStyle = ICE; c.fillRect(0, 0, W, H); bubbles(c, t, 9, 14, 0.9);
-    const hk = crit(prog(t, 6.5, 6.8)); c.save(); c.globalAlpha = clamp(hk * 2); txt(c, 'PAMPERING, PERFECTED.', W / 2, (V ? 170 : 95) - (1 - hk) * 40, S(700, V ? 70 : 64), NAVY, 'center'); c.restore();
+    const hk = crit(prog(t, 6.5, 6.8)); c.save(); c.globalAlpha = clamp(hk * 2); txt(c, 'PAMPERING, PERFECTED.', W / 2, (V ? 150 : 95) - (1 - hk) * 40, S(700, V ? 62 : 64), NAVY, 'center'); c.restore();
     const exitK = ease(t, 9.25, 9.5, (p) => p * p);
     SERV.forEach(([ph, ic, title, pts, T0], i) => {
       const k = crit(prog(t, T0, T0 + 0.45)); if (k <= 0) return;
-      const cw = V ? 900 : 780, ch = V ? 800 : 860, x = V ? W / 2 - cw / 2 : W / 2 - cw - 30 + i * (cw + 60), y = V ? 280 + i * 820 : 170;
+      const cw = V ? 900 : 780, ch = V ? 800 : 860, x = V ? W / 2 - cw / 2 : W / 2 - cw - 30 + i * (cw + 60), y = V ? 250 + i * 840 : 170;
       const flip = 1 - k, rot = (i ? 1 : -1) * flip * 0.25;
       c.save(); c.translate(x + cw / 2, y + ch / 2 + flip * 300 + exitK * (i ? 1 : -1) * 1400); c.rotate(rot); c.scale(Math.max(0.02, Math.cos(flip * 1.2)), 1); c.translate(-cw / 2, -ch / 2);
-      if (V) { const sc = 0.74; c.scale(1, sc); }
       c.save(); c.shadowColor = 'rgba(8,63,94,0.18)'; c.shadowBlur = 40; c.shadowOffsetY = 16; rr(c, 0, 60, cw, ch - 60, 28); c.fillStyle = '#fff'; c.fill(); c.restore();
-      const pw = cw - 100, phh = pw * 430 / 880; cover(c, ph, 50, 0, pw, phh, 24);
+      const pw = cw - 100, phh = V ? 320 : pw * 430 / 880; cover(c, ph, 50, 0, pw, phh, 24);
       const ik = pop(prog(t, T0 + 0.3, T0 + 0.65)); c.save(); c.translate(cw / 2, phh + 42); c.scale(ik, ik); /* smaller badge tucked under the photo edge so it never covers the dogs */ c.rotate((1 - ik) * -1.5 + (ph === 'trim' ? Math.sin(t * 12) * 0.06 * pulse(t, T0 + 0.7, 3) : 0)); c.beginPath(); c.arc(0, 0, 70, 0, TAU); c.fillStyle = CY; c.fill(); c.beginPath(); c.arc(0, 0, 66, 0, TAU); c.clip(); contain(c, ic, 0, 0, 147); c.restore();
       const dk = io5(prog(t, T0 + 0.45, T0 + 0.7)); c.fillStyle = CY; c.fillRect(cw / 2 - 35 * dk, phh + 140, 70 * dk, 7);
       const tk = A(t, T0 + 0.5, 0.3); c.save(); c.globalAlpha = tk; txt(c, title, cw / 2, phh + 200 + (1 - tk) * 20, S(700, 54), INK, 'center'); c.restore();
-      pts.forEach((p, j) => { const pk = A(t, T0 + 0.7 + j * 0.1, 0.25); if (pk <= 0) return; const yy = phh + 262 + j * 48; c.save(); c.globalAlpha = pk; c.translate((1 - pk) * 40, 0); paw(c, 150, yy, 22, CY, 0.2); txt(c, p, 185, yy + 2, G(500, 34), '#333', 'left'); c.restore(); });
-      const bk = pop(prog(t, T0 + 1.15, T0 + 1.5)), press = pulse(t, 8.75 + i * 0.12, 9) * (t >= 8.75 + i * 0.12 ? 1 : 0); if (bk > 0) { c.save(); c.translate(cw / 2, ch - 30); c.scale(bk * (1 - press * 0.08), bk * (1 - press * 0.08)); rr(c, -170, -42, 340, 84, 14); c.fillStyle = press > 0.1 ? '#0E9ACB' : CY; c.fill(); txt(c, 'BOOK NOW', 0, 2, G(800, 36), '#fff', 'center'); c.restore(); }
+      pts.forEach((p, j) => { const pk = A(t, T0 + 0.7 + j * 0.1, 0.25); if (pk <= 0) return; const yy = phh + 262 + j * (V ? 44 : 48); c.save(); c.globalAlpha = pk; c.translate((1 - pk) * 40, 0); paw(c, 150, yy, 22, CY, 0.2); txt(c, p, 185, yy + 2, G(500, 34), '#333', 'left'); c.restore(); });
+      const bk = pop(prog(t, T0 + 1.15, T0 + 1.5)), press = pulse(t, 8.75 + i * 0.12, 9) * (t >= 8.75 + i * 0.12 ? 1 : 0); if (bk > 0) { c.save(); c.translate(cw / 2, ch - (V ? 20 : 30)); c.scale(bk * (1 - press * 0.08), bk * (1 - press * 0.08)); rr(c, -170, -42, 340, 84, 14); c.fillStyle = press > 0.1 ? '#0E9ACB' : CY; c.fill(); txt(c, 'BOOK NOW', 0, 2, G(800, 36), '#fff', 'center'); c.restore(); }
       c.restore();
     });
   }
@@ -148,7 +147,7 @@
     const bx = V ? W / 2 : 995, by = V ? 1560 : 470, bk = pop(prog(t, 10.0, 10.4)); if (bk > 0) { c.save(); c.translate(bx, by); c.scale(bk, bk); c.beginPath(); c.arc(0, 0, 215, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.beginPath(); c.arc(0, 0, 190, 0, TAU); c.fillStyle = NAVY; c.fill();
       const rk = io5(prog(t, 10.1, 10.9)); c.strokeStyle = CY; c.lineWidth = 10; c.lineCap = 'round'; c.beginPath(); c.arc(0, 0, 202, -Math.PI / 2, -Math.PI / 2 + TAU * rk); c.stroke();
       const n = Math.round(7 * o3(prog(t, 10.1, 10.8))); txt(c, String(n).padStart(2, '0') + '+', 0, -30, S(700, 120), '#fff', 'center'); txt(c, 'YEARS OF', 0, 62, G(800, 34), '#fff', 'center', 'middle', 2); txt(c, 'EXPERIENCE', 0, 104, G(800, 34), '#fff', 'center', 'middle', 2); c.restore(); }
-    const qk = A(t, 10.8, 0.4); if (qk > 0) { c.save(); c.globalAlpha = qk; if (V) txt(c, 'Exceptional care, comfort & pampering.', W / 2, 170, S(700, 46), NAVY, 'center'); else { txt(c, 'Exceptional care,', 995, 770, S(700, 34), NAVY, 'center'); txt(c, 'comfort &', 995, 818, S(700, 34), NAVY, 'center'); txt(c, 'pampering.', 995, 866, S(700, 34), CY, 'center'); } c.restore(); }
+    const qk = A(t, 10.8, 0.4); if (qk > 0) { c.save(); c.globalAlpha = qk; if (V) { txt(c, 'Exceptional care,', W / 2, 150, S(700, 56), NAVY, 'center'); txt(c, 'comfort & pampering.', W / 2, 225, S(700, 56), CY, 'center'); } else { txt(c, 'Exceptional care,', 995, 770, S(700, 34), NAVY, 'center'); txt(c, 'comfort &', 995, 818, S(700, 34), NAVY, 'center'); txt(c, 'pampering.', 995, 866, S(700, 34), CY, 'center'); } c.restore(); }
   }
 
   // ---------- S5 end card (12.0–15.0) ----------
