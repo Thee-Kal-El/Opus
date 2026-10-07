@@ -5,12 +5,11 @@
 (() => {
   'use strict';
   const K = window.KIT, { TAU, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, rr, hash } = K;
-  const W = 1920, H = 1080, FPS = 60, DUR = 20;
+  const V = !!window.VERTICAL, W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 20; // V: 9:16 edition, every scene re-laid out
   // Everything is authored in 15s "design time"; after the bounty board (6.5) it plays slower so the film runs 20s.
   // Knots are [design, real] and match the score's F(): phone 3s→5s, earners 2s→3.5s, category cuts 1.25s→2.5s, end 2.25s→2.5s.
   const KN = [[0, 0], [6.5, 6.5], [9.5, 11.5], [11.5, 15], [12.75, 17.5], [15, 20]];
   const toDesign = (r) => { for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (r <= r1 || i === KN.length - 2) return d0 + (r - r0) * (d1 - d0) / (r1 - r0); } return r; };
-  const V = !!window.VERTICAL;
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
   const PUR = '#8151FD', PUR2 = '#A98BFF', GRN = '#139A6B', GRN2 = '#1FD18E', INK = '#111114', PAPER = '#FAFAFA', MUTE = '#6E6E78', PILL = '#EFEFF1', DARK = '#0D0A16', USDC = '#2775CA';
   const G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`, D = (s) => `900 ${s}px "Inter Tight", sans-serif`, M = (w, s) => `${w} ${s}px "JetBrains Mono", monospace`;
@@ -71,14 +70,14 @@
   // ---------- S0 logo build (0–1.5) ----------
   function intro(c, t) {
     if (t >= 1.5) return; darkBg(c, t);
-    const mv = io5(prog(t, 0.95, 1.25)), lx = lerp(W / 2, W / 2 - 330, mv), ly = H / 2, sc = lerp(1, 0.62, mv), u = 46 * sc;
+    const mv = io5(prog(t, 0.95, 1.25)), lx = V ? W / 2 : lerp(W / 2, W / 2 - 330, mv), ly = V ? lerp(H / 2, H / 2 - 200, mv) : H / 2, sc = lerp(1, 0.62, mv), u = 46 * sc;
     // scanline sweep + pixel rain before the snap
     const sweep = prog(t, 0, 0.7); c.save(); c.globalAlpha = 0.6 * (1 - sweep); c.fillStyle = PUR; c.fillRect(0, H * sweep - 3, W, 6); c.restore();
     const dk = pop(prog(t, 0.72, 1.05)); if (dk > 0) { c.save(); c.shadowColor = PUR; c.shadowBlur = 90; c.beginPath(); c.arc(lx, ly, 6.8 * u * dk, 0, TAU); c.fillStyle = PUR; c.fill(); c.restore(); }
     const ring = prog(t, 0.75, 1.3); if (ring > 0 && ring < 1) { c.save(); c.strokeStyle = rgba(PUR2, 1 - ring); c.lineWidth = 30 * (1 - ring); c.beginPath(); c.arc(lx, ly, 6.8 * u + 700 * o3(ring), 0, TAU); c.stroke(); c.restore(); }
     glyphBuild(c, lx, ly, u, t, 0.05, 0.78, '#fff', 3, 1100);
     // wordmark
-    if (t > 1.0) { const f = G(700, 210); let x = lx + 6.8 * u + 60; [...'gibwork'].forEach((ch, i) => { const k = crit(prog(t, 1.0 + i * 0.03, 1.25 + i * 0.03)); const w = tw(c, ch, f); c.save(); c.beginPath(); c.rect(x - 10, ly - 170, w + 20, 300); c.clip(); txt(c, ch, x, ly + 30 + (1 - k) * 220, f, '#fff', 'left', 'middle'); c.restore(); x += w; }); const vk = pop(prog(t, 1.22, 1.45)); if (vk > 0) verified(c, x + 50, ly - 20, 34 * vk); }
+    if (t > 1.0) { const f = G(700, V ? 190 : 210), wy = V ? ly + 6.8 * u + 170 : ly; let x = V ? W / 2 - tw(c, 'gibwork', f) / 2 - 20 : lx + 6.8 * u + 60; [...'gibwork'].forEach((ch, i) => { const k = crit(prog(t, 1.0 + i * 0.03, 1.25 + i * 0.03)); const w = tw(c, ch, f); c.save(); c.beginPath(); c.rect(x - 10, wy - 170, w + 20, 300); c.clip(); txt(c, ch, x, wy + 30 + (1 - k) * 220, f, '#fff', 'left', 'middle'); c.restore(); x += w; }); const vk = pop(prog(t, 1.22, 1.45)); if (vk > 0) verified(c, x + 46, wy - 20, 32 * vk); }
     // iris reveal of the hero on paper
     const ir = prog(t, 1.3, 1.5); if (ir > 0) { c.save(); c.beginPath(); c.arc(lx, ly, 2400 * io3(ir), 0, TAU); c.clip(); hero(c, 1.5 + (t - 1.5) * 0.3); c.restore(); }
   }
@@ -93,31 +92,34 @@
   }
   function hero(c, t) {
     paper(c, t);
-    const zoom = ease(t, 3.72, 4.0, (p) => p * p * p), cx = 420, cy = 830; // zoom into the bounty pill
+    // layout: [word, start, x, y] for the headline words; landscape is 3 lines + pill row, vertical stacks 6 rows
+    const X0 = V ? 90 : 170, f1 = G(700, 160), fo = G(600, 112), pwid = tw(c, '$1,000.00', fo) + 70, gap = 40, wd = (w) => tw(c, w, f1) + gap;
+    const L1 = V ? [['Hire', 1.5, X0, 520], ['the', 1.62, X0 + wd('Hire'), 520], ['internet', 1.75, X0, 700]] : [['Hire', 1.5, X0, 250], ['the', 1.62, X0 + wd('Hire'), 250], ['internet', 1.75, X0 + wd('Hire') + wd('the'), 250]];
+    const L3 = V ? [['or', 2.98, X0, 1090], ['collect', 3.06, X0 + wd('or'), 1090], ['the', 3.14, X0, 1280]] : [['or', 2.98, X0, 640], ['collect', 3.06, X0 + wd('or'), 640], ['the', 3.14, X0 + wd('or') + wd('collect'), 640]];
+    const PX = V ? X0 + wd('the') : X0, PY = V ? 1280 : 835, BX = V ? X0 : X0 + pwid + gap, BY = V ? 1470 : 835, SLOT = V ? 885 : 445;
+    const zoom = ease(t, 3.72, 4.0, (p) => p * p * p), cx = PX + pwid / 2 - 30, cy = PY; // zoom into the bounty pill
     c.save(); if (zoom > 0) { const s = 1 + zoom * 9; c.translate(cx, cy); c.scale(s, s); c.translate(-cx, -cy); }
     const push = 1 + 0.04 * prog(t, 1.5, 3.7); c.translate(W / 2, H / 2); c.scale(push, push); c.translate(-W / 2, -H / 2);
     // background ghost ticker, as on the site
-    c.save(); c.globalAlpha = 0.05; ['Find 15 sales leads • Content • Turn', 'Shortlist 15 people for this role • Development', 'Find verified emails for these leads • Social Media', 'Research investors focused on my sector • Design'].forEach((s, i) => txt(c, s + '  •  ' + s, 760 - ((t * (60 + i * 20)) % 900), 280 + i * 120, G(600, 44), INK)); c.restore();
-    const X0 = 170, f1 = G(700, 160);
+    c.save(); c.globalAlpha = 0.05; if (V) c.translate(-500, 300); ['Find 15 sales leads • Content • Turn', 'Shortlist 15 people for this role • Development', 'Find verified emails for these leads • Social Media', 'Research investors focused on my sector • Design'].forEach((s, i) => txt(c, s + '  •  ' + s, 760 - ((t * (60 + i * 20)) % 900), 280 + i * 120, G(600, 44), INK)); c.restore();
     // line 1: word slams
-    let x = X0; [['Hire', 1.5], ['the', 1.62], ['internet', 1.75]].forEach(([w, T0]) => { const k = crit(prog(t, T0, T0 + 0.22)), ww = tw(c, w, f1); if (k > 0) { c.save(); c.translate(x + ww / 2, 250); const s = lerp(1.7, 1, k); c.scale(s, s); c.globalAlpha = clamp(k * 2.5); txt(c, w, 0, 0, f1, INK, 'center', 'middle', -3); c.restore(); } x += ww + 40; });
-    [[1180, 150, 26, PUR], [1300, 220, 18, '#E84393'], [760, 160, 14, PUR2], [1350, 310, 22, PUR]].forEach(([sx, sy, s, col], i) => { const k = pop(prog(t, 1.92 + i * 0.06, 2.25 + i * 0.06)); if (k > 0) sparkle(c, sx, sy, s * k * 1.6, col, t * 2 + i); });
+    L1.forEach(([w, T0, x, y]) => { const k = crit(prog(t, T0, T0 + 0.22)), ww = tw(c, w, f1); if (k > 0) { c.save(); c.translate(x + ww / 2, y); const s = lerp(1.7, 1, k); c.scale(s, s); c.globalAlpha = clamp(k * 2.5); txt(c, w, 0, 0, f1, INK, 'center', 'middle', -3); c.restore(); } });
+    (V ? [[640, 600, 26, PUR], [760, 660, 18, '#E84393'], [300, 610, 14, PUR2], [820, 790, 22, PUR]] : [[1180, 150, 26, PUR], [1300, 220, 18, '#E84393'], [760, 160, 14, PUR2], [1350, 310, 22, PUR]]).forEach(([sx, sy, s, col], i) => { const k = pop(prog(t, 1.92 + i * 0.06, 2.25 + i * 0.06)); if (k > 0) sparkle(c, sx, sy, s * k * 1.6, col, t * 2 + i); });
     // line 2: the task slot machine
     if (t > 1.95) {
-      const sk = pop(prog(t, 1.95, 2.25)), n = TASKS.length, p = oexp(prog(t, 2.0, 2.95)) * (n - 1), fp = G(600, 92);
+      const sk = pop(prog(t, 1.95, 2.25)), n = TASKS.length, p = oexp(prog(t, 2.0, 2.95)) * (n - 1), fp = G(600, V ? 76 : 92);
       const wOf = (i) => tw(c, TASKS[clamp(i, 0, n - 1) | 0][0], fp) + 170, i0 = Math.floor(p), pw = lerp(wOf(i0), wOf(i0 + 1), p - i0);
-      c.save(); c.translate(X0, 445); c.scale(sk, sk); rr(c, 0, -72, pw, 144, 72); c.fillStyle = PILL; c.fill(); c.strokeStyle = '#DDDDE2'; c.lineWidth = 3; c.stroke(); c.clip();
+      c.save(); c.translate(X0, SLOT); c.scale(sk, sk); rr(c, 0, -72, pw, 144, 72); c.fillStyle = PILL; c.fill(); c.strokeStyle = '#DDDDE2'; c.lineWidth = 3; c.stroke(); c.clip();
       for (let i = Math.max(0, i0 - 1); i <= Math.min(n - 1, i0 + 2); i++) { const dy = (i - p) * 150; c.save(); c.globalAlpha = clamp(1 - Math.abs(i - p) * 0.9); taskIcon(c, TASKS[i][1], 76, dy, 44); txt(c, TASKS[i][0], 140, dy + 4, fp, INK, 'left', 'middle', -1); c.restore(); }
       c.restore();
     }
     // line 3: or collect the [$ odometer] bounty
     if (t > 2.95) {
-      const f3 = G(700, 160); let x3 = X0; const words = [['or', 2.98], ['collect', 3.06], ['the', 3.14]];
-      words.forEach(([w, T0]) => { const k = crit(prog(t, T0, T0 + 0.22)), ww = tw(c, w, f3); c.save(); c.beginPath(); c.rect(x3 - 10, 545, ww + 30, 200); c.clip(); txt(c, w, x3, 640 + (1 - k) * 190, f3, INK, 'left', 'middle', -3); c.restore(); x3 += ww + 40; });
-      const pk = pop(prog(t, 3.22, 3.5)), fo = G(600, 112), pwid = tw(c, '$1,000.00', fo) + 70;
-      x3 = X0; c.save(); c.translate(x3 + pwid / 2, 835); c.scale(pk, pk); rr(c, -pwid / 2, -72, pwid, 144, 72); c.fillStyle = PILL; c.fill(); c.strokeStyle = '#DDDDE2'; c.lineWidth = 3; c.stroke(); c.clip();
+      L3.forEach(([w, T0, x, y]) => { const k = crit(prog(t, T0, T0 + 0.22)), ww = tw(c, w, f1); c.save(); c.beginPath(); c.rect(x - 10, y - 95, ww + 30, 200); c.clip(); txt(c, w, x, y + (1 - k) * 190, f1, INK, 'left', 'middle', -3); c.restore(); });
+      const pk = pop(prog(t, 3.22, 3.5));
+      c.save(); c.translate(PX + pwid / 2, PY); c.scale(pk, pk); rr(c, -pwid / 2, -72, pwid, 144, 72); c.fillStyle = PILL; c.fill(); c.strokeStyle = '#DDDDE2'; c.lineWidth = 3; c.stroke(); c.clip();
       const v = oexp(prog(t, 3.25, 3.7)) * 1000; txt(c, '$' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','), 0, 4, fo, INK, 'center', 'middle'); c.restore();
-      const bk = crit(prog(t, 3.34, 3.56)); c.save(); c.globalAlpha = clamp(bk * 2); txt(c, 'bounty', x3 + pwid + 40 + (1 - bk) * 80, 835, f3, INK, 'left', 'middle', -3); c.restore();
+      const bk = crit(prog(t, 3.34, 3.56)); c.save(); c.globalAlpha = clamp(bk * 2); txt(c, 'bounty', BX + (1 - bk) * 80, BY, f1, INK, 'left', 'middle', -3); c.restore();
     }
     c.restore();
   }
@@ -147,30 +149,36 @@
     txt(c, price, x + CW - 26, y + 84, G(800, 44), INK, 'right'); txt(c, ends, x + CW - 26, y + 122, G(500, 20), MUTE, 'right');
   }
   const ISO = [0.92, -0.28, 0.46, 0.78]; // a, b, c, d of the board's affine (isometric-ish tilt)
+  let LAYER = null;
   function board(c, t) {
     if (t < 4.0 || t >= 6.5) return; darkBg(c, t);
     // left headline
     const L = [['Post a task.', 4.0, '#fff'], ['Or grab one', 4.25, GRN2], ['and get paid.', 4.5, GRN2]];
-    L.forEach(([s, T0, col], i) => { const k = crit(prog(t, T0, T0 + 0.3)), ex = ease(t, 5.95, 6.3); c.save(); c.globalAlpha = clamp(k * 2) * (1 - ex); c.beginPath(); c.rect(90, 290 + i * 130, 900, 150); c.clip(); txt(c, s, 120 - ex * 200, 368 + i * 130 + (1 - k) * 130, G(800, 112), col, 'left', 'middle', -3); c.restore(); });
-    const sub = A(t, 4.75, 0.3) * (1 - ease(t, 5.95, 6.3)); c.save(); c.globalAlpha = sub; txt(c, 'Get help with your tasks, or earn by completing others.', 124, 735, G(500, 34), 'rgba(255,255,255,0.7)'); c.restore();
+    const LX = V ? 80 : 120, LY = V ? 230 : 368;
+    L.forEach(([s, T0, col], i) => { const k = crit(prog(t, T0, T0 + 0.3)), ex = ease(t, 5.95, 6.3); c.save(); c.globalAlpha = clamp(k * 2) * (1 - ex); c.beginPath(); c.rect(LX - 30, LY - 78 + i * 130, 1000, 150); c.clip(); txt(c, s, LX - ex * 200, LY + i * 130 + (1 - k) * 130, G(800, 112), col, 'left', 'middle', -3); c.restore(); });
+    const sub = A(t, 4.75, 0.3) * (1 - ease(t, 5.95, 6.3)); c.save(); c.globalAlpha = sub; if (V) { txt(c, 'Get help with your tasks,', LX + 4, LY + 360, G(500, 40), 'rgba(255,255,255,0.7)'); txt(c, 'or earn by completing others.', LX + 4, LY + 412, G(500, 40), 'rgba(255,255,255,0.7)'); } else txt(c, 'Get help with your tasks, or earn by completing others.', 124, 735, G(500, 34), 'rgba(255,255,255,0.7)'); c.restore();
     // isometric scrolling column
     const scroll = (t - 4.0) * 260 + 420 * io3(prog(t, 4.0, 4.6)), hiK = ease(t, 5.95, 6.45, io5);
-    c.save(); c.translate(1330, 560); c.transform(...ISO, 0, 0);
-    for (let r = -6; r < 10; r++) {
-      const idx = ((r % BOUNTIES.length) + BOUNTIES.length) % BOUNTIES.length, y = r * (CH + 26) - scroll + 700; if (y < -1300 || y > 1300) continue;
-      const appear = crit(prog(t, 4.0 + (r + 6) * 0.04, 4.35 + (r + 6) * 0.04)); if (appear <= 0) continue;
+    const BCX = V ? W / 2 + 40 : 1330, BCY = V ? 1260 : 560;
+    // vertical: the column is drawn on its own layer and faded out under the headline
+    const main = c; if (V) { if (!LAYER) { LAYER = document.createElement('canvas'); LAYER.width = W; LAYER.height = H; } c = LAYER.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, W, H); }
+    c.save(); c.translate(BCX, BCY); c.transform(...ISO, 0, 0);
+    for (let r = V ? -9 : -6; r < (V ? 13 : 10); r++) {
+      const idx = ((r % BOUNTIES.length) + BOUNTIES.length) % BOUNTIES.length, y = r * (CH + 26) - scroll + 700; if (y < -1700 || y > 1700) continue;
+      const appear = crit(prog(t, 4.0 + (r + 9) * 0.03, 4.35 + (r + 9) * 0.03)); if (appear <= 0) continue;
       const isHi = idx === 3 && r === 3; if (isHi && hiK > 0) continue;
       const beat = pulse(t, 4.0 + Math.floor((t - 4.0) / 0.5) * 0.5, 6) * (r % 2 === Math.floor((t - 4) / 0.5) % 2 ? 1 : 0);
       c.save(); c.globalAlpha = clamp(appear * 2) * (1 - hiK * 0.75); c.translate(-CW / 2 + (1 - appear) * 600, y); card(c, BOUNTIES[idx], 0, 0, beat * 0.6); c.restore();
     }
     c.restore();
+    if (V) { const fg = c.createLinearGradient(0, 700, 0, 1000); fg.addColorStop(0, 'rgba(0,0,0,0)'); fg.addColorStop(1, '#000'); c.globalCompositeOperation = 'destination-in'; c.fillStyle = fg; c.fillRect(0, 0, W, H); c.globalCompositeOperation = 'source-over'; c = main; c.drawImage(LAYER, 0, 0); }
     // the $300 app-testing bounty pulls out of the board toward camera
-    if (hiK > 0) { const y = 3 * (CH + 26) - scroll + 700, m = ISO.map((v, i) => lerp(v, i === 0 || i === 3 ? 1.35 : 0, hiK)), ox = lerp(1330, W / 2, hiK), oy = lerp(560, H / 2, hiK);
+    if (hiK > 0) { const y = 3 * (CH + 26) - scroll + 700, m = ISO.map((v, i) => lerp(v, i === 0 || i === 3 ? (V ? 1.15 : 1.35) : 0, hiK)), ox = lerp(BCX, W / 2, hiK), oy = lerp(BCY, V ? H / 2 + 200 : H / 2, hiK);
       c.save(); c.translate(ox, oy); c.transform(...m, 0, 0); c.translate(-CW / 2, lerp(y, -CH / 2, hiK)); card(c, BOUNTIES[3], 0, 0, hiK); c.restore(); }
   }
 
   // ---------- S3 phone flow (6.5–9.5) ----------
-  const PH = 980, PS = PH / 2340, PWID = 1080 * PS; // phone screen drawn in native 1080x2340 units
+  const PH = V ? 1180 : 980, PS = PH / 2340, PWID = 1080 * PS; // phone screen drawn in native 1080x2340 units
   function phoneScreens(c, t) {
     // A: bounty detail · B: submit work · C: wallet. Slide transitions between them.
     const ab = ease(t, 7.28, 7.45, io5), bc = ease(t, 8.26, 8.45, io5);
@@ -233,11 +241,12 @@
     if (t < 6.5 || t >= 9.5) return; darkBg(c, t);
     // giant words on the left: outlined echo texture across the frame, then a hard two-line slam with a fill sweep
     const cur = BIGW.filter(([, T0]) => t >= T0).pop(); { const [ls, T0, col] = cur, k = crit(prog(t, T0, T0 + 0.25)), f = D(280);
-      c.save(); c.globalAlpha = 0.1; c.strokeStyle = '#fff'; c.lineWidth = 2; c.font = D(200); c.textBaseline = 'middle'; c.textAlign = 'left'; for (let j = 0; j < 6; j++) c.strokeText((ls.join(' ') + '  ').repeat(4), -((t * 150 + j * 400) % 1400) * (j % 2 ? -1 : 1) - (j % 2 ? 1400 : 0), 100 + j * 190); c.restore();
-      ls.forEach((w, j) => { const kk = crit(prog(t, T0 + j * 0.06, T0 + j * 0.06 + 0.25)); c.save(); c.beginPath(); c.rect(0, 205 + j * 290, 1100, 290); c.clip(); const y = 360 + j * 280 + (1 - kk) * 290;
+      c.save(); c.globalAlpha = 0.1; c.strokeStyle = '#fff'; c.lineWidth = 2; c.font = D(200); c.textBaseline = 'middle'; c.textAlign = 'left'; for (let j = 0; j < (V ? 10 : 6); j++) c.strokeText((ls.join(' ') + '  ').repeat(4), -((t * 150 + j * 400) % 1400) * (j % 2 ? -1 : 1) - (j % 2 ? 1400 : 0), 100 + j * 190); c.restore();
+      if (V) { const s = ls.join(' '), f2 = D(260); c.font = f2; c.letterSpacing = '-8px'; const sw = c.measureText(s).width, fit = Math.min(1, 960 / sw), kk = crit(prog(t, T0, T0 + 0.25)); c.save(); c.translate(W / 2, 330); c.scale(fit * lerp(1.4, 1, kk), fit * lerp(1.4, 1, kk)); c.globalAlpha = clamp(kk * 2); c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineWidth = 4; c.strokeStyle = col; c.strokeText(s, 0, 0); c.beginPath(); c.rect(-sw / 2 - 20, -200, (sw + 40) * ease(t, T0 + 0.12, T0 + 0.45), 400); c.clip(); c.fillStyle = col; c.fillText(s, 0, 0); c.restore(); c.letterSpacing = '0px'; }
+      else ls.forEach((w, j) => { const kk = crit(prog(t, T0 + j * 0.06, T0 + j * 0.06 + 0.25)); c.save(); c.beginPath(); c.rect(0, 205 + j * 290, 1100, 290); c.clip(); const y = 360 + j * 280 + (1 - kk) * 290;
         c.font = f; c.letterSpacing = '-8px'; c.textBaseline = 'middle'; c.lineWidth = 4; c.strokeStyle = col; c.strokeText(w, 110, y); c.beginPath(); c.rect(0, 0, 110 + 1000 * ease(t, T0 + 0.12 + j * 0.06, T0 + 0.45 + j * 0.06), H); c.clip(); c.fillStyle = col; c.fillText(w, 110, y); c.letterSpacing = '0px'; c.restore(); }); void k; }
     const ink = crit(prog(t, 6.5, 6.85)), tilt = Math.sin(t * 1.6) * 0.04, ex = ease(t, 9.3, 9.5, (p) => p * p);
-    const px = 1400 + Math.sin(t * 1.1) * 14, py = H / 2 + 10 + (1 - ink) * 700 - ex * 1200;
+    const px = (V ? W / 2 : 1400) + Math.sin(t * 1.1) * 14, py = (V ? H / 2 + 250 : H / 2 + 10) + (1 - ink) * 700 - ex * (V ? 1700 : 1200);
     // payout coin burst
     if (t > 8.55) for (let i = 0; i < 26; i++) { const T0 = 8.55 + hash(i, 7) * 0.25, k = prog(t, T0, T0 + 0.9); if (k <= 0 || k >= 1) continue; const a = (i % 2 ? -Math.PI * 0.15 : -Math.PI * 0.85) + (hash(i, 8) - 0.5) * 1.2, v = 500 + hash(i, 9) * 700, x = px + Math.cos(a) * v * k, y = py - 250 + Math.sin(a) * v * k + 900 * k * k; c.save(); c.globalAlpha = 1 - k * k; c.translate(x, y); c.scale(Math.cos(t * 9 + i), 1); (i % 4 ? coinUSD : coinXP)(c, 0, 0, 26 + hash(i, 10) * 18); c.restore(); }
     // phone body
@@ -257,47 +266,53 @@
     if (t < 9.5 || t >= 11.5) return; paper(c, t, 0.8);
     const out = ease(t, 11.25, 11.5, (p) => p * p * p);
     c.save(); c.translate(W / 2, H / 2); c.scale(1 + out * 0.6, 1 + out * 0.6); c.translate(-W / 2, -H / 2); c.globalAlpha = 1 - out;
-    const hk = crit(prog(t, 9.5, 9.8)); c.save(); c.beginPath(); c.rect(0, 70, W, 140); c.clip(); txt(c, 'Real people.', 140, 140 + (1 - hk) * 140, G(800, 96), INK, 'left', 'middle', -3); const hk2 = crit(prog(t, 9.62, 9.92)); txt(c, 'Real payouts.', 140 + tw(c, 'Real people. ', G(800, 96), -3), 140 + (1 - hk2) * 140, G(800, 96), GRN, 'left', 'middle', -3); c.restore();
+    const hk = crit(prog(t, 9.5, 9.8)), hk2 = crit(prog(t, 9.62, 9.92)), EX = V ? 70 : 140, hf = G(800, V ? 110 : 96);
+    if (V) { c.save(); c.beginPath(); c.rect(0, 150, W, 280); c.clip(); txt(c, 'Real people.', EX, 230 + (1 - hk) * 160, hf, INK, 'left', 'middle', -3); txt(c, 'Real payouts.', EX, 360 + (1 - hk2) * 160, hf, GRN, 'left', 'middle', -3); c.restore(); }
+    else { c.save(); c.beginPath(); c.rect(0, 70, W, 140); c.clip(); txt(c, 'Real people.', EX, 140 + (1 - hk) * 140, hf, INK, 'left', 'middle', -3); txt(c, 'Real payouts.', EX + tw(c, 'Real people. ', hf, -3), 140 + (1 - hk2) * 140, hf, GRN, 'left', 'middle', -3); c.restore(); }
     // category chips marquee
-    let cx = 140 - Math.max(0, (t - 9.6) * 120); CHIPS.forEach((s, i) => { const k = pop(prog(t, 9.6 + i * 0.04, 9.95 + i * 0.04)), f = G(600, 34), w = tw(c, s, f) + 56; c.save(); c.translate(cx + w / 2, 262); c.scale(k, k); rr(c, -w / 2, -34, w, 68, 34); c.fillStyle = i === 0 ? '#E4E4E8' : '#F1F1F3'; c.fill(); txt(c, s, 0, 2, f, INK, 'center'); c.restore(); cx += w + 16; });
+    let cx = EX - Math.max(0, (t - 9.6) * 120); CHIPS.forEach((s, i) => { const k = pop(prog(t, 9.6 + i * 0.04, 9.95 + i * 0.04)), f = G(600, 34), w = tw(c, s, f) + 56; c.save(); c.translate(cx + w / 2, V ? 500 : 262); c.scale(k, k); rr(c, -w / 2, -34, w, 68, 34); c.fillStyle = i === 0 ? '#E4E4E8' : '#F1F1F3'; c.fill(); txt(c, s, 0, 2, f, INK, 'center'); c.restore(); cx += w + 16; });
     // 2x4 leaderboard
     EARN.forEach(([k, name, cat, amt], i) => {
-      const col = i % 2, row = i >> 1, x = 140 + col * 840, y = 360 + row * 160, T0 = 9.75 + i * 0.07, a = crit(prog(t, T0, T0 + 0.35)); if (a <= 0) return;
+      const col = i % 2, row = V ? i : i >> 1, x = V ? EX : 140 + col * 840, y = V ? 590 + row * 162 : 360 + row * 160, RW = V ? 940 : 800, T0 = 9.75 + i * 0.07, a = crit(prog(t, T0, T0 + 0.35)); if (a <= 0) return;
       c.save(); c.globalAlpha = clamp(a * 2) * (1 - out); c.translate((1 - a) * 300 * (col ? 1 : -1), 0);
-      rr(c, x, y, 800, 136, 28); c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,0,0,0.08)'; c.shadowBlur = 24; c.shadowOffsetY = 8; c.fill(); c.shadowColor = 'transparent';
+      rr(c, x, y, RW, 136, 28); c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,0,0,0.08)'; c.shadowBlur = 24; c.shadowOffsetY = 8; c.fill(); c.shadowColor = 'transparent';
       txt(c, String(i + 1), x + 40, y + 68, M(800, 28), '#B5B5BE', 'center');
       const ak = pop(prog(t, T0 + 0.05, T0 + 0.4)); c.save(); c.translate(x + 130, y + 68); c.scale(ak, ak); c.beginPath(); c.arc(0, 0, 54, 0, TAU); c.fillStyle = i < 3 ? ['#F5C542', '#C8CCD4', '#D79A62'][i] : '#E6E6EA'; c.fill(); disc(c, k, 0, 0, 48); c.restore();
-      { let nm = name; c.font = G(700, 38); while (c.measureText(nm).width > 330) nm = nm.slice(0, -2) + '…'; txt(c, nm, x + 206, y + 50, G(700, 38), INK); } txt(c, cat, x + 206, y + 96, G(500, 30), '#8A8580');
-      const v = amt * (1 - Math.pow(1 - prog(t, T0 + 0.1, T0 + 0.9), 3)), s = '$' + v.toFixed(2), f = G(700, 38), w = tw(c, '$' + amt.toFixed(2), f) + 56; rr(c, x + 780 - w, y + 33, w, 70, 35); c.fillStyle = PILL; c.fill(); txt(c, s, x + 780 - w / 2, y + 70, f, INK, 'center');
+      { let nm = name; c.font = G(700, 38); while (c.measureText(nm).width > (V ? 420 : 330)) nm = nm.slice(0, -2) + '…'; txt(c, nm, x + 206, y + 50, G(700, 38), INK); } txt(c, cat, x + 206, y + 96, G(500, 30), '#8A8580');
+      const v = amt * (1 - Math.pow(1 - prog(t, T0 + 0.1, T0 + 0.9), 3)), s = '$' + v.toFixed(2), f = G(700, 38), w = tw(c, '$' + amt.toFixed(2), f) + 56; rr(c, x + RW - 20 - w, y + 33, w, 70, 35); c.fillStyle = PILL; c.fill(); txt(c, s, x + RW - 20 - w / 2, y + 70, f, INK, 'center');
       c.restore();
     });
     c.restore();
   }
 
   // ---------- S5 category beat-cuts (11.5–12.75) ----------
+  const CUTV = [['DEVELOP', 'MENT'], ['DESIGN'], ['MARKET', 'ING'], ['WRITING'], ['CONTENT']];
   const CUTS = [['DEVELOPMENT', PUR, '#fff'], ['DESIGN', INK, GRN2], ['MARKETING', GRN, '#fff'], ['WRITING', PAPER, PUR], ['CONTENT', PUR, '#fff']];
   function cuts(c, t) {
     if (t < 11.5 || t >= 12.75) return; const i = Math.min(4, Math.floor((t - 11.5) / 0.25)), lt = t - 11.5 - i * 0.25, [s, bg, fg] = CUTS[i];
     c.fillStyle = bg; c.fillRect(0, 0, W, H);
-    const f = D(300); c.font = f; c.letterSpacing = '-8px'; const w = c.measureText(s).width; c.letterSpacing = '0px'; const fit = Math.min(1, 1760 / w), k = crit(prog(lt, 0, 0.12));
+    const f = D(300), lines = V ? CUTV[i] : [s]; c.font = f; c.letterSpacing = '-8px'; const w = Math.max(...lines.map((l) => c.measureText(l).width)); c.letterSpacing = '0px'; const fit = Math.min(V ? 1.25 : 1, (V ? 960 : 1760) / w), k = crit(prog(lt, 0, 0.12));
     c.save(); c.translate(W / 2, H / 2); c.scale(fit * lerp(1.3, 1, k), fit * lerp(1.3, 1, k)); c.rotate((i % 2 ? 1 : -1) * 0.03 * (1 - k));
-    for (let j = -3; j <= 3; j++) { if (!j) continue; c.save(); c.globalAlpha = 0.22 / Math.abs(j); c.strokeStyle = fg; c.lineWidth = 3; c.font = f; c.letterSpacing = '-8px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.strokeText(s, (i % 2 ? 1 : -1) * lt * 400 * Math.sign(j), j * 250); c.letterSpacing = '0px'; c.restore(); }
-    txt(c, s, 0, 0, f, fg, 'center', 'middle', -8); c.restore();
-    txt(c, 'BOUNTIES IN', 70, 80, M(800, 30), fg, 'left', 'middle', 6); txt(c, `0${i + 1} / 05`, W - 70, 80, M(800, 30), fg, 'right', 'middle', 4);
-    appIcon(c, W - 110, H - 100, 76);
+    for (let j = V ? -6 : -3; j <= (V ? 6 : 3); j++) { if (!j || (V && Math.abs(j) < 2 && lines.length > 1)) continue; c.save(); c.globalAlpha = 0.22 / Math.abs(j); c.strokeStyle = fg; c.lineWidth = 3; c.font = f; c.letterSpacing = '-8px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.strokeText(s, (i % 2 ? 1 : -1) * lt * 400 * Math.sign(j), j * 250); c.letterSpacing = '0px'; c.restore(); }
+    lines.forEach((l, j) => txt(c, l, 0, (j - (lines.length - 1) / 2) * 270, f, fg, 'center', 'middle', -8)); c.restore();
+    txt(c, 'BOUNTIES IN', 70, V ? 130 : 80, M(800, 30), fg, 'left', 'middle', 6); txt(c, `0${i + 1} / 05`, W - 70, V ? 130 : 80, M(800, 30), fg, 'right', 'middle', 4);
+    appIcon(c, W - 110, H - (V ? 170 : 100), 76);
   }
 
   // ---------- S6 end card (12.75–15) ----------
   function endCard(c, t) {
     if (t < 12.75) return; paper(c, t, 1.2);
-    const ik = pop(prog(t, 12.75, 13.1)); c.save(); c.translate(W / 2, 290); c.scale(ik, ik); c.save(); c.shadowColor = rgba(PUR, 0.55); c.shadowBlur = 70; c.shadowOffsetY = 20; rr(c, -100, -100, 200, 200, 46); c.fillStyle = PUR; c.fill(); c.restore(); c.restore();
-    glyphBuild(c, W / 2, 294, 200 / 11, t, 12.75, 13.15, '#fff', 9, 500);
-    const f = G(700, 170); let x = W / 2 - tw(c, 'gibwork', f, -4) / 2; [...'gibwork'].forEach((ch, i) => { const k = crit(prog(t, 12.95 + i * 0.035, 13.25 + i * 0.035)), w = tw(c, ch, f) - 4; c.save(); c.beginPath(); c.rect(x - 10, 400, w + 30, 210); c.clip(); txt(c, ch, x, 505 + (1 - k) * 200, f, INK, 'left', 'middle'); c.restore(); x += w; });
-    const vk = pop(prog(t, 13.3, 13.55)); if (vk > 0) verified(c, x + 46, 470, 32 * vk);
-    const tk = A(t, 13.3, 0.35); c.save(); c.globalAlpha = tk; const tag1 = 'Hire the internet', tag2 = ' — or collect the bounty.', tf = G(600, 50), w1 = tw(c, tag1 + tag2, tf); txt(c, tag1, W / 2 - w1 / 2, 640 + (1 - tk) * 20, tf, PUR); txt(c, tag2, W / 2 - w1 / 2 + tw(c, tag1, tf), 640 + (1 - tk) * 20, tf, MUTE); c.restore();
-    const a1 = pop(prog(t, 13.55, 13.9)), a2 = pop(prog(t, 13.65, 14.0)); if (a1 > 0) appStore(c, W / 2 - 170, 780, a1); if (a2 > 0) playStore(c, W / 2 + 170, 780, a2);
-    const uk = pop(prog(t, 13.85, 14.2)); if (uk > 0) { c.save(); c.translate(W / 2, 925); c.scale(uk, uk); const uf = M(800, 34), w = tw(c, 'gib.work', uf, 3) + 90; rr(c, -w / 2, -38, w, 76, 38); c.fillStyle = INK; c.fill(); c.fillStyle = GRN2; c.beginPath(); c.arc(-w / 2 + 34, 0, 8, 0, TAU); c.fill(); txt(c, 'gib.work', 12, 2, uf, '#fff', 'center', 'middle', 3); c.restore(); }
-    [[700, 210, 30, PUR], [1230, 180, 22, '#E84393'], [1300, 400, 16, PUR2], [600, 420, 18, GRN2], [1450, 820, 20, PUR], [470, 760, 16, '#E84393']].forEach(([sx, sy, s, col], i) => { const k = pop(prog(t, 13.1 + i * 0.07, 13.45 + i * 0.07)); if (k > 0) sparkle(c, sx, sy + Math.sin(t * 2 + i) * 8, s * 1.6 * k * (0.8 + 0.2 * Math.sin(t * 5 + i)), col, t + i); });
+    const Y = V ? { icon: 560, word: 830, tag: 1000, badge: 1230, url: 1390 } : { icon: 290, word: 505, tag: 640, badge: 780, url: 925 }, IS = V ? 240 : 200;
+    const ik = pop(prog(t, 12.75, 13.1)); c.save(); c.translate(W / 2, Y.icon); c.scale(ik, ik); c.save(); c.shadowColor = rgba(PUR, 0.55); c.shadowBlur = 70; c.shadowOffsetY = 20; rr(c, -IS / 2, -IS / 2, IS, IS, IS * 0.23); c.fillStyle = PUR; c.fill(); c.restore(); c.restore();
+    glyphBuild(c, W / 2, Y.icon + 4, IS / 11, t, 12.75, 13.15, '#fff', 9, 500);
+    const f = G(700, V ? 190 : 170); let x = W / 2 - tw(c, 'gibwork', f, -4) / 2 - (V ? 20 : 0); [...'gibwork'].forEach((ch, i) => { const k = crit(prog(t, 12.95 + i * 0.035, 13.25 + i * 0.035)), w = tw(c, ch, f) - 4; c.save(); c.beginPath(); c.rect(x - 10, Y.word - 105, w + 30, 220); c.clip(); txt(c, ch, x, Y.word + (1 - k) * 200, f, INK, 'left', 'middle'); c.restore(); x += w; });
+    const vk = pop(prog(t, 13.3, 13.55)); if (vk > 0) verified(c, x + 46, Y.word - 35, 32 * vk);
+    const tk = A(t, 13.3, 0.35); c.save(); c.globalAlpha = tk; const tag1 = 'Hire the internet', tag2 = ' — or collect the bounty.';
+    if (V) { const tf = G(700, 64); txt(c, tag1, W / 2, Y.tag + (1 - tk) * 20, tf, PUR, 'center'); txt(c, 'or collect the bounty.', W / 2, Y.tag + 80 + (1 - tk) * 20, G(600, 54), MUTE, 'center'); }
+    else { const tf = G(600, 50), w1 = tw(c, tag1 + tag2, tf); txt(c, tag1, W / 2 - w1 / 2, Y.tag + (1 - tk) * 20, tf, PUR); txt(c, tag2, W / 2 - w1 / 2 + tw(c, tag1, tf), Y.tag + (1 - tk) * 20, tf, MUTE); } c.restore();
+    const a1 = pop(prog(t, 13.55, 13.9)), a2 = pop(prog(t, 13.65, 14.0)), bs = V ? 1.05 : 1, bx = V ? 166 : 170; if (a1 > 0) appStore(c, W / 2 - bx, Y.badge, a1 * bs); if (a2 > 0) playStore(c, W / 2 + bx, Y.badge, a2 * bs);
+    const uk = pop(prog(t, 13.85, 14.2)); if (uk > 0) { c.save(); c.translate(W / 2, Y.url); c.scale(uk * (V ? 1.25 : 1), uk * (V ? 1.25 : 1)); const uf = M(800, 34), w = tw(c, 'gib.work', uf, 3) + 90; rr(c, -w / 2, -38, w, 76, 38); c.fillStyle = INK; c.fill(); c.fillStyle = GRN2; c.beginPath(); c.arc(-w / 2 + 34, 0, 8, 0, TAU); c.fill(); txt(c, 'gib.work', 12, 2, uf, '#fff', 'center', 'middle', 3); c.restore(); }
+    (V ? [[250, 440, 30, PUR], [840, 400, 22, '#E84393'], [880, 650, 16, PUR2], [180, 700, 18, GRN2], [900, 1500, 20, PUR], [170, 1450, 16, '#E84393']] : [[700, 210, 30, PUR], [1230, 180, 22, '#E84393'], [1300, 400, 16, PUR2], [600, 420, 18, GRN2], [1450, 820, 20, PUR], [470, 760, 16, '#E84393']]).forEach(([sx, sy, s, col], i) => { const k = pop(prog(t, 13.1 + i * 0.07, 13.45 + i * 0.07)); if (k > 0) sparkle(c, sx, sy + Math.sin(t * 2 + i) * 8, s * 1.6 * k * (0.8 + 0.2 * Math.sin(t * 5 + i)), col, t + i); });
   }
 
   // ---------- finishing ----------
