@@ -124,7 +124,7 @@
     ['Gibwork Developer Hackathon Bounty', 'logo', '@gibwork', 'Development', '$1000.00', 'Ends in 23 days', 'usd'],
     ['Create an X Thread About the Gibwork Mobile App', 'logo', '@gibwork', 'Social Media', '1980 XP', 'Ends in 2 months', 'xp'],
     ['Refer. Share. Win upto $300 USDC', 'b_defi', '@teamdefidotcom', 'Social Media', '530 XP', 'Ends in 5 days', 'xp'],
-    ['Create a UGC Video Bounty for the Gibwork Mobile App', 'logo', '@gibwork', 'Content', '$300.00', 'Open', 'usd'],
+    ['Try Out the Gibwork Mobile App & Give Feedback', 'logo', '@gibwork', 'Testing', '$300.00', 'Open', 'usd'],
     ['How Often Do You Ad…', 'b_e', '', 'Research', '$150.00', 'Open', 'usd'],
     ['Invite Users, Earn Poi…', 'b_man', '', 'Community', '$125.00', 'Open', 'usd'],
     ['Create an X thread an…', 'b_target', '', 'Social Media', '$100.00', 'Open', 'usd'],
@@ -161,7 +161,7 @@
       c.save(); c.globalAlpha = clamp(appear * 2) * (1 - hiK * 0.75); c.translate(-CW / 2 + (1 - appear) * 600, y); card(c, BOUNTIES[idx], 0, 0, beat * 0.6); c.restore();
     }
     c.restore();
-    // the $300 UGC bounty pulls out of the board toward camera
+    // the $300 app-testing bounty pulls out of the board toward camera
     if (hiK > 0) { const y = 3 * (CH + 26) - scroll + 700, m = ISO.map((v, i) => lerp(v, i === 0 || i === 3 ? 1.35 : 0, hiK)), ox = lerp(1330, W / 2, hiK), oy = lerp(560, H / 2, hiK);
       c.save(); c.translate(ox, oy); c.transform(...m, 0, 0); c.translate(-CW / 2, lerp(y, -CH / 2, hiK)); card(c, BOUNTIES[3], 0, 0, hiK); c.restore(); }
   }
@@ -185,10 +185,10 @@
     roundBtn(c, 75, 160, 52); crossIco(c, 75, 160, 18); rr(c, 418, 108, 244, 104, 52); c.fillStyle = '#F0F0F0'; c.fill(); txt(c, '$300.00', 540, 162, G(700, 46), INK, 'center');
     [[772, '💬'], [890, '≡'], [1008, '⋮']].forEach(([x, g]) => { roundBtn(c, x, 160, 52); txt(c, g === '💬' ? '○' : g, x, 162, G(700, 50), '#222', 'center'); });
     logoDisc(c, 80, 333, 40); txt(c, 'gibwork', 140, 333, G(600, 60), INK); verified(c, 400, 333, 18);
-    txt(c, 'Create a UGC Video Bounty', 40, 448, G(800, 66), INK); txt(c, 'for the Gibwork Mobile App', 40, 536, G(800, 66), INK);
-    const body = ['Gibwork is seeking talented UGC creators', 'for a video bounty that highlights what', 'the platform is, how it works, and what', 'users can do with the Gibwork mobile app.', 'Approved submissions are eligible for a', '$25 base bounty reward plus $1.50 per', '1,000 video views.'];
+    txt(c, 'Try Out the Gibwork Mobile', 40, 448, G(800, 66), INK); txt(c, 'App & Give Feedback', 40, 536, G(800, 66), INK);
+    const body = ['Gibwork is looking for real users to', 'try out the Gibwork mobile app. Download', 'it, set up your profile, explore bounties', 'and tell us what you love and what to fix.', 'Approved submissions are eligible for a', '$300 reward for detailed, honest feedback', 'with screenshots of your experience.'];
     body.forEach((s, i) => { const k = A(t, 6.6 + i * 0.04, 0.3); c.save(); c.globalAlpha = k; txt(c, s, 40, 705 + i * 71 + (1 - k) * 20, G(i >= 5 ? 700 : 400, 44), '#2A2A30'); c.restore(); });
-    txt(c, 'Approved Submissions:', 40, 1290, G(400, 44), '#2A2A30'); txt(c, 'x.com/queensley21/status/…', 40, 1361, G(400, 44), PUR);
+    txt(c, 'Get the app:', 40, 1290, G(400, 44), '#2A2A30'); txt(c, 'App Store · Google Play · gib.work', 40, 1361, G(400, 44), PUR);
     const press = pulse(t, 7.05, 10) * (t >= 7.05 ? 1 : 0); rr(c, 40, 2005 + press * 6, 1000, 140, 70); c.fillStyle = press > 0.05 ? '#0C7F57' : GRN; c.fill(); txt(c, 'I can do this', 540, 2077 + press * 6, G(700, 54), '#fff', 'center');
     ripple(c, 600, 2075, t, 7.05);
   }
@@ -217,7 +217,7 @@
     rr(c, 52, 772 + 120, 396, 116, 58); c.fillStyle = '#F4F4F2'; c.fill(); txt(c, 'Withdraw', 250, 950, G(600, 50), '#555', 'center'); rr(c, 474, 892, 398, 116, 58); c.fillStyle = GRN; c.fill(); txt(c, 'Add funds', 673, 950, G(600, 50), '#fff', 'center');
     txt(c, 'History', 52, 1128, G(800, 62), INK);
     const hk = crit(prog(t, 8.75, 9.1)); if (hk < 1) { c.save(); c.globalAlpha = 1 - hk; txt(c, 'Nothing here yet.', 540, 1330, G(500, 46), '#777', 'center'); c.restore(); }
-    if (hk > 0) { c.save(); c.globalAlpha = hk; c.translate((1 - hk) * 400, 0); roundBtn(c, 112, 1290, 56, rgba(GRN, 0.14)); c.strokeStyle = GRN; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.moveTo(90, 1292); c.lineTo(106, 1308); c.lineTo(136, 1276); c.stroke(); txt(c, 'Bounty reward', 196, 1266, G(700, 46), INK); txt(c, 'Create a UGC Video Bounty…', 196, 1322, G(500, 36), '#888'); txt(c, '+$300.00', 1030, 1290, G(800, 50), GRN, 'right'); c.restore(); }
+    if (hk > 0) { c.save(); c.globalAlpha = hk; c.translate((1 - hk) * 400, 0); roundBtn(c, 112, 1290, 56, rgba(GRN, 0.14)); c.strokeStyle = GRN; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.moveTo(90, 1292); c.lineTo(106, 1308); c.lineTo(136, 1276); c.stroke(); txt(c, 'Bounty reward', 196, 1266, G(700, 46), INK); txt(c, 'Try Out the Gibwork Mobile…', 196, 1322, G(500, 36), '#888'); txt(c, '+$300.00', 1030, 1290, G(800, 50), GRN, 'right'); c.restore(); }
     // bottom nav
     c.fillStyle = '#fff'; c.fillRect(0, 2000, 1080, 340); c.fillStyle = '#333'; [[144, 'h'], [342, 'p'], [738, 'u'], [936, 'w']].forEach(([x, k]) => { c.strokeStyle = '#444'; c.lineWidth = 7; if (k === 'w') { rr(c, x - 34, 2072, 68, 54, 12); c.fillStyle = '#111'; c.fill(); } else { c.beginPath(); c.arc(x, 2098, 30, 0, TAU); c.stroke(); } });
     roundBtn(c, 540, 2098, 78, GRN); c.strokeStyle = '#fff'; c.lineWidth = 9; c.beginPath(); c.moveTo(540, 2068); c.lineTo(540, 2128); c.moveTo(510, 2098); c.lineTo(570, 2098); c.stroke();
