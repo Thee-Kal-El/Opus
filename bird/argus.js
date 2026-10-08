@@ -7,7 +7,7 @@
 (() => {
   'use strict';
   const K = window.KIT, { F, M, TAU, clamp, lerp, prog, io3, io5, crit, A, rgba, rr, text } = K;
-  const W = 1920, H = 1080, FPS = 60, DUR = 28, TP = 2000; // TP: y offset of the token page in the world
+  const V = !!window.VERTICAL, W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 28, TP = 2000; // V: 9:16 edition (own camera keys + captions) // TP: y offset of the token page in the world
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
   const C = { bg: '#07060B', panel: '#0D0B13', panel2: '#14111C', line: '#221E2E', line2: '#2E2840', ink: '#EEEAF7', mute: '#8E89A0', dim: '#5E5A6E',
     purple: '#8B5CF6', violet: '#A98BFF', yellow: '#F5C542', green: '#16A34A', green2: '#22C55E', red: '#EF4444', blue: '#2F7BFF' };
@@ -31,6 +31,23 @@
     [22.5, 775, TP + 960, L(1.6)], [24.15, 775, TP + 960, L(1.66)],     // TRADES
     [24.5, ...TOK, TFULL], [28.0, ...TOK, L(0.97)],
   ];
+
+  // vertical: the same moves, re-framed so each panel fills the 1080px width (full shots show the whole page width)
+  const KEYS_V = [
+    [0.0, 748, 245, L(3.2)], [0.9, 748, 245, L(3.2)], [1.6, 748, 245, L(1.2)], [2.0, 748, 260, L(1.18)],
+    [2.6, ...HOME, L(0.56)], [5.65, ...HOME, L(0.58)],
+    [6.0, 748, 245, L(1.24)], [7.65, 748, 245, L(1.28)],               // KING OF THE HILL
+    [8.0, 1358, 245, L(2.25)], [9.65, 1358, 245, L(2.33)],             // CONTENDERS
+    [10.0, 955, 532, L(0.8)], [11.65, 955, 532, L(0.83)],              // TOP BY MARKET CAP
+    [12.0, 955, 864, L(0.8)], [13.65, 955, 864, L(0.83)],              // NEW
+    [14.0, ...HOME, L(0.56)], [14.4, 955, 400, L(1.0)], [16.75, 955, 400, L(1.04)],
+    [16.99, 955, 400, L(1.05)], [17.0, ...TOK, L(0.95)], [18.15, ...TOK, L(0.85)],
+    [18.5, 775, TP + 497, L(1.12)], [20.15, 775, TP + 497, L(1.16)],   // CHART
+    [20.5, 1391, TP + 392, L(2.6)], [22.15, 1391, TP + 392, L(2.7)],   // BUY / SELL
+    [22.5, 775, TP + 880, L(1.12)], [24.15, 775, TP + 880, L(1.16)],   // TRADES
+    [24.5, ...TOK, L(0.85)], [28.0, ...TOK, L(0.88)],
+  ];
+  if (V) KEYS.splice(0, KEYS.length, ...KEYS_V);
 
   let CAM;
   function camera(t) {
@@ -294,13 +311,13 @@
       if (t < t0 || t > t1) continue;
       const k = io5(prog(t, t0, t0 + 0.22)), out = io3(prog(t, t1 - 0.2, t1));
       c.save(); c.globalAlpha = 1 - out;
-      const g = c.createLinearGradient(0, 930, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.6, 'rgba(0,0,0,0.8)'); g.addColorStop(1, 'rgba(0,0,0,0.92)'); c.fillStyle = g; c.fillRect(0, 930, W, H - 930);
-      c.translate(70, 1010); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k));
-      c.font = F(900, 58); c.textBaseline = 'alphabetic'; c.letterSpacing = '-1.5px';
+      const gy = V ? H - 520 : 930, g = c.createLinearGradient(0, gy, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.6, 'rgba(0,0,0,0.8)'); g.addColorStop(1, 'rgba(0,0,0,0.92)'); c.fillStyle = g; c.fillRect(0, gy, W, H - gy);
+      c.translate(V ? 60 : 70, V ? H - 250 : 1010); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k));
+      c.font = F(900, V ? Math.min(84, 84 * (W - 120) / Math.max(1, (c.font = F(900, 84), c.measureText(a).width))) : 58); c.textBaseline = 'alphabetic'; c.letterSpacing = '-1.5px';
       c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,60,200,0.55)'; c.fillText(a, -6 * (1 - k) - 2, 0); c.fillStyle = 'rgba(80,160,255,0.55)'; c.fillText(a, 6 * (1 - k) + 2, 0); c.globalCompositeOperation = 'source-over';
       c.fillStyle = '#FFFFFF'; c.fillText(a, 0, 0); const aw = c.measureText(a).width;
       c.fillStyle = C.purple; c.fillRect(0, 14, aw * io3(prog(t, t0 + 0.1, t0 + 0.4)), 5);
-      c.letterSpacing = '3px'; c.font = F(800, 24); c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.35); c.fillStyle = C.violet; c.fillText(b, aw + 30, -4);
+      c.letterSpacing = '3px'; c.font = F(800, 24); c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.35); c.fillStyle = C.violet; if (V) { c.font = F(800, 34); c.fillText(b, 0, 80); } else c.fillText(b, aw + 30, -4);
       c.restore();
     }
   }
@@ -336,6 +353,8 @@
   // white flash on the hard cuts (dot→window, click→token page, logo)
   function flashes(c, t) { let f = 0; for (const T of [17.0, 26.0]) if (t >= T) f = Math.max(f, 0.6 * Math.exp(-(t - T) * 14)); if (f > 0.01) { c.fillStyle = `rgba(255,255,255,${f})`; c.fillRect(0, 0, W, H); } }
 
+  // vertical only: a quiet brand header in the space above the page
+  function header(c, t) { const k = A(t, 2.6, 0.5) * (1 - A(t, 25.6, 0.4)) * clamp((0.95 - CAM.z) / 0.2); if (k <= 0) return; /* only on the wide shots, never over a zoomed panel */ c.save(); c.globalAlpha = k * 0.9; argusLogo(c, W / 2 - 150, 190, 34); text(c, 'argus.world', W / 2 - 92, 192, F(600, 50), '#FFFFFF'); c.restore(); }
   function renderAt(t) {
     t = clamp(t, 0, DUR - 1e-6); CAM = camera(t);
     const c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.letterSpacing = '0px';
@@ -343,6 +362,7 @@
     c.save(); c.translate(W / 2, H / 2); c.scale(CAM.z, CAM.z); c.translate(-CAM.x, -CAM.y);
     if (t < 17.0) { if (t >= 0.9) home(c, t); } else tokenPage(c, t);
     c.restore();
+    if (V) header(c, t);
     dot(c, t); captions(c, t); cursor(c, t); flashes(c, t); endCard(c, t);
     const v = c.createRadialGradient(W / 2, H / 2, 520, W / 2, H / 2, 1250); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.5)'); c.fillStyle = v; c.fillRect(0, 0, W, H);
   }
