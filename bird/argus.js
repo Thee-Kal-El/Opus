@@ -354,7 +354,9 @@
   function flashes(c, t) { let f = 0; for (const T of [17.0, 26.0]) if (t >= T) f = Math.max(f, 0.6 * Math.exp(-(t - T) * 14)); if (f > 0.01) { c.fillStyle = `rgba(255,255,255,${f})`; c.fillRect(0, 0, W, H); } }
 
   // vertical only: a quiet brand header in the space above the page
-  function header(c, t) { const k = A(t, 2.6, 0.5) * (1 - A(t, 25.6, 0.4)) * clamp((0.95 - CAM.z) / 0.2); if (k <= 0) return; /* only on the wide shots, never over a zoomed panel */ c.save(); c.globalAlpha = k * 0.9; argusLogo(c, W / 2 - 150, 190, 34); text(c, 'argus.world', W / 2 - 92, 192, F(600, 50), '#FFFFFF'); c.restore(); }
+  function header(c, t) { const k = A(t, 2.6, 0.5) * (1 - A(t, 25.6, 0.4)) * (1 - clamp((CAM.z - 1.5) / 0.3)); if (k <= 0) return; /* always on, except the very close shots (Contenders, Buy/Sell) */
+    c.save(); c.globalAlpha = k; const g = c.createLinearGradient(0, 0, 0, 330); g.addColorStop(0, 'rgba(7,6,11,0.95)'); g.addColorStop(0.7, 'rgba(7,6,11,0.8)'); g.addColorStop(1, 'rgba(7,6,11,0)'); c.fillStyle = g; c.fillRect(0, 0, W, 330);
+    argusLogo(c, W / 2 - 150, 190, 34); text(c, 'argus.world', W / 2 - 92, 192, F(600, 50), '#FFFFFF'); c.restore(); }
   function renderAt(t) {
     t = clamp(t, 0, DUR - 1e-6); CAM = camera(t);
     const c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0; c.letterSpacing = '0px';
