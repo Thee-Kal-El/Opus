@@ -45,7 +45,7 @@
   coupon(1040, 600, 0.08, '20%', 'STUDENT DEAL', 'e.l.f.', PUR);
   coupon(1120, 860, -0.06, '15%', 'OFF TRAVEL', 'OMIO', '#1A9E8F');
   // ---- grad cap
-  c.save(); c.translate(470, 990); c.rotate(-0.12); c.scale(0.8, 0.8); c.fillStyle = '#1A1530'; c.beginPath(); c.moveTo(0, -60); c.lineTo(170, 0); c.lineTo(0, 60); c.lineTo(-170, 0); c.closePath(); c.fill();
+  c.save(); c.translate(400, 960); c.rotate(-0.12); c.scale(0.85, 0.85); c.fillStyle = '#1A1530'; c.beginPath(); c.moveTo(0, -60); c.lineTo(170, 0); c.lineTo(0, 60); c.lineTo(-170, 0); c.closePath(); c.fill();
   c.beginPath(); c.moveTo(-95, 30); c.lineTo(-95, 95); c.quadraticCurveTo(0, 140, 95, 95); c.lineTo(95, 30); c.lineTo(0, 64); c.closePath(); c.fill(); c.strokeStyle = LIME; c.lineWidth = 6; c.beginPath(); c.moveTo(0, 0); c.lineTo(130, 40); c.lineTo(130, 120); c.stroke(); c.beginPath(); c.arc(130, 130, 14, 0, TAU); c.fillStyle = LIME; c.fill(); c.restore();
   // ---- creator cutout + lime outline
   const ph = 1020, pw = ph * me.width / me.height, px = W - pw + 30, py = H - ph + 60;
@@ -54,7 +54,7 @@
   o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
   c.save(); c.shadowColor = 'rgba(230,255,58,0.9)'; c.shadowBlur = 60; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
   // ---- "HIGH SCHOOL + COLLEGE" burst
-  c.save(); c.translate(440, 830); c.rotate(-0.06); c.beginPath(); for (let i = 0; i < 32; i++) { const a = i / 32 * TAU, r = i % 2 ? 84 : 104; c.lineTo(Math.cos(a) * r * 1.6, Math.sin(a) * r); } c.closePath(); c.fillStyle = LIME; c.shadowColor = 'rgba(0,0,0,0.4)'; c.shadowBlur = 24; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 6; c.strokeStyle = INK; c.stroke();
+  c.save(); c.translate(690, 800); c.rotate(-0.06); c.beginPath(); for (let i = 0; i < 32; i++) { const a = i / 32 * TAU, r = i % 2 ? 84 : 104; c.lineTo(Math.cos(a) * r * 1.6, Math.sin(a) * r); } c.closePath(); c.fillStyle = LIME; c.shadowColor = 'rgba(0,0,0,0.4)'; c.shadowBlur = 24; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 6; c.strokeStyle = INK; c.stroke();
   c.font = D(34); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('HIGH SCHOOL', 0, -20); c.fillText('+ COLLEGE', 0, 22); c.restore();
   document.body.dataset.ready = '1';
 })();
