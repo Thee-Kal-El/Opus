@@ -14,7 +14,7 @@
   const me = new Image(); me.src = 'kal_cutout.png'; await me.decode();
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
   function word(s, x, y, size, fill, sx = 0.84, rot = 0, align = 'left', stroke = '#000') {
-    c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = D(size); c.textAlign = align; c.textBaseline = 'middle'; c.letterSpacing = '-2px'; c.lineJoin = 'round';
+    c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = 'italic ' + D(size); c.textAlign = align; c.textBaseline = 'middle'; c.letterSpacing = '-2px'; c.lineJoin = 'round';
     c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillText(s, 12, 16); c.lineWidth = size * 0.15; c.strokeStyle = stroke; c.strokeText(s, 0, 0);
     if (Array.isArray(fill)) { const g = c.createLinearGradient(0, -size / 2, 0, size / 2); fill.forEach((f, i) => g.addColorStop(i / (fill.length - 1), f)); c.fillStyle = g; } else c.fillStyle = fill; c.fillText(s, 0, 0); c.restore();
   }
@@ -30,6 +30,8 @@
     c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(40, -260, 10, -520); c.stroke();
     for (const [a, l] of [[-2.6, 230], [-2.1, 260], [-1.5, 200], [-0.9, 260], [-0.4, 230], [-3.0, 180], [0.0, 170]]) { c.beginPath(); c.moveTo(10, -520); c.quadraticCurveTo(10 + Math.cos(a) * l * 0.6, -520 + Math.sin(a) * l * 0.6 - 60, 10 + Math.cos(a) * l, -520 + Math.sin(a) * l + 40); c.lineWidth = 26; c.stroke(); }
     c.restore(); }
+  // police lights bleeding in from the edges
+  for (const [x, col] of [[0, 'rgba(255,30,60,0.55)'], [W, 'rgba(40,110,255,0.55)']]) { const pg = c.createRadialGradient(x, 0, 0, x, 0, 700); pg.addColorStop(0, col); pg.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = pg; c.fillRect(0, 0, W, H); }
   // ---- headline
   word('GTA 5', 60, 200, 300, ['#FFFFFF', '#E8E8E8'], 0.86, -0.04);
   word('FOR ONLY', 70, 410, 120, '#FFFFFF', 0.86, -0.04);
@@ -38,11 +40,33 @@
   c.beginPath(); for (let i = 0; i < 40; i++) { const a = i / 40 * TAU, r = i % 2 ? 230 : 262; c.lineTo(Math.cos(a) * r * 1.35, Math.sin(a) * r); } c.closePath(); c.fillStyle = YEL; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 12; c.strokeStyle = INK; c.stroke();
   c.font = D(300); c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '-8px'; c.fillStyle = INK; c.fillText('$10', 0, 18); c.restore();
   // slashed FULL PRICE tag
-  c.save(); c.translate(820, 470); c.rotate(0.1); rr(-190, -60, 380, 120, 20); c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,0,0,0.4)'; c.shadowBlur = 24; c.fill(); c.shadowColor = 'transparent';
+  c.save(); c.translate(850, 500); c.rotate(0.1); rr(-190, -60, 380, 120, 20); c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,0,0,0.4)'; c.shadowBlur = 24; c.fill(); c.shadowColor = 'transparent';
   c.font = D(62); c.fillStyle = '#555'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('FULL PRICE', 0, 4); c.strokeStyle = '#FF1F1F'; c.lineWidth = 14; c.lineCap = 'round'; c.beginPath(); c.moveTo(-170, 30); c.lineTo(170, -24); c.stroke(); c.restore();
   // ONLINE + STORY chip
-  c.save(); c.translate(840, 880); c.rotate(-0.05); rr(-230, -52, 460, 104, 52); c.fillStyle = PUR; c.fill(); c.lineWidth = 6; c.strokeStyle = '#fff'; c.stroke();
+  c.save(); c.translate(1060, 300); c.rotate(0.04); rr(-230, -52, 460, 104, 52); c.fillStyle = PUR; c.fill(); c.lineWidth = 6; c.strokeStyle = '#fff'; c.stroke();
   c.font = D(52); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('ONLINE + STORY', 0, 3); c.restore();
+
+  // ===== GAME HUD LAYER =====
+  // wanted stars + money counter, top right (GTA-style HUD)
+  const star = (x, y, r, on) => { c.save(); c.translate(x, y); c.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r * 0.45 : r; c.lineTo(Math.cos(a) * q, Math.sin(a) * q); } c.closePath(); c.fillStyle = on ? '#FFFFFF' : 'rgba(0,0,0,0.45)'; c.fill(); c.lineWidth = 5; c.strokeStyle = '#000'; c.stroke(); c.restore(); };
+  for (let i = 0; i < 5; i++) star(W - 330 + i * 64, 62, 28, i >= 0);
+  c.save(); c.font = 'italic 900 92px "Inter Tight"'; c.textAlign = 'right'; c.textBaseline = 'middle'; c.lineJoin = 'round'; c.lineWidth = 14; c.strokeStyle = '#000'; c.strokeText('$10', W - 40, 150); c.fillStyle = '#7CFF6B'; c.fillText('$10', W - 40, 150); c.restore();
+  // minimap, bottom left corner over the skyline
+  c.save(); c.translate(1180, 950); c.beginPath(); c.arc(0, 0, 110, 0, TAU); c.fillStyle = 'rgba(20,30,40,0.92)'; c.fill(); c.clip();
+  c.strokeStyle = '#6B7A88'; c.lineWidth = 14; c.beginPath(); c.moveTo(-120, -30); c.lineTo(120, 10); c.moveTo(-20, -120); c.lineTo(20, 120); c.moveTo(-120, 60); c.lineTo(60, -120); c.stroke();
+  c.fillStyle = '#3BA34A'; c.fillRect(30, 30, 50, 40); c.fillStyle = '#2C78C9'; c.fillRect(-90, -100, 60, 50);
+  c.fillStyle = YEL; c.beginPath(); c.arc(50, -50, 14, 0, TAU); c.fill(); c.font = D(18); c.fillStyle = '#000'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('$', 50, -49);
+  c.fillStyle = '#fff'; c.beginPath(); c.moveTo(0, -18); c.lineTo(13, 14); c.lineTo(0, 6); c.lineTo(-13, 14); c.closePath(); c.fill(); c.restore();
+  c.beginPath(); c.arc(1180, 950, 110, 0, TAU); c.lineWidth = 8; c.strokeStyle = '#000'; c.stroke();
+  // MISSION PASSED banner
+  c.save(); c.translate(600, 1010); c.rotate(-0.02); const bg2 = c.createLinearGradient(-420, 0, 420, 0); bg2.addColorStop(0, 'rgba(0,0,0,0)'); bg2.addColorStop(0.15, 'rgba(0,0,0,0.75)'); bg2.addColorStop(0.85, 'rgba(0,0,0,0.75)'); bg2.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = bg2; c.fillRect(-460, -58, 920, 116);
+  c.font = 'italic 900 80px "Inter Tight"'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round'; c.lineWidth = 12; c.strokeStyle = '#000'; c.strokeText('MISSION PASSED!', 0, 0); c.fillStyle = '#FFC93A'; c.fillText('MISSION PASSED!', 0, 0); c.restore();
+  // controller
+  c.save(); c.translate(1110, 640); c.rotate(-0.2); c.scale(0.9, 0.9); c.shadowColor = 'rgba(0,0,0,0.5)'; c.shadowBlur = 30;
+  c.beginPath(); c.moveTo(-120, -40); c.quadraticCurveTo(0, -70, 120, -40); c.quadraticCurveTo(175, 60, 150, 100); c.quadraticCurveTo(120, 130, 80, 60); c.lineTo(-80, 60); c.quadraticCurveTo(-120, 130, -150, 100); c.quadraticCurveTo(-175, 60, -120, -40); c.closePath(); c.fillStyle = '#1B1B22'; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 6; c.strokeStyle = '#fff'; c.stroke();
+  c.fillStyle = '#fff'; c.fillRect(-100, -12, 50, 16); c.fillRect(-83, -29, 16, 50);
+  [[80, -28, '#2BD96B'], [104, -4, '#FF3B4E'], [56, -4, '#3B82FF'], [80, 20, '#FFE500']].forEach(([x, y, col]) => { c.beginPath(); c.arc(x, y, 12, 0, TAU); c.fillStyle = col; c.fill(); });
+  c.restore();
   // ---- creator cutout with yellow outline
   const ph = 1030, pw = ph * me.width / me.height, px = W - pw + 20, py = H - ph + 60;
   const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
@@ -50,8 +74,10 @@
   o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
   c.save(); c.shadowColor = 'rgba(255,229,0,0.8)'; c.shadowBlur = 50; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
   // "NO JOKE!!" burst by his head
-  c.save(); c.translate(1180, 140); c.rotate(-0.12); c.beginPath(); for (let i = 0; i < 28; i++) { const a = i / 28 * TAU, r = i % 2 ? 82 : 104; c.lineTo(Math.cos(a) * r * 1.95, Math.sin(a) * r); } c.closePath(); c.fillStyle = PINK; c.fill(); c.lineWidth = 7; c.strokeStyle = '#fff'; c.stroke();
+  c.save(); c.translate(1080, 135); c.rotate(-0.12); c.beginPath(); for (let i = 0; i < 28; i++) { const a = i / 28 * TAU, r = i % 2 ? 82 : 104; c.lineTo(Math.cos(a) * r * 1.95, Math.sin(a) * r); } c.closePath(); c.fillStyle = PINK; c.fill(); c.lineWidth = 7; c.strokeStyle = '#fff'; c.stroke();
   c.font = D(54); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('NO JOKE!!', 0, 3); c.restore();
+  for (let i = 0; i < 5; i++) star(W - 330 + i * 64, 62, 28, true);
+  c.save(); c.font = 'italic 900 92px "Inter Tight"'; c.textAlign = 'right'; c.textBaseline = 'middle'; c.lineJoin = 'round'; c.lineWidth = 14; c.strokeStyle = '#000'; c.strokeText('$10', W - 40, 150); c.fillStyle = '#7CFF6B'; c.fillText('$10', W - 40, 150); c.restore();
   document.body.dataset.ready = '1';
 })();
 </script></body></html>
