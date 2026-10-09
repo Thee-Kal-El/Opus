@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>GTA 5 for $10 Thumbnail</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="s" width="1920" height="1080"></canvas>
+<script>
+// "GTA 5 FOR $10" — YouTube thumbnail, 1920x1080. Los Santos sunset + palms, a slashed "FULL PRICE" tag, a giant $10 price sticker,
+// an eneba-purple cart chip and the creator cutout. All vector (no game art).
+(async () => {
+  const c = document.getElementById('s').getContext('2d'), W = 1920, H = 1080, TAU = Math.PI * 2;
+  const YEL = '#FFE500', PUR = '#4B1FC2', PINK = '#FF2E88', GRN = '#2BD96B', INK = '#0B0614';
+  const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
+  await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40))]);
+  const me = new Image(); me.src = 'kal_cutout.png'; await me.decode();
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
+  function word(s, x, y, size, fill, sx = 0.84, rot = 0, align = 'left', stroke = '#000') {
+    c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = D(size); c.textAlign = align; c.textBaseline = 'middle'; c.letterSpacing = '-2px'; c.lineJoin = 'round';
+    c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillText(s, 12, 16); c.lineWidth = size * 0.15; c.strokeStyle = stroke; c.strokeText(s, 0, 0);
+    if (Array.isArray(fill)) { const g = c.createLinearGradient(0, -size / 2, 0, size / 2); fill.forEach((f, i) => g.addColorStop(i / (fill.length - 1), f)); c.fillStyle = g; } else c.fillStyle = fill; c.fillText(s, 0, 0); c.restore();
+  }
+  // ---- Los Santos sunset
+  let g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#2A0E5C'); g.addColorStop(0.42, '#C2246E'); g.addColorStop(0.7, '#FF7A2E'); g.addColorStop(1, '#FFC24A'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  // sun with retro stripes
+  c.save(); c.beginPath(); c.arc(1000, 760, 330, 0, TAU); c.clip(); g = c.createLinearGradient(0, 430, 0, 1090); g.addColorStop(0, '#FFF3A0'); g.addColorStop(1, '#FF5A2E'); c.fillStyle = g; c.fillRect(600, 400, 800, 700);
+  for (let i = 0; i < 8; i++) { c.fillStyle = 'rgba(194,36,110,0.9)'; c.fillRect(600, 780 + i * 34, 800, 6 + i * 3); } c.restore();
+  // skyline
+  c.fillStyle = '#1A0630'; c.fillRect(0, 960, W, 140); let x = 0; let k = 1; while (x < W) { const w = 50 + (k * 37 % 70), h = 90 + (k * 53 % 210); c.fillRect(x, 980 - h, w, h + 100); x += w - 2; k++; }
+  // palms
+  function palm(px, py, s, flip = 1) { c.save(); c.translate(px, py); c.scale(s * flip, s); c.strokeStyle = '#12041F'; c.fillStyle = '#12041F'; c.lineWidth = 22; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(40, -260, 10, -520); c.stroke();
+    for (const [a, l] of [[-2.6, 230], [-2.1, 260], [-1.5, 200], [-0.9, 260], [-0.4, 230], [-3.0, 180], [0.0, 170]]) { c.beginPath(); c.moveTo(10, -520); c.quadraticCurveTo(10 + Math.cos(a) * l * 0.6, -520 + Math.sin(a) * l * 0.6 - 60, 10 + Math.cos(a) * l, -520 + Math.sin(a) * l + 40); c.lineWidth = 26; c.stroke(); }
+    c.restore(); }
+  // ---- headline
+  word('GTA 5', 60, 200, 300, ['#FFFFFF', '#E8E8E8'], 0.86, -0.04);
+  word('FOR ONLY', 70, 410, 120, '#FFFFFF', 0.86, -0.04);
+  // giant $10 price sticker
+  c.save(); c.translate(380, 700); c.rotate(-0.08); c.shadowColor = 'rgba(0,0,0,0.5)'; c.shadowBlur = 40; c.shadowOffsetY = 16;
+  c.beginPath(); for (let i = 0; i < 40; i++) { const a = i / 40 * TAU, r = i % 2 ? 230 : 262; c.lineTo(Math.cos(a) * r * 1.35, Math.sin(a) * r); } c.closePath(); c.fillStyle = YEL; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 12; c.strokeStyle = INK; c.stroke();
+  c.font = D(300); c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '-8px'; c.fillStyle = INK; c.fillText('$10', 0, 18); c.restore();
+  // slashed FULL PRICE tag
+  c.save(); c.translate(820, 470); c.rotate(0.1); rr(-190, -60, 380, 120, 20); c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,0,0,0.4)'; c.shadowBlur = 24; c.fill(); c.shadowColor = 'transparent';
+  c.font = D(62); c.fillStyle = '#555'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('FULL PRICE', 0, 4); c.strokeStyle = '#FF1F1F'; c.lineWidth = 14; c.lineCap = 'round'; c.beginPath(); c.moveTo(-170, 30); c.lineTo(170, -24); c.stroke(); c.restore();
+  // ONLINE + STORY chip
+  c.save(); c.translate(840, 880); c.rotate(-0.05); rr(-230, -52, 460, 104, 52); c.fillStyle = PUR; c.fill(); c.lineWidth = 6; c.strokeStyle = '#fff'; c.stroke();
+  c.font = D(52); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('ONLINE + STORY', 0, 3); c.restore();
+  // ---- creator cutout with yellow outline
+  const ph = 1030, pw = ph * me.width / me.height, px = W - pw + 20, py = H - ph + 60;
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+  for (let a = 0; a < 24; a++) o.drawImage(me, px + Math.cos(a / 24 * TAU) * 11, py + Math.sin(a / 24 * TAU) * 11, pw, ph);
+  o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
+  c.save(); c.shadowColor = 'rgba(255,229,0,0.8)'; c.shadowBlur = 50; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
+  // "NO JOKE!!" burst by his head
+  c.save(); c.translate(1180, 140); c.rotate(-0.12); c.beginPath(); for (let i = 0; i < 28; i++) { const a = i / 28 * TAU, r = i % 2 ? 82 : 104; c.lineTo(Math.cos(a) * r * 1.95, Math.sin(a) * r); } c.closePath(); c.fillStyle = PINK; c.fill(); c.lineWidth = 7; c.strokeStyle = '#fff'; c.stroke();
+  c.font = D(54); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('NO JOKE!!', 0, 3); c.restore();
+  document.body.dataset.ready = '1';
+})();
+</script></body></html>
