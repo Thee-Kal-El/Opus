@@ -42,7 +42,7 @@
   // ---- bounty card (the real $1,000 hackathon bounty)
   c.save(); c.translate(W / 2 + 40, 875); c.rotate(-0.06);
   const cw = 900, ch = 230; c.shadowColor = 'rgba(31,209,142,0.9)'; c.shadowBlur = 70; rr(-cw / 2, -ch / 2, cw, ch, 30); c.fillStyle = '#fff'; c.fill(); c.shadowBlur = 0; c.lineWidth = 8; c.strokeStyle = GRN2; c.stroke();
-  c.shadowColor = 'transparent'; logoDisc(-cw / 2 + 105, 0, 66); c.fillStyle = INK; c.font = G(800, 44); c.textBaseline = 'middle'; c.fillText('Hackathon Bounty', -cw / 2 + 200, -48);
+  c.shadowColor = 'transparent'; logoDisc(-cw / 2 + 105, 0, 66); c.fillStyle = INK; c.font = G(800, 40); c.textBaseline = 'middle'; c.fillText('Hackathon', -cw / 2 + 200, -48);
   c.font = G(500, 34); c.fillStyle = MUTE; c.fillText('@gibwork', -cw / 2 + 200, 6); verified(-cw / 2 + 200 + c.measureText('@gibwork').width + 26, 6, 16);
   rr(-cw / 2 + 200, 40, 230, 54, 27); c.strokeStyle = '#DADAE0'; c.lineWidth = 3; c.stroke(); c.font = G(700, 30); c.fillStyle = INK; c.fillText('Development', -cw / 2 + 222, 68);
   c.font = D(84); c.textAlign = 'right'; c.fillStyle = GRN; c.fillText('$1,000', cw / 2 - 34, -4); c.font = G(700, 30); c.fillStyle = MUTE; c.fillText('BOUNTY', cw / 2 - 36, 70); c.textAlign = 'left';
