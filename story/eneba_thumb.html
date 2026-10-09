@@ -12,6 +12,7 @@
   const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`, MONO = (s) => `800 ${s}px "JetBrains Mono", monospace`;
   await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40)), document.fonts.load(G(600, 40)), document.fonts.load(MONO(30))]);
   const me = new Image(); me.src = 'kal_cutout.png'; await me.decode();
+  const COV = {}; await Promise.all(['b4b', 'gta', 'hog'].map(async (k) => { const im = new Image(); im.src = `cover_${k}.png`; await im.decode(); COV[k] = im; }));
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
   const hash = (a, b = 0) => { let n = Math.imul(a | 0, 73856093) ^ Math.imul(b | 0, 19349663); n = Math.imul(n ^ (n >>> 15), 0x2c1b3c6d); n ^= n >>> 12; return (n >>> 0) / 4294967296; };
   // ---- background
@@ -30,15 +31,16 @@
   c.save(); c.translate(80, 560); c.rotate(-0.05); rr(0, -70, 760, 140, 20); c.fillStyle = PINK; c.shadowColor = 'rgba(0,0,0,0.5)'; c.shadowBlur = 30; c.shadowOffsetY = 12; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 9; c.strokeStyle = INK; c.stroke();
   c.save(); c.scale(0.86, 1); c.font = 'italic ' + D(116); c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.letterSpacing = '-3px'; c.fillText('ON GAMES!!', 40, 6); c.restore(); c.restore();
   // ---- game key cards (prices from the video)
-  function keyCard(x, y, rot, title, price, col) { const w = 520, h = 160; c.save(); c.translate(x, y); c.rotate(rot); c.shadowColor = 'rgba(0,0,0,0.55)'; c.shadowBlur = 34; c.shadowOffsetY = 14; rr(-w / 2, -h / 2, w, h, 20); c.fillStyle = '#2A1478'; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 5; c.strokeStyle = col; c.stroke();
+  function keyCard(x, y, rot, title, price, col, cov) { const w = 520, h = 160; c.save(); c.translate(x, y); c.rotate(rot); c.shadowColor = 'rgba(0,0,0,0.55)'; c.shadowBlur = 34; c.shadowOffsetY = 14; rr(-w / 2, -h / 2, w, h, 20); c.fillStyle = '#2A1478'; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 5; c.strokeStyle = col; c.stroke();
     // cover tile
     rr(-w / 2 + 16, -h / 2 + 16, 110, h - 32, 12); const cg = c.createLinearGradient(0, -h / 2, 0, h / 2); cg.addColorStop(0, col); cg.addColorStop(1, INK); c.fillStyle = cg; c.fill();
-    c.save(); c.translate(-w / 2 + 71, 0); c.strokeStyle = '#fff'; c.lineWidth = 7; c.lineCap = 'round'; c.beginPath(); c.arc(-12, -10, 18, 0, TAU); c.stroke(); c.beginPath(); c.moveTo(2, 2); c.lineTo(28, 28); c.moveTo(18, 18); c.lineTo(10, 26); c.moveTo(24, 24); c.lineTo(16, 32); c.stroke(); c.restore();
+    if (cov) { const im = COV[cov], tw2 = 110, th = h - 32, sc = Math.max(tw2 / im.width, th / im.height), sw = tw2 / sc, sh = th / sc; c.save(); rr(-w / 2 + 16, -h / 2 + 16, tw2, th, 12); c.clip(); c.drawImage(im, (im.width - sw) / 2, (im.height - sh) / 2, sw, sh, -w / 2 + 16, -h / 2 + 16, tw2, th); c.restore(); rr(-w / 2 + 16, -h / 2 + 16, tw2, th, 12); c.lineWidth = 3; c.strokeStyle = col; c.stroke(); }
+    else { c.save(); c.translate(-w / 2 + 71, 0); c.strokeStyle = '#fff'; c.lineWidth = 7; c.lineCap = 'round'; c.beginPath(); c.arc(-12, -10, 18, 0, TAU); c.stroke(); c.beginPath(); c.moveTo(2, 2); c.lineTo(28, 28); c.moveTo(18, 18); c.lineTo(10, 26); c.moveTo(24, 24); c.lineTo(16, 32); c.stroke(); c.restore(); }
     c.font = G(800, 32); c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(title, -w / 2 + 146, -36); c.font = G(600, 22); c.fillStyle = TEAL; c.fillText('STEAM KEY · GLOBAL', -w / 2 + 146, 0);
     c.font = D(56); c.fillStyle = '#fff'; c.fillText(price, -w / 2 + 146, 44); rr(w / 2 - 170, 14, 150, 52, 10); c.fillStyle = YEL; c.fill(); c.font = G(800, 26); c.fillStyle = INK; c.textAlign = 'center'; c.fillText('Buy now', w / 2 - 95, 41); c.restore(); }
-  keyCard(470, 760, -0.06, 'Back 4 Blood', '$2.27', ORA);
-  keyCard(560, 930, 0.03, 'GTA V Premium', '$10.42', '#E0441B');
-  keyCard(1040, 845, -0.03, 'Hogwarts Legacy', '$18.40', TEAL);
+  keyCard(470, 760, -0.06, 'Back 4 Blood', '$2.27', ORA, 'b4b');
+  keyCard(560, 930, 0.03, 'GTA V Premium', '$10.42', '#E0441B', 'gta');
+  keyCard(1040, 845, -0.03, 'Hogwarts Legacy', '$18.40', TEAL, 'hog');
   // ---- receipt "$74 SAVED"
   c.save(); c.translate(1090, 575); c.rotate(0.08); c.shadowColor = 'rgba(0,0,0,0.5)'; c.shadowBlur = 30; c.beginPath(); c.moveTo(-150, -150); c.lineTo(150, -150); c.lineTo(150, 130); for (let i = 0; i <= 10; i++) c.lineTo(150 - i * 30, 130 + (i % 2 ? 18 : 0)); c.closePath(); c.fillStyle = '#fff'; c.fill(); c.shadowColor = 'transparent';
   c.font = MONO(24); c.fillStyle = '#666'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('YOU SAVED', 0, -108); c.font = D(110); c.fillStyle = '#18A957'; c.fillText('$74', 0, -18); c.font = MONO(22); c.fillStyle = '#666'; c.fillText('- - - - - - - - - -', 0, 54); c.font = G(800, 28); c.fillStyle = INK; c.fillText('IN 5 MINUTES', 0, 92); c.restore();
