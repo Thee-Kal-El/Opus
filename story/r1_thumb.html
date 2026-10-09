@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Rabbit R1 Thumbnail</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="s" width="1920" height="1080"></canvas>
+<script>
+// "I went down the R1 RABBITHOLE" — YouTube thumbnail, 1920x1080. A glowing golden tunnel (the Rabbithole journal's portal),
+// a vector Rabbit R1 tumbling in, a pixel rabbit, the creator cutout and a $200 / no-subscription sticker.
+(async () => {
+  const c = document.getElementById('s').getContext('2d'), W = 1920, H = 1080, TAU = Math.PI * 2;
+  const OR = '#FF4F12', OR2 = '#FF7A2E', GOLD = '#FFC23D', INK = '#0A0806';
+  const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, MONO = (s) => `800 ${s}px "JetBrains Mono", monospace`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
+  await Promise.all([document.fonts.load(D(100)), document.fonts.load(MONO(40)), document.fonts.load(G(800, 40))]);
+  const me = new Image(); me.src = 'kal_cutout.png'; await me.decode();
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
+  const hash = (a, b = 0) => { let n = Math.imul(a | 0, 73856093) ^ Math.imul(b | 0, 19349663); n = Math.imul(n ^ (n >>> 15), 0x2c1b3c6d); n ^= n >>> 12; return (n >>> 0) / 4294967296; };
+  function word(s, x, y, size, fill, sx = 0.86, rot = 0, align = 'left', stroke = '#000') {
+    c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = D(size); c.textAlign = align; c.textBaseline = 'middle'; c.letterSpacing = '-2px'; c.lineJoin = 'round';
+    c.fillStyle = 'rgba(0,0,0,0.7)'; c.fillText(s, 10, 14); c.lineWidth = size * 0.15; c.strokeStyle = stroke; c.strokeText(s, 0, 0);
+    if (Array.isArray(fill)) { const g = c.createLinearGradient(0, -size / 2, 0, size / 2); fill.forEach((f, i) => g.addColorStop(i / (fill.length - 1), f)); c.fillStyle = g; } else c.fillStyle = fill; c.fillText(s, 0, 0); c.restore();
+  }
+  // ---- background: black, golden tunnel centered right
+  c.fillStyle = '#050403'; c.fillRect(0, 0, W, H);
+  const HX = 1180, HY = 600;
+  let g = c.createRadialGradient(HX, HY, 0, HX, HY, 900); g.addColorStop(0, 'rgba(255,170,40,0.55)'); g.addColorStop(0.35, 'rgba(255,110,10,0.22)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  // tunnel rings receding into the hole
+  for (let i = 26; i >= 0; i--) { const k = i / 26, rx = 40 + 900 * Math.pow(k, 1.6), ry = rx * 0.42, a = 0.08 + 0.55 * (1 - k); c.save(); c.translate(HX + (1 - k) * 0, HY + (1 - k) * 30); c.rotate(-0.08 + k * 0.05); c.beginPath(); c.ellipse(0, 0, rx, ry, 0, 0, TAU); c.strokeStyle = `rgba(255,${Math.round(150 + 80 * (1 - k))},${Math.round(40 + 100 * (1 - k))},${a})`; c.lineWidth = 2 + 6 * (1 - k); c.shadowColor = GOLD; c.shadowBlur = 20; c.stroke(); c.restore(); }
+  // spiral light streaks
+  c.save(); c.translate(HX, HY); for (let i = 0; i < 140; i++) { const a0 = hash(i) * TAU, r0 = 60 + hash(i, 1) * 820, len = 0.15 + hash(i, 2) * 0.35; c.beginPath(); c.ellipse(0, 0, r0, r0 * 0.42, -0.06, a0, a0 + len); c.strokeStyle = `rgba(255,${180 + hash(i, 3) * 70 | 0},90,${0.15 + 0.5 * hash(i, 4)})`; c.lineWidth = 1 + hash(i, 5) * 3; c.stroke(); } c.restore();
+  // the hole itself: deep black core with a hot rim
+  g = c.createRadialGradient(HX, HY + 20, 0, HX, HY + 20, 170); g.addColorStop(0, '#000'); g.addColorStop(0.7, '#120600'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.save(); c.translate(HX, HY + 20); c.scale(1, 0.45); c.translate(-HX, -HY - 20); c.fillStyle = g; c.beginPath(); c.arc(HX, HY + 20, 190, 0, TAU); c.fill(); c.restore();
+  c.save(); c.beginPath(); c.ellipse(HX, HY + 20, 185, 82, -0.04, 0, TAU); c.strokeStyle = '#FFE08A'; c.lineWidth = 6; c.shadowColor = '#FFB020'; c.shadowBlur = 50; c.stroke(); c.restore();
+  // sparks
+  for (let i = 0; i < 70; i++) { const x = HX + (hash(i, 9) - 0.5) * 1300, y = HY + (hash(i, 10) - 0.5) * 900, r = 1 + hash(i, 11) * 3.5; c.fillStyle = `rgba(255,${200 + 55 * hash(i, 12) | 0},140,${0.4 + 0.6 * hash(i, 13)})`; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
+  // ---- the Rabbit R1, tumbling toward the hole
+  function r1(x, y, s, rot) {
+    c.save(); c.translate(x, y); c.rotate(rot); c.shadowColor = 'rgba(255,110,20,0.8)'; c.shadowBlur = 80;
+    rr(-s / 2, -s / 2, s, s, s * 0.12); g = c.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2); g.addColorStop(0, '#FF7A35'); g.addColorStop(0.5, OR); g.addColorStop(1, '#D63A00'); c.fillStyle = g; c.fill(); c.shadowBlur = 0;
+    c.strokeStyle = 'rgba(255,255,255,0.35)'; c.lineWidth = s * 0.012; c.stroke();
+    // screen
+    const sx = -s * 0.42, sy = -s * 0.36, sw = s * 0.62, sh = s * 0.72; rr(sx, sy, sw, sh, s * 0.05); c.fillStyle = '#060606'; c.fill();
+    // pixel rabbit on the screen
+    const P = ['..X...X..', '.XX...XX.', '.XX...XX.', '.XX...XX.', '.XXXXXXX.', 'XX.XXX.XX', 'XXXXXXXXX', 'XXXX.XXXX', '.XXXXXXX.'], u = sw / 13; c.fillStyle = '#FFFFFF';
+    P.forEach((row, j) => [...row].forEach((ch, i) => { if (ch === 'X') c.fillRect(sx + sw / 2 - 4.5 * u + i * u, sy + sh * 0.12 + j * u, u - 1, u - 1); }));
+    c.font = MONO(s * 0.06); c.fillStyle = OR2; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('journal', sx + sw / 2, sy + sh * 0.86);
+    // rotating camera
+    c.beginPath(); c.arc(s * 0.32, -s * 0.24, s * 0.1, 0, TAU); c.fillStyle = '#1A0A02'; c.fill(); c.beginPath(); c.arc(s * 0.32, -s * 0.24, s * 0.05, 0, TAU); c.fillStyle = '#2B4A8A'; c.fill(); c.beginPath(); c.arc(s * 0.3, -s * 0.26, s * 0.018, 0, TAU); c.fillStyle = '#fff'; c.fill();
+    // scroll wheel
+    rr(s * 0.24, s * 0.02, s * 0.16, s * 0.3, s * 0.05); c.fillStyle = '#C93400'; c.fill(); for (let i = 0; i < 7; i++) { c.fillStyle = 'rgba(0,0,0,0.25)'; c.fillRect(s * 0.25, s * 0.05 + i * s * 0.04, s * 0.14, s * 0.012); }
+    c.restore();
+  }
+  // motion trail
+  for (let i = 3; i >= 1; i--) { c.save(); c.globalAlpha = 0.12 * (4 - i); r1(1150 - i * 60, 330 - i * 70, 300, 0.32 - i * 0.08); c.restore(); }
+  r1(1150, 330, 300, 0.32);
+  // ---- headline (left)
+  word('I WENT DOWN THE', 70, 170, 96, '#FFFFFF', 0.84, -0.03);
+  word('R1', 70, 360, 300, [OR2, OR, '#D63A00'], 0.86, -0.03);
+  word('RABBIT', 70, 580, 190, ['#FFF3C2', GOLD, '#FF9F1A'], 0.84, -0.03);
+  word('HOLE', 70, 760, 190, ['#FFF3C2', GOLD, '#FF9F1A'], 0.84, -0.03);
+  // ---- $200 sticker
+  c.save(); c.translate(330, 950); c.rotate(-0.06); c.shadowColor = 'rgba(0,0,0,0.6)'; c.shadowBlur = 30; c.shadowOffsetY = 10; rr(-270, -66, 540, 132, 28); c.fillStyle = '#FFFFFF'; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 8; c.strokeStyle = OR; c.stroke();
+  c.font = D(84); c.fillStyle = OR; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText('$200', -236, 4); c.font = G(800, 30); c.fillStyle = INK; c.fillText('NO', -10, -18); c.fillText('SUBSCRIPTION', -10, 20); c.restore();
+  // ---- creator cutout, right, with orange glow outline
+  const ph = 1000, pw = ph * me.width / me.height, px = W - pw + 40, py = H - ph + 60;
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+  for (let a = 0; a < 24; a++) o.drawImage(me, px + Math.cos(a / 24 * TAU) * 10, py + Math.sin(a / 24 * TAU) * 10, pw, ph);
+  o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
+  c.save(); c.shadowColor = 'rgba(255,120,20,0.9)'; c.shadowBlur = 60; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
+  document.body.dataset.ready = '1';
+})();
+</script></body></html>
