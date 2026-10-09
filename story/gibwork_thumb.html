@@ -62,7 +62,7 @@
   // ---- foreground coins + sparkles
   [[880, 1480, 78, 0.85, 0.2], [760, 1700, 60, 0.45, -0.3], [990, 1720, 44, 1, 0]].forEach(([x, y, r, sq, rot]) => coin(x, y, r, sq, rot));
   const spark = (x, y, s, col) => { c.save(); c.translate(x, y); c.beginPath(); c.moveTo(s, 0); for (let i = 1; i <= 4; i++) { const a = i * TAU / 4; c.quadraticCurveTo(0, 0, Math.cos(a) * s, Math.sin(a) * s); } c.closePath(); c.fillStyle = col; c.fill(); c.restore(); };
-  [[90, 330, 40, YEL], [1000, 300, 34, '#fff'], [960, 820, 30, YEL], [120, 960, 26, '#fff'], [640, 1240, 30, YEL]].forEach(([x, y, s, col]) => spark(x, y, s, col));
+  [[90, 330, 40, '#fff'], [1000, 300, 34, '#fff'], [120, 960, 26, '#fff'], [640, 1240, 30, YEL]].forEach(([x, y, s, col]) => spark(x, y, s, col));
   // ---- bottom URL strip
   c.save(); c.translate(W - 250, H - 110); rr(-210, -50, 420, 100, 50); c.fillStyle = INK; c.fill(); c.lineWidth = 4; c.strokeStyle = GRN2; c.stroke(); c.beginPath(); c.arc(-160, 0, 12, 0, TAU); c.fillStyle = GRN2; c.fill();
   c.font = '800 46px "JetBrains Mono", monospace'; c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('gib.work', 24, 3); c.restore();
