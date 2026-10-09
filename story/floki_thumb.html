@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Floki Hat Thumbnail</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="s" width="1920" height="1080"></canvas>
+<script>
+// "The FLOKI Hat" — YouTube thumbnail, 1920x1080. Viking sunset sea + longship sail with a knot rune (after floki.com),
+// the hat photo as a glowing framed card, the Floki mascot as a big white-outlined sticker, bold headline + token chips.
+(async () => {
+  const c = document.getElementById('s').getContext('2d'), W = 1920, H = 1080, TAU = Math.PI * 2;
+  const ORA = '#F7931E', ORA2 = '#FFB648', INK = '#0E0A06', CREAM = '#F3E6CF', TEAL = '#2D7FA6';
+  const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
+  await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40))]);
+  const L = async (s) => { const im = new Image(); im.src = s; await im.decode(); return im; };
+  const [hat, pup] = await Promise.all([L('floki_hat.png'), L('floki_mascot.png')]);
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
+  // ---- sky + sea
+  let g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#16324A'); g.addColorStop(0.45, '#C55A1E'); g.addColorStop(0.62, '#FFB648'); g.addColorStop(0.64, '#2C4E63'); g.addColorStop(1, '#0B1A24'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  g = c.createRadialGradient(1300, 660, 0, 1300, 660, 700); g.addColorStop(0, 'rgba(255,214,120,0.9)'); g.addColorStop(0.3, 'rgba(255,150,50,0.35)'); g.addColorStop(1, 'rgba(255,150,50,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  c.save(); c.translate(1300, 680); for (let i = 0; i < 22; i++) { const a = Math.PI + i / 21 * Math.PI; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a - 0.04) * 2000, Math.sin(a - 0.04) * 2000); c.lineTo(Math.cos(a + 0.04) * 2000, Math.sin(a + 0.04) * 2000); c.closePath(); c.fillStyle = i % 2 ? 'rgba(255,210,140,0.08)' : 'rgba(255,210,140,0.0)'; c.fill(); } c.restore();
+  // mountains on the horizon
+  c.fillStyle = '#5A2A16'; c.beginPath(); c.moveTo(0, 690); [[120, 600], [260, 650], [430, 560], [600, 660], [760, 620], [900, 690]].forEach(([x, y]) => c.lineTo(x, y)); c.lineTo(900, 700); c.lineTo(0, 700); c.fill();
+  c.fillStyle = '#3E1C10'; c.beginPath(); c.moveTo(1500, 700); [[1640, 610], [1760, 650], [1920, 580]].forEach(([x, y]) => c.lineTo(x, y)); c.lineTo(1920, 700); c.fill();
+  // sea glints
+  for (let i = 0; i < 90; i++) { const y = 700 + Math.pow(i / 90, 1.6) * 380, w = 30 + (i * 37 % 140); c.fillStyle = `rgba(255,190,110,${0.35 * (1 - i / 90)})`; c.fillRect(1300 - w / 2 + Math.sin(i * 7) * (60 + i * 6), y, w, 3); }
+  // ---- longship sail (left), with knot rune
+  c.save(); c.translate(90, 0); c.strokeStyle = '#2A1408'; c.lineWidth = 22; c.beginPath(); c.moveTo(250, -20); c.lineTo(250, 1100); c.stroke();
+  c.lineWidth = 16; c.beginPath(); c.moveTo(-120, 120); c.lineTo(760, 80); c.stroke();
+  c.beginPath(); c.moveTo(-110, 128); c.quadraticCurveTo(320, 140, 740, 92); c.quadraticCurveTo(700, 420, 760, 700); c.quadraticCurveTo(300, 760, -120, 720); c.closePath(); g = c.createLinearGradient(0, 100, 600, 700); g.addColorStop(0, '#F6EAD3'); g.addColorStop(1, '#D9B98E'); c.fillStyle = g; c.fill();
+  // red stripes like a viking sail
+  c.save(); c.clip(); c.fillStyle = 'rgba(178,48,28,0.85)'; for (let i = 0; i < 4; i++) c.fillRect(-140 + i * 230, 60, 110, 720); c.restore();
+  c.strokeStyle = 'rgba(42,20,8,0.6)'; c.lineWidth = 2; for (let i = 0; i < 8; i++) { c.beginPath(); c.moveTo(250, 40); c.lineTo(-100 + i * 120, 1100); c.stroke(); }
+  c.restore();
+  const vg = c.createLinearGradient(0, 0, 1100, 0); vg.addColorStop(0, 'rgba(8,10,14,0.55)'); vg.addColorStop(1, 'rgba(8,10,14,0)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
+  // ---- hat photo card (right)
+  const cw = 980, ch = cw * hat.height / hat.width, cx = 1340, cy = 520;
+  c.save(); c.translate(cx, cy); c.rotate(0.04); c.shadowColor = 'rgba(255,170,60,0.9)'; c.shadowBlur = 90; rr(-cw / 2 - 14, -ch / 2 - 14, cw + 28, ch + 28, 30); c.fillStyle = ORA; c.fill(); c.shadowColor = 'transparent';
+  rr(-cw / 2 - 6, -ch / 2 - 6, cw + 12, ch + 12, 26); c.fillStyle = '#fff'; c.fill();
+  c.save(); rr(-cw / 2, -ch / 2, cw, ch, 22); c.clip(); c.drawImage(hat, -cw / 2, -ch / 2, cw, ch); const ig = c.createRadialGradient(0, 0, ch * 0.3, 0, 0, cw * 0.65); ig.addColorStop(0, 'rgba(0,0,0,0)'); ig.addColorStop(1, 'rgba(0,0,0,0.35)'); c.fillStyle = ig; c.fillRect(-cw / 2, -ch / 2, cw, ch); c.restore(); c.restore();
+  // ---- headline
+  function word(s, x, y, size, fill, sx = 0.84, rot = -0.03) { c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = D(size); c.textAlign = 'left'; c.textBaseline = 'middle'; c.letterSpacing = '-2px'; c.lineJoin = 'round';
+    c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillText(s, 10, 14); c.lineWidth = size * 0.15; c.strokeStyle = INK; c.strokeText(s, 0, 0);
+    if (Array.isArray(fill)) { const gg = c.createLinearGradient(0, -size / 2, 0, size / 2); fill.forEach((f, i) => gg.addColorStop(i / (fill.length - 1), f)); c.fillStyle = gg; } else c.fillStyle = fill; c.fillText(s, 0, 0); c.restore(); }
+  word('THE', 70, 470, 120, '#FFFFFF');
+  word('FLOKI', 60, 640, 230, ['#FFE2A8', ORA2, ORA], 0.84);
+  word('HAT', 70, 830, 200, '#FFFFFF');
+  // token · clothing · utility chips
+  ['TOKEN', 'CLOTHING', 'UTILITY'].forEach((t, i) => { const x = 70 + i * 250, y = 985; c.save(); c.translate(x, y); c.rotate(-0.03); rr(0, -40, 230, 80, 40); c.fillStyle = i === 1 ? ORA : 'rgba(10,10,14,0.85)'; c.fill(); c.lineWidth = 4; c.strokeStyle = i === 1 ? INK : ORA; c.stroke(); c.font = D(38); c.fillStyle = i === 1 ? INK : '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(t, 115, 3); c.restore(); });
+  // ---- Floki mascot sticker (white outline), overlapping the card corner like the original
+  const ps = 380, pw = ps, ph = ps * pup.height / pup.width, px = 640, py = 60;
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+  for (let a = 0; a < 32; a++) o.drawImage(pup, px + Math.cos(a / 32 * TAU) * 14, py + Math.sin(a / 32 * TAU) * 14, pw, ph);
+  o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
+  c.save(); c.translate(px + pw / 2, py + ph / 2); c.rotate(-0.12); c.translate(-(px + pw / 2), -(py + ph / 2)); c.shadowColor = 'rgba(0,0,0,0.55)'; c.shadowBlur = 30; c.shadowOffsetY = 12; c.drawImage(off, 0, 0); c.shadowColor = 'transparent'; c.drawImage(pup, px, py, pw, ph); c.restore();
+  // sparkles
+  const spark = (x, y, s, col) => { c.save(); c.translate(x, y); c.beginPath(); c.moveTo(s, 0); for (let i = 1; i <= 4; i++) { const a = i * TAU / 4; c.quadraticCurveTo(0, 0, Math.cos(a) * s, Math.sin(a) * s); } c.closePath(); c.fillStyle = col; c.fill(); c.restore(); };
+  [[1880, 120, 34, '#fff'], [600, 520, 26, ORA2], [1050, 1010, 30, '#fff']].forEach(([x, y, s, col]) => spark(x, y, s, col));
+  document.body.dataset.ready = '1';
+})();
+</script></body></html>
