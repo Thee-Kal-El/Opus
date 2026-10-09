@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>90% Off Games Thumbnail</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="s" width="1920" height="1080"></canvas>
+<script>
+// "90% OFF GAMES" (eneba) — YouTube thumbnail, 1920x1080. Eneba purple with its orange/pink/teal accents, a giant burning 90% OFF,
+// a fanned stack of game-key price cards (prices from the video), a "$74 SAVED" receipt and the creator cutout.
+(async () => {
+  const c = document.getElementById('s').getContext('2d'), W = 1920, H = 1080, TAU = Math.PI * 2;
+  const PUR = '#4A1FB8', DEEP = '#1E0A5E', YEL = '#FFD21F', ORA = '#FF8A1F', PINK = '#FF3D7F', TEAL = '#21D1B0', INK = '#0B0618';
+  const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`, MONO = (s) => `800 ${s}px "JetBrains Mono", monospace`;
+  await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40)), document.fonts.load(G(600, 40)), document.fonts.load(MONO(30))]);
+  const me = new Image(); me.src = 'kal_cutout.png'; await me.decode();
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
+  const hash = (a, b = 0) => { let n = Math.imul(a | 0, 73856093) ^ Math.imul(b | 0, 19349663); n = Math.imul(n ^ (n >>> 15), 0x2c1b3c6d); n ^= n >>> 12; return (n >>> 0) / 4294967296; };
+  // ---- background
+  let g = c.createRadialGradient(640, 420, 0, 640, 420, 1500); g.addColorStop(0, '#6A35FF'); g.addColorStop(0.45, PUR); g.addColorStop(1, DEEP); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  c.save(); c.translate(560, 420); for (let i = 0; i < 30; i++) { c.rotate(TAU / 30); if (i % 2) continue; c.beginPath(); c.moveTo(0, 0); c.lineTo(-120, -1700); c.lineTo(120, -1700); c.closePath(); c.fillStyle = 'rgba(255,255,255,0.055)'; c.fill(); } c.restore();
+  // eneba-colored confetti blobs
+  [[ORA, 1500, 80, 160], [PINK, 120, 980, 200], [TEAL, 1830, 980, 180], [YEL, 1000, 40, 90]].forEach(([col, x, y, r]) => { const gg = c.createRadialGradient(x, y, 0, x, y, r * 3); gg.addColorStop(0, col + 'AA'); gg.addColorStop(1, col + '00'); c.fillStyle = gg; c.fillRect(0, 0, W, H); });
+  for (let i = 0; i < 60; i++) { const x = hash(i) * W, y = hash(i, 1) * H, s = 8 + hash(i, 2) * 14; c.save(); c.translate(x, y); c.rotate(hash(i, 3) * 6); c.fillStyle = [ORA, PINK, TEAL, YEL][i % 4]; c.globalAlpha = 0.7; c.fillRect(-s / 2, -s / 4, s, s / 2); c.restore(); }
+  // ---- "90% OFF" with fire-gradient fill
+  function big(s, x, y, size, fill, rot = -0.05, sx = 0.84) { c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = 'italic ' + D(size); c.textAlign = 'left'; c.textBaseline = 'middle'; c.letterSpacing = '-6px'; c.lineJoin = 'round';
+    c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillText(s, 14, 20); c.lineWidth = size * 0.14; c.strokeStyle = INK; c.strokeText(s, 0, 0); c.fillStyle = fill; c.fillText(s, 0, 0); c.restore(); }
+  g = c.createLinearGradient(0, -170, 0, 170); g.addColorStop(0, '#FFF6A8'); g.addColorStop(0.45, YEL); g.addColorStop(1, ORA);
+  big('90%', 50, 300, 400, g);
+  big('OFF', 860, 290, 230, '#FFFFFF');
+  // GAMES ribbon
+  c.save(); c.translate(80, 560); c.rotate(-0.05); rr(0, -70, 760, 140, 20); c.fillStyle = PINK; c.shadowColor = 'rgba(0,0,0,0.5)'; c.shadowBlur = 30; c.shadowOffsetY = 12; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 9; c.strokeStyle = INK; c.stroke();
+  c.save(); c.scale(0.86, 1); c.font = 'italic ' + D(116); c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.letterSpacing = '-3px'; c.fillText('ON GAMES!!', 40, 6); c.restore(); c.restore();
+  // ---- game key cards (prices from the video)
+  function keyCard(x, y, rot, title, price, col) { const w = 520, h = 160; c.save(); c.translate(x, y); c.rotate(rot); c.shadowColor = 'rgba(0,0,0,0.55)'; c.shadowBlur = 34; c.shadowOffsetY = 14; rr(-w / 2, -h / 2, w, h, 20); c.fillStyle = '#2A1478'; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 5; c.strokeStyle = col; c.stroke();
+    // cover tile
+    rr(-w / 2 + 16, -h / 2 + 16, 110, h - 32, 12); const cg = c.createLinearGradient(0, -h / 2, 0, h / 2); cg.addColorStop(0, col); cg.addColorStop(1, INK); c.fillStyle = cg; c.fill();
+    c.save(); c.translate(-w / 2 + 71, 0); c.strokeStyle = '#fff'; c.lineWidth = 7; c.lineCap = 'round'; c.beginPath(); c.arc(-12, -10, 18, 0, TAU); c.stroke(); c.beginPath(); c.moveTo(2, 2); c.lineTo(28, 28); c.moveTo(18, 18); c.lineTo(10, 26); c.moveTo(24, 24); c.lineTo(16, 32); c.stroke(); c.restore();
+    c.font = G(800, 32); c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(title, -w / 2 + 146, -36); c.font = G(600, 22); c.fillStyle = TEAL; c.fillText('STEAM KEY · GLOBAL', -w / 2 + 146, 0);
+    c.font = D(56); c.fillStyle = '#fff'; c.fillText(price, -w / 2 + 146, 44); rr(w / 2 - 170, 14, 150, 52, 10); c.fillStyle = YEL; c.fill(); c.font = G(800, 26); c.fillStyle = INK; c.textAlign = 'center'; c.fillText('Buy now', w / 2 - 95, 41); c.restore(); }
+  keyCard(470, 760, -0.06, 'Back 4 Blood', '$2.27', ORA);
+  keyCard(560, 930, 0.03, 'GTA V Premium', '$10.42', PINK);
+  keyCard(1040, 845, -0.03, 'Hogwarts Legacy', '$18.40', TEAL);
+  // ---- receipt "$74 SAVED"
+  c.save(); c.translate(1090, 575); c.rotate(0.08); c.shadowColor = 'rgba(0,0,0,0.5)'; c.shadowBlur = 30; c.beginPath(); c.moveTo(-150, -150); c.lineTo(150, -150); c.lineTo(150, 130); for (let i = 0; i <= 10; i++) c.lineTo(150 - i * 30, 130 + (i % 2 ? 18 : 0)); c.closePath(); c.fillStyle = '#fff'; c.fill(); c.shadowColor = 'transparent';
+  c.font = MONO(24); c.fillStyle = '#666'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('YOU SAVED', 0, -108); c.font = D(110); c.fillStyle = '#18A957'; c.fillText('$74', 0, -18); c.font = MONO(22); c.fillStyle = '#666'; c.fillText('- - - - - - - - - -', 0, 54); c.font = G(800, 28); c.fillStyle = INK; c.fillText('IN 5 MINUTES', 0, 92); c.restore();
+  // ---- creator cutout + yellow glow
+  const ph = 1030, pw = ph * me.width / me.height, px = W - pw + 30, py = H - ph + 60;
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+  for (let a = 0; a < 24; a++) o.drawImage(me, px + Math.cos(a / 24 * TAU) * 11, py + Math.sin(a / 24 * TAU) * 11, pw, ph);
+  o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
+  c.save(); c.shadowColor = 'rgba(255,210,31,0.85)'; c.shadowBlur = 55; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
+  // STOP PAYING FULL PRICE tag over his shoulder
+  c.save(); c.translate(1600, 80); c.rotate(0.04); rr(-290, -48, 580, 96, 14); c.fillStyle = '#FF2A2A'; c.fill(); c.lineWidth = 6; c.strokeStyle = '#fff'; c.stroke(); c.font = D(40); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('STOP PAYING FULL PRICE', 0, 3); c.restore();
+  document.body.dataset.ready = '1';
+})();
+</script></body></html>
