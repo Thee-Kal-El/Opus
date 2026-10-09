@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Argus Shorts Thumbnail</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="s" width="1080" height="1920"></canvas>
+<script>
+// Argus (argus.world) YouTube Shorts thumbnail, 1080x1920. Dark purple terminal glow, giant "LAUNCH YOUR OWN TOKEN ON ARC",
+// real panels from the Argus film (King of the Hill, Contenders, Buy/Sell), a pumping chart line and the creator pointing at Buy.
+(async () => {
+  const c = document.getElementById('s').getContext('2d'), W = 1080, H = 1920, TAU = Math.PI * 2;
+  const PUR = '#8B5CF6', VIO = '#A98BFF', YEL = '#FFD84A', GRN = '#22C55E', BG = '#07060B';
+  const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
+  await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40)), document.fonts.load(G(600, 40))]);
+  const L = async (s) => { const im = new Image(); im.src = s; await im.decode(); return im; };
+  const [me, koth, cont, buy] = await Promise.all(['kal_cutout.png', 'argus_koth.png', 'argus_contenders.png', 'argus_buysell.png'].map(L));
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
+  function eye(x, y, r) { c.save(); c.translate(x, y); c.strokeStyle = '#fff'; c.lineWidth = r * 0.12; c.beginPath(); c.arc(0, 0, r, 0, TAU); c.stroke();
+    for (let k = 0; k < 12; k++) { const a = k / 12 * TAU; c.beginPath(); c.moveTo(Math.cos(a) * r * 1.15, Math.sin(a) * r * 1.15); c.lineTo(Math.cos(a) * r * 1.35, Math.sin(a) * r * 1.35); c.lineWidth = r * 0.07; c.stroke(); }
+    c.beginPath(); c.moveTo(-r * 0.72, 0); c.quadraticCurveTo(0, -r * 0.62, r * 0.72, 0); c.quadraticCurveTo(0, r * 0.62, -r * 0.72, 0); c.fillStyle = '#fff'; c.fill();
+    c.beginPath(); c.arc(0, 0, r * 0.3, 0, TAU); c.fillStyle = PUR; c.fill(); c.beginPath(); c.arc(0, 0, r * 0.13, 0, TAU); c.fillStyle = '#0B0814'; c.fill(); c.restore(); }
+  function word(s, x, y, size, fill, sx = 0.86, rot = 0, stroke = '#05030C') {
+    c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = D(size); c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '-2px'; c.lineJoin = 'round';
+    c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillText(s, 10, 16); c.lineWidth = size * 0.16; c.strokeStyle = stroke; c.strokeText(s, 0, 0);
+    if (Array.isArray(fill)) { const g = c.createLinearGradient(0, -size / 2, 0, size / 2); fill.forEach((f, i) => g.addColorStop(i / (fill.length - 1), f)); c.fillStyle = g; } else c.fillStyle = fill; c.fillText(s, 0, 0); c.restore();
+  }
+  function panel(im, x, y, w, rot, glow = PUR) { const h = w * im.height / im.width; c.save(); c.translate(x, y); c.rotate(rot); c.shadowColor = glow; c.shadowBlur = 70; rr(-w / 2 - 6, -h / 2 - 6, w + 12, h + 12, 26); c.fillStyle = glow; c.fill(); c.shadowBlur = 0; c.save(); rr(-w / 2, -h / 2, w, h, 22); c.clip(); c.drawImage(im, -w / 2, -h / 2, w, h); c.restore(); c.restore(); }
+  // ---- background: deep purple glow, grid, rays
+  c.fillStyle = BG; c.fillRect(0, 0, W, H);
+  let g = c.createRadialGradient(W / 2, 1000, 0, W / 2, 1000, 1200); g.addColorStop(0, 'rgba(139,92,246,0.55)'); g.addColorStop(0.5, 'rgba(90,40,200,0.25)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  c.save(); c.translate(W / 2, 1000); for (let i = 0; i < 24; i++) { c.rotate(TAU / 24); if (i % 2) continue; c.beginPath(); c.moveTo(0, 0); c.lineTo(-110, -1700); c.lineTo(110, -1700); c.closePath(); c.fillStyle = 'rgba(169,139,255,0.07)'; c.fill(); } c.restore();
+  c.strokeStyle = 'rgba(169,139,255,0.08)'; c.lineWidth = 1; for (let x = 0; x <= W; x += 60) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); } for (let y = 0; y <= H; y += 60) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
+  // pumping chart line across the middle
+  c.save(); c.lineJoin = 'round'; c.lineCap = 'round'; const pts = [[-20, 1500], [140, 1460], [250, 1490], [370, 1360], [470, 1400], [580, 1230], [680, 1270], [800, 1050], [900, 1090], [1100, 820]];
+  c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.lineTo(1100, H); c.lineTo(-20, H); c.closePath(); g = c.createLinearGradient(0, 820, 0, 1700); g.addColorStop(0, 'rgba(34,197,94,0.35)'); g.addColorStop(1, 'rgba(34,197,94,0)'); c.fillStyle = g; c.fill();
+  c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.strokeStyle = GRN; c.lineWidth = 14; c.shadowColor = GRN; c.shadowBlur = 40; c.stroke(); c.restore();
+  // ---- brand
+  eye(W / 2 - 190, 115, 40); c.font = G(700, 66); c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText('argus.world', W / 2 - 120, 118);
+  // ---- headline
+  word('LAUNCH YOUR', W / 2, 295, 140, '#FFFFFF', 0.86, -0.03);
+  word('OWN TOKEN', W / 2, 465, 196, ['#FFF1A0', YEL, '#FF9F1A'], 0.84, -0.03);
+  word('ON ARC!!', W / 2, 640, 170, ['#D9C9FF', VIO, PUR], 0.86, -0.03, '#0A0418');
+  // ---- panels: Contenders (back, left), King of the Hill (front), Buy/Sell (right, bottom)
+  panel(cont, 470, 1040, 760, -0.06, PUR);
+  // crown + "KING OF THE HILL" tab on the koth card
+  c.save(); c.translate(300, 745); c.rotate(-0.1); rr(-210, -46, 420, 92, 46); c.fillStyle = YEL; c.fill(); c.lineWidth = 6; c.strokeStyle = '#05030C'; c.stroke();
+  c.beginPath(); c.moveTo(-178, 14); c.lineTo(-182, -18); c.lineTo(-164, -2); c.lineTo(-152, -24); c.lineTo(-140, -2); c.lineTo(-122, -18); c.lineTo(-126, 14); c.closePath(); c.fillStyle = '#05030C'; c.fill();
+  c.font = D(40); c.fillStyle = '#05030C'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText('CONTENDERS', -104, 2); c.restore();
+  panel(buy, 800, 1480, 460, 0.07, PUR);
+  // ---- creator cutout with sticker outline
+  const ph = 900, pw = ph * me.width / me.height, px = -40, py = H - ph + 40;
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+  for (let a = 0; a < 24; a++) o.drawImage(me, px + Math.cos(a / 24 * TAU) * 12, py + Math.sin(a / 24 * TAU) * 12, pw, ph);
+  o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
+  c.save(); c.shadowColor = 'rgba(139,92,246,0.9)'; c.shadowBlur = 70; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
+  // ---- red arrow to the Buy button
+  c.save(); c.translate(560, 1330); c.rotate(-0.55); c.shadowColor = 'rgba(0,0,0,0.5)'; c.shadowBlur = 24; c.shadowOffsetY = 10;
+  c.beginPath(); c.moveTo(-130, -32); c.lineTo(70, -32); c.lineTo(70, -90); c.lineTo(195, 0); c.lineTo(70, 90); c.lineTo(70, 32); c.lineTo(-130, 32); c.closePath(); c.fillStyle = '#FF2A2A'; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 10; c.strokeStyle = '#fff'; c.lineJoin = 'round'; c.stroke(); c.restore();
+  // ---- sparkles
+  const spark = (x, y, s, col) => { c.save(); c.translate(x, y); c.beginPath(); c.moveTo(s, 0); for (let i = 1; i <= 4; i++) { const a = i * TAU / 4; c.quadraticCurveTo(0, 0, Math.cos(a) * s, Math.sin(a) * s); } c.closePath(); c.fillStyle = col; c.fill(); c.restore(); };
+  [[80, 290, 38, '#fff'], [1010, 450, 40, '#fff'], [990, 700, 26, VIO]].forEach(([x, y, s, col]) => spark(x, y, s, col));
+  document.body.dataset.ready = '1';
+})();
+</script></body></html>
