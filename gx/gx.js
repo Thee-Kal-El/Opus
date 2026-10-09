@@ -72,8 +72,11 @@
     c.fillStyle = 'rgba(7,8,12,0.35)'; c.fillRect(0, 0, W, H);
     // section label slam + counter
     const lk = crit(prog(t, s0, s0 + 0.18)); if (t - s0 < 0.5) { c.save(); c.globalAlpha = 1 - prog(t, s0 + 0.38, s0 + 0.5); slam(c, label, W / 2, H / 2, lerp(380, 300, lk), lk); c.restore(); }
-    c.save(); c.globalAlpha = A(t, s0 + 0.3, 0.3); const cnt = Math.round(lerp(0, count, ease(t, s0 + 0.3, s0 + 0.9))); rr(c, 60, V ? 150 : 60, V ? 380 : 360, 92, 18); c.fillStyle = 'rgba(14,15,22,0.85)'; c.fill(); c.strokeStyle = '#2C2F3C'; c.lineWidth = 2; c.stroke();
-    txt(c, label[0] + label.slice(1).toLowerCase(), 96, (V ? 150 : 60) + 46, G(600, 40), INK); rr(c, (V ? 380 : 360) - 40, (V ? 150 : 60) + 26, 74, 40, 20); c.fillStyle = '#262938'; c.fill(); txt(c, String(cnt), (V ? 380 : 360) - 3, (V ? 150 : 60) + 47, M(600, 24), MUTE, 'center'); c.restore();
+    // section pill: centered and large, label + live count
+    c.save(); c.globalAlpha = A(t, s0 + 0.3, 0.3); const cnt = Math.round(lerp(0, count, ease(t, s0 + 0.3, s0 + 0.9))), nm = label[0] + label.slice(1).toLowerCase(), lf = G(600, V ? 116 : 64), bw = V ? 200 : 120, bh = V ? 104 : 64, gap = V ? 44 : 30;
+    const lw = (c.font = lf, c.measureText(nm).width), PW = lw + gap + bw + (V ? 120 : 100), PH = V ? 210 : 124, px = W / 2 - PW / 2, py = V ? 270 : 46, cy = py + PH / 2;
+    rr(c, px, py, PW, PH, PH / 2); c.fillStyle = 'rgba(14,15,22,0.88)'; c.fill(); c.strokeStyle = '#2C2F3C'; c.lineWidth = 3; c.stroke();
+    const x0 = W / 2 - (lw + gap + bw) / 2; txt(c, nm, x0, cy + 2, lf, INK); rr(c, x0 + lw + gap, cy - bh / 2, bw, bh, bh / 2); c.fillStyle = '#262938'; c.fill(); txt(c, String(cnt), x0 + lw + gap + bw / 2, cy + 2, M(600, V ? 58 : 36), MUTE, 'center'); c.restore();
     // hero card
     const hi = HEROES.filter(([t0]) => t >= t0).pop(); if (!hi) return; const [t0, key, name, by, plays] = hi, next = HEROES.find(([tt]) => tt > t0), dur = Math.min(0.5, (next ? next[0] : t0 + 0.5) - t0);
     if (t > t0 + dur + 0.01 || t < s0 + 0.45) return; const k = io5(prog(t, t0, t0 + Math.min(0.16, dur * 0.5))), hw = V ? 940 : 1120, hh = hw * 0.556, x = W / 2, y = H / 2 - (V ? 40 : 30);
