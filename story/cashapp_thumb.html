@@ -58,7 +58,7 @@
   c.save(); c.shadowColor = 'rgba(0,0,0,0.6)'; c.shadowBlur = 50; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
   // "REAL TIME" burst bottom right
   c.save(); c.translate(800, 1640); c.rotate(0.08); c.beginPath(); for (let i = 0; i < 28; i++) { const a = i / 28 * TAU, r = i % 2 ? 118 : 146; c.lineTo(Math.cos(a) * r * 1.5, Math.sin(a) * r); } c.closePath(); c.fillStyle = YEL; c.shadowColor = 'rgba(0,0,0,0.45)'; c.shadowBlur = 26; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 8; c.strokeStyle = INK; c.stroke();
-  c.font = D(48); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('SPEND IT', 0, -26); c.fillText('IN REAL TIME', 0, 30); c.restore();
+  c.font = D(48); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('SPEND IT', 0, -26); c.fillText('INSTANTLY!', 0, 30); c.restore();
   document.body.dataset.ready = '1';
 })();
 </script></body></html>
