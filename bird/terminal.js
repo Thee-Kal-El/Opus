@@ -6,7 +6,7 @@
 (() => {
   'use strict';
   const K = window.KIT, { C, F, M, TAU, clamp, lerp, prog, io3, io5, o3, crit, pop, A, hash, rng, rgba, rr, text } = K;
-  const W = 1920, H = 1080, FPS = 60, DUR = 26;
+  const V = !!window.VERTICAL, W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 26; // V: 9:16 edition (own camera keys + captions)
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
 
   // ---------- world layout: the real Birdeye home terminal (after the 2nd dashboard screenshot) ----------
@@ -46,6 +46,17 @@
     [14.0, 1435, 860, L(2.0)], [15.65, 1435, 870, L(2.15)],                   // WHALE TRADES
     [16.0, 960, 540, L(1.0)], [22.0, 960, 540, L(1.08)], [26.0, 960, 540, L(1.12)],
   ];
+
+  // vertical: same moves, re-framed so each panel fills the 1080px width (full shots show the whole terminal width)
+  if (V) KEYS.splice(0, KEYS.length,
+    [0.0, DOT[0], DOT[1], L(3.2)], [0.9, DOT[0], DOT[1], L(3.2)], [1.6, 241, 382, L(1.7)], [2.0, 260, 382, L(1.3)],
+    [2.6, 960, 560, L(0.56)], [5.65, 960, 560, L(0.585)],
+    [6.0, 240, rowYT(5), L(2.7)], [7.65, 245, rowYT(5), L(2.85)],            // TRENDING
+    [8.0, 716, 300, L(2.25)], [9.65, 716, 310, L(2.35)],                      // SMART MONEY
+    [10.0, 1435, 382, L(1.1)], [11.65, 1435, 382, L(1.14)],                   // BUBBLE MAP
+    [12.0, 479, 866, L(1.12)], [13.65, 479, 866, L(1.16)],                    // FIND GEMS
+    [14.0, 1435, 866, L(1.1)], [15.65, 1435, 866, L(1.14)],                   // WHALE TRADES
+    [16.0, 960, 560, L(0.56)], [22.0, 960, 560, L(0.6)], [26.0, 960, 560, L(0.62)]);
 
 
   function camera(t) {
@@ -242,7 +253,7 @@
     c.fillStyle = 'rgba(5,5,5,0.88)'; c.fillRect(0, 0, W, H);
     c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, 800); g.addColorStop(0, rgba(C.orange, 0.22)); g.addColorStop(1, rgba(C.orange, 0)); c.fillStyle = g; c.fillRect(0, 0, W, H); c.globalCompositeOperation = 'source-over';
     const lk = A(t, 22.0, 0.6, crit);
-    c.translate(W / 2, H / 2 - 20); c.scale(lerp(1.4, 1, lk), lerp(1.4, 1, lk)); c.globalAlpha = k * clamp(lk * 2);
+    c.translate(W / 2, H / 2 - 20); c.scale(lerp(1.4, 1, lk) * (V ? 0.85 : 1), lerp(1.4, 1, lk) * (V ? 0.85 : 1)); c.globalAlpha = k * clamp(lk * 2);
     K.wordmark(c, -285, 0, 130);
     c.globalAlpha = k * A(t, 22.5, 0.4);
     text(c, 'birdeye.so', 0, 140, F(600, 40), C.mute, 'center');
@@ -255,15 +266,15 @@
   function captions(c, t) {
     for (const [t0, t1, a, b] of CAPS) {
       if (t < t0 || t > t1) continue;
-      const k = io5(prog(t, t0, t0 + 0.22)), out = io3(prog(t, t1 - 0.2, t1)), x = 96, y = 900;
+      const k = io5(prog(t, t0, t0 + 0.22)), out = io3(prog(t, t1 - 0.2, t1)), x = V ? 60 : 96, y = V ? H - 290 : 900, gy = V ? H - 560 : 760;
       c.save(); c.globalAlpha = 1 - out;
-      const g = c.createLinearGradient(0, 760, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.5, 'rgba(0,0,0,0.75)'); g.addColorStop(1, 'rgba(0,0,0,0.9)'); c.fillStyle = g; c.fillRect(0, 760, W, H - 760);
+      const g = c.createLinearGradient(0, gy, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.5, 'rgba(0,0,0,0.75)'); g.addColorStop(1, 'rgba(0,0,0,0.9)'); c.fillStyle = g; c.fillRect(0, gy, W, H - gy);
       c.translate(x, y); c.scale(lerp(1.35, 1, k), lerp(1.35, 1, k));
-      c.font = F(900, 104); c.textBaseline = 'alphabetic'; c.letterSpacing = '-3px';
+      c.font = F(900, 104); c.textBaseline = 'alphabetic'; c.letterSpacing = '-3px'; if (V) { const fs = Math.min(104, 104 * (W - 120) / c.measureText(a).width); c.font = F(900, fs); }
       c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,60,60,0.6)'; c.fillText(a, -6 * (1 - k) - 2, 0); c.fillStyle = 'rgba(60,200,255,0.6)'; c.fillText(a, 6 * (1 - k) + 2, 0); c.globalCompositeOperation = 'source-over';
       c.fillStyle = '#FFFFFF'; c.fillText(a, 0, 0); const aw = c.measureText(a).width;
       c.fillStyle = C.orange; c.fillRect(0, 22, aw * io3(prog(t, t0 + 0.1, t0 + 0.4)), 7);
-      c.letterSpacing = '4px'; c.font = F(800, 34); c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.35); c.fillStyle = b.includes('+') ? C.green : C.orange; c.fillText(b, 4, 78);
+      c.letterSpacing = '4px'; c.font = F(800, V ? 36 : 34); c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.35); c.fillStyle = b.includes('+') ? C.green : C.orange; c.fillText(b, 4, 78);
       c.restore();
     }
     // chain sweep during EVERY CHAIN: orange highlight steps across the chain bar on 8th notes (world → screen)
@@ -287,6 +298,8 @@
     c.restore();
   }
 
+  // vertical only: brand header in the space above the terminal on wide shots
+  function header(c, t) { const k = A(t, 2.6, 0.5) * (1 - A(t, 21.6, 0.4)) * clamp((1.0 - CAM.z) / 0.25); if (k <= 0) return; c.save(); c.globalAlpha = k; K.wordmark(c, W / 2 - 230, 250, 90); c.restore(); }
   function renderAt(t) {
     t = clamp(t, 0, DUR - 1e-6); CAM = camera(t);
     const c = ctx; c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.shadowBlur = 0;
@@ -298,6 +311,7 @@
     if (t < 0.9) { /* only the dot */ } else if (1920 * CAM.z > 8) desktop(c, t);
     
     c.restore();
+    if (V) header(c, t);
     captions(c, t);
     openingDot(c, t);
     noselling(c, t);
