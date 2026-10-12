@@ -311,9 +311,9 @@
       if (t < t0 || t > t1) continue;
       const k = io5(prog(t, t0, t0 + 0.22)), out = io3(prog(t, t1 - 0.2, t1));
       c.save(); c.globalAlpha = 1 - out;
-      const gy = V ? H - 520 : 930, g = c.createLinearGradient(0, gy, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.6, 'rgba(0,0,0,0.8)'); g.addColorStop(1, 'rgba(0,0,0,0.92)'); c.fillStyle = g; c.fillRect(0, gy, W, H - gy);
-      c.translate(V ? 60 : 70, V ? H - 250 : 1010); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k));
-      c.font = F(900, V ? Math.min(84, 84 * (W - 120) / Math.max(1, (c.font = F(900, 84), c.measureText(a).width))) : 58); c.textBaseline = 'alphabetic'; c.letterSpacing = '-1.5px';
+      const gy = V ? 1080 : 930, gb = V ? 1580 : H, g = c.createLinearGradient(0, gy, 0, gb); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.55, 'rgba(0,0,0,0.8)'); g.addColorStop(1, V ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.92)'); c.fillStyle = g; c.fillRect(0, gy, W, gb - gy);
+      c.translate(V ? 60 : 70, V ? 1330 : 1010); /* V: above the platform UI overlay zone */ c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k));
+      c.font = F(900, V ? Math.min(84, 84 * (W - 230) / Math.max(1, (c.font = F(900, 84), c.measureText(a).width))) : 58); c.textBaseline = 'alphabetic'; c.letterSpacing = '-1.5px';
       c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,60,200,0.55)'; c.fillText(a, -6 * (1 - k) - 2, 0); c.fillStyle = 'rgba(80,160,255,0.55)'; c.fillText(a, 6 * (1 - k) + 2, 0); c.globalCompositeOperation = 'source-over';
       c.fillStyle = '#FFFFFF'; c.fillText(a, 0, 0); const aw = c.measureText(a).width;
       c.fillStyle = C.purple; c.fillRect(0, 14, aw * io3(prog(t, t0 + 0.1, t0 + 0.4)), 5);

@@ -266,11 +266,11 @@
   function captions(c, t) {
     for (const [t0, t1, a, b] of CAPS) {
       if (t < t0 || t > t1) continue;
-      const k = io5(prog(t, t0, t0 + 0.22)), out = io3(prog(t, t1 - 0.2, t1)), x = V ? 60 : 96, y = V ? H - 290 : 900, gy = V ? H - 560 : 760;
+      const k = io5(prog(t, t0, t0 + 0.22)), out = io3(prog(t, t1 - 0.2, t1)), x = V ? 60 : 96, y = V ? 1330 : 900, gy = V ? 1080 : 760; /* V: kept above the bottom ~470px where TikTok/Reels/Shorts overlay username + caption */
       c.save(); c.globalAlpha = 1 - out;
-      const g = c.createLinearGradient(0, gy, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.5, 'rgba(0,0,0,0.75)'); g.addColorStop(1, 'rgba(0,0,0,0.9)'); c.fillStyle = g; c.fillRect(0, gy, W, H - gy);
+      const gb = V ? 1580 : H, g = c.createLinearGradient(0, gy, 0, gb); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.5, 'rgba(0,0,0,0.75)'); g.addColorStop(1, V ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.9)'); c.fillStyle = g; c.fillRect(0, gy, W, gb - gy);
       c.translate(x, y); c.scale(lerp(1.35, 1, k), lerp(1.35, 1, k));
-      c.font = F(900, 104); c.textBaseline = 'alphabetic'; c.letterSpacing = '-3px'; if (V) { const fs = Math.min(104, 104 * (W - 120) / c.measureText(a).width); c.font = F(900, fs); }
+      c.font = F(900, 104); c.textBaseline = 'alphabetic'; c.letterSpacing = '-3px'; if (V) { const fs = Math.min(104, 104 * (W - 230) / c.measureText(a).width); /* clear of the right-side like/comment buttons */ c.font = F(900, fs); }
       c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,60,60,0.6)'; c.fillText(a, -6 * (1 - k) - 2, 0); c.fillStyle = 'rgba(60,200,255,0.6)'; c.fillText(a, 6 * (1 - k) + 2, 0); c.globalCompositeOperation = 'source-over';
       c.fillStyle = '#FFFFFF'; c.fillText(a, 0, 0); const aw = c.measureText(a).width;
       c.fillStyle = C.orange; c.fillRect(0, 22, aw * io3(prog(t, t0 + 0.1, t0 + 0.4)), 7);
