@@ -43,7 +43,7 @@
     c.beginPath(); c.moveTo(-w / 2 + 10, -h / 2 + 10); c.lineTo(0, h * 0.08); c.lineTo(w / 2 - 10, -h / 2 + 10); c.lineWidth = w * 0.025; c.strokeStyle = '#C9C2EE'; c.lineJoin = 'round'; c.stroke(); c.restore(); }
   function shield(c, x, y, s, k = 1) { if (k <= 0) return; c.save(); c.translate(x, y); c.scale(s / 500 * k, s / 500 * k); c.shadowColor = 'rgba(169,149,255,0.95)'; c.shadowBlur = 90;
     c.beginPath(); c.moveTo(0, -250); c.quadraticCurveTo(150, -200, 230, -210); c.quadraticCurveTo(250, 120, 0, 270); c.quadraticCurveTo(-250, 120, -230, -210); c.quadraticCurveTo(-150, -200, 0, -250); c.closePath(); c.fillStyle = '#fff'; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 12; c.strokeStyle = PUR; c.stroke();
-    const im = IMG.proton_logo; if (im) { const lw = 300, lh = lw * im.height / im.width; c.drawImage(im, -lw / 2, -lh / 2 + 10, lw, lh); } c.restore(); }
+    const im = IMG.proton_logo; if (im) { const lw = 290, lh = lw * im.height / im.width; c.drawImage(im, -lw / 2, -lh / 2 - 30, lw, lh); /* optical centre of the shield */ } c.restore(); }
   function lockBadge(c, x, y, r, closed = 1, col = GRN) { c.save(); c.translate(x, y); c.beginPath(); c.arc(0, 0, r, 0, TAU); c.fillStyle = col; c.fill(); c.lineWidth = r * 0.11; c.strokeStyle = '#fff'; c.stroke(); const u = r / 70;
     c.fillStyle = '#fff'; rr(c, -30 * u, -6 * u, 60 * u, 46 * u, 8 * u); c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 9 * u; c.beginPath(); const lift = (1 - closed) * 16 * u; c.moveTo(-20 * u, -6 * u - lift); c.lineTo(-20 * u, -16 * u - lift); c.arc(0, -16 * u - lift, 20 * u, Math.PI, 0); c.lineTo(20 * u, -6 * u - lift * (closed < 1 ? 2 : 1)); c.stroke(); c.fillStyle = col; c.beginPath(); c.arc(0, 14 * u, 7 * u, 0, TAU); c.fill(); c.restore(); }
   function card(c, k, cx, cy, w, rot, glow = PUR) { const im = IMG[k]; if (!im) return; const h = w * im.height / im.width; c.save(); c.translate(cx, cy); c.rotate(rot); c.shadowColor = rgba(glow, 0.8); c.shadowBlur = 70; rr(c, -w / 2 - 12, -h / 2 - 12, w + 24, h + 24, 34); c.fillStyle = LAV; c.fill(); c.shadowColor = 'transparent'; c.save(); rr(c, -w / 2, -h / 2, w, h, 26); c.clip(); c.drawImage(im, -w / 2, -h / 2, w, h); c.restore(); c.restore(); }
@@ -53,10 +53,10 @@
     [12.5, 15.35, 'TRUSTED BY', 'MILLIONS WORLDWIDE', PUR2]];
   function captions(c, t) { for (const [t0, t1, a, b, col] of CAPS) { if (t < t0 || t > t1) continue; const k = io5(prog(t, t0, t0 + 0.22)), out = io3(prog(t, t1 - 0.2, t1));
     c.save(); c.globalAlpha = 1 - out; const g = c.createLinearGradient(0, 1150, 0, 1560); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.5, 'rgba(7,4,26,0.8)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 1150, W, 410);
-    c.translate(W / 2, 1330); c.textAlign = 'center'; c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k)); c.font = G(900, 92); c.letterSpacing = '-2px'; const fs = Math.min(92, 92 * (W - 260) / c.measureText(a).width); c.font = G(900, fs); c.textBaseline = 'alphabetic';
+    c.translate(70, 1330); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k)); c.font = G(900, 92); c.letterSpacing = '-2px'; const fs = Math.min(92, 92 * (W - 260) / c.measureText(a).width); c.font = G(900, fs); c.textBaseline = 'alphabetic';
     c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,60,200,0.5)'; c.fillText(a, -6 * (1 - k) - 2, 0); c.fillStyle = 'rgba(80,160,255,0.5)'; c.fillText(a, 6 * (1 - k) + 2, 0); c.globalCompositeOperation = 'source-over';
-    c.fillStyle = '#fff'; c.fillText(a, 0, 0); const aw = c.measureText(a).width; c.fillStyle = col; const ul = aw * io3(prog(t, t0 + 0.1, t0 + 0.4)); c.fillRect(-ul / 2, 18, ul, 7);
-    c.letterSpacing = '3px'; c.font = G(800, 44); c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.35); c.fillStyle = col; c.fillText(b, 0, 80); c.letterSpacing = '0px'; c.restore(); } }
+    c.fillStyle = '#fff'; c.fillText(a, 0, 0); const aw = c.measureText(a).width; c.fillStyle = col; c.fillRect(0, 18, aw * io3(prog(t, t0 + 0.1, t0 + 0.4)), 7);
+    c.letterSpacing = '3px'; c.font = G(800, 44); c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.35); c.fillStyle = col; c.fillText(b, 2, 80); c.letterSpacing = '0px'; c.restore(); } }
 
   // ---------- S1 hook: surveillance (0–3) ----------
   function hook(c, t) {

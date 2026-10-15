@@ -17,7 +17,8 @@ function put(i, l, r, rev = 0, dly = 0) { if (i < 0 || i >= N) return; L[i] += l
 
 // ---- harmony ----
 const CH = { F: [41, [0, 4, 7, 11]], C: [36, [0, 4, 7, 9]], Dm: [38, [0, 3, 7, 10]], Bb: [34, [0, 4, 7, 9]] };
-const BARS = ['Dm', 'Bb', 'F', 'C'];
+CH.Gm = [31, [0, 3, 7, 10]]; CH.A = [33, [0, 4, 7, 10]];
+const BARS = ['Dm', 'Bb', 'Gm', 'A'];
 const chordAt = (t) => CH[BARS[Math.floor(t / 2) % 4]];
 const KICKS = [];
 const duck = (t) => { let g = 1; for (const k of KICKS) { const d = t - k; if (d >= 0 && d < 0.35) g = Math.min(g, 1 - 0.55 * Math.exp(-d * 11)); } return g; };
@@ -122,12 +123,17 @@ function e808(t0, dur, m, g = 1) { let ph = 0; for (let n = 0; n < dur * SR; n++
 function roll(t0, t1, g = 1) { const n = Math.round((t1 - t0) / 0.0625); for (let k = 0; k < n; k++) snap(t0 + k * 0.0625, (0.1 + 0.6 * k / n) * g); }
 const bassOf = (root) => 24 + ((root % 12) + 12) % 12;
 const SEQ = [0, 2, 1, 3, 2, 0, 3, 1];
+// cyberpunk groove: four-on-the-floor, rolling 16th reese bass, gated neon chord stabs, 16th arps through the delay, sub 808 on each bar
+const BASSPAT = [0, 0, 12, 0, 0, 12, 0, 7, 0, 0, 12, 0, 10, 0, 12, 7];
 function groove(t0, t1, o = {}) {
-  for (let t = t0; t < t1 - 1e-6; t += BT) { const b = Math.round(t / BT), [root] = chordAt(t);
-    if (!o.half || b % 2 === 0) bigKick(t, o.kick ?? 1); if (b % 2 === 1) { clap(t, 0.5); snap(t, 0.45); } hat(t + BT / 2, 0.11, b % 4 === 3, 0.2); hat(t + BT / 4, 0.05, false, -0.3); hat(t + BT * 0.75, 0.06, false, 0.3);
-    reese(t, BT * 0.45, bassOf(root), o.bass ?? 0.8); bassNote(t + BT / 2, BT * 0.42, bassOf(root) + 12, (o.bass ?? 1) * 0.7, 50); }
-  for (let t = t0; t < t1 - 1e-6; t += 1) [0, 0.375, 0.75].forEach((d) => { if (t + d < t1) saws(t + d, 0.2, chordAt(t + d), o.saw ?? 0.75); });
-  for (let s = 0; s < (t1 - t0) / 0.125 - 1e-6; s++) { const t = t0 + s * 0.125, [root, iv] = chordAt(t); if (s % 2 === 0 || o.dbl) arpSaw(t, root + 24 + iv[SEQ[s % 8]] + (s % 16 >= 12 ? 12 : 0), o.arp ?? 0.55, s % 2 ? 0.5 : -0.5); }
+  for (let t = t0; t < t1 - 1e-6; t += BT) { const b = Math.round(t / BT);
+    if (!o.half || b % 2 === 0) bigKick(t, o.kick ?? 1); if (b % 2 === 1) { snap(t, 0.6); clap(t, 0.45); }
+    hat(t + BT / 2, 0.13, true, 0.15); hat(t + BT / 4, 0.06, false, -0.35); hat(t + BT * 0.75, 0.07, false, 0.35); hat(t, 0.04, false, 0);
+    if (Math.round(t / 2 * 1e6) % 1e6 === 0) e808(t, 0.9, bassOf(chordAt(t)[0]) - 12 + 12, (o.bass ?? 1) * 0.55); }
+  for (let s = 0; s < (t1 - t0) / 0.125 - 1e-6; s++) { const t = t0 + s * 0.125, [root, iv] = chordAt(t);
+    if (s % 4 !== 0) reese(t, 0.11, bassOf(root) + 12 + BASSPAT[s % 16], (o.bass ?? 1) * 0.6);
+    arpSaw(t, root + 24 + iv[SEQ[s % 8]] + (s % 16 >= 8 ? 12 : 0), o.arp ?? 0.6, s % 2 ? 0.55 : -0.55); }
+  for (let t = t0; t < t1 - 1e-6; t += 2) gated(t, Math.min(2, t1 - t), chordAt(t), o.saw ?? 0.9);
 }
 // hook 0–3: surveillance — low braam, half-time pulse, eyes popping in on 8ths, glitch into the drop
 bigKick(0.05, 1.0); softImpact(0.05, 1.2); braam(0.05, 2.9, CH.Dm, 1.0); pad(0, 3.0, CH.Dm, 0.9, { atk: 0.4, rel: 0.3, cut: 0.02 }); clangS(0.05, 0.6, 37);
