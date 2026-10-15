@@ -53,10 +53,10 @@
     [12.5, 15.35, 'TRUSTED BY', 'MILLIONS WORLDWIDE', PUR2]];
   function captions(c, t) { for (const [t0, t1, a, b, col] of CAPS) { if (t < t0 || t > t1) continue; const k = io5(prog(t, t0, t0 + 0.22)), out = io3(prog(t, t1 - 0.2, t1));
     c.save(); c.globalAlpha = 1 - out; const g = c.createLinearGradient(0, 1150, 0, 1560); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.5, 'rgba(7,4,26,0.8)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 1150, W, 410);
-    c.translate(70, 1330); c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k)); c.font = G(900, 92); c.letterSpacing = '-2px'; const fs = Math.min(92, 92 * (W - 260) / c.measureText(a).width); c.font = G(900, fs); c.textBaseline = 'alphabetic';
+    c.translate(W / 2, 1330); c.textAlign = 'center'; c.scale(lerp(1.3, 1, k), lerp(1.3, 1, k)); c.font = G(900, 92); c.letterSpacing = '-2px'; const fs = Math.min(92, 92 * (W - 260) / c.measureText(a).width); c.font = G(900, fs); c.textBaseline = 'alphabetic';
     c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,60,200,0.5)'; c.fillText(a, -6 * (1 - k) - 2, 0); c.fillStyle = 'rgba(80,160,255,0.5)'; c.fillText(a, 6 * (1 - k) + 2, 0); c.globalCompositeOperation = 'source-over';
-    c.fillStyle = '#fff'; c.fillText(a, 0, 0); const aw = c.measureText(a).width; c.fillStyle = col; c.fillRect(0, 18, aw * io3(prog(t, t0 + 0.1, t0 + 0.4)), 7);
-    c.letterSpacing = '3px'; c.font = G(800, 44); c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.35); c.fillStyle = col; c.fillText(b, 2, 80); c.letterSpacing = '0px'; c.restore(); } }
+    c.fillStyle = '#fff'; c.fillText(a, 0, 0); const aw = c.measureText(a).width; c.fillStyle = col; const ul = aw * io3(prog(t, t0 + 0.1, t0 + 0.4)); c.fillRect(-ul / 2, 18, ul, 7);
+    c.letterSpacing = '3px'; c.font = G(800, 44); c.globalAlpha = (1 - out) * prog(t, t0 + 0.15, t0 + 0.35); c.fillStyle = col; c.fillText(b, 0, 80); c.letterSpacing = '0px'; c.restore(); } }
 
   // ---------- S1 hook: surveillance (0–3) ----------
   function hook(c, t) {
