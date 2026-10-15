@@ -5,10 +5,10 @@
 (() => {
   'use strict';
   const K = window.KIT, { TAU, clamp, lerp, prog, io3, io5, crit, pop, A, rgba, rr, hash } = K;
-  const V = !!window.VERTICAL, W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 20; // V: 9:16 edition, every scene re-laid out
+  const V = !!window.VERTICAL, W = V ? 1080 : 1920, H = V ? 1920 : 1080, FPS = 60, DUR = 25; // V: 9:16 edition, every scene re-laid out
   // Everything is authored in 15s "design time"; after the bounty board (6.5) it plays slower so the film runs 20s.
   // Knots are [design, real] and match the score's F(): phone 3s→5s, earners 2s→3.5s, category cuts 1.25s→2.5s, end 2.25s→2.5s.
-  const KN = [[0, 0], [6.5, 6.5], [9.5, 11.5], [11.5, 15], [12.75, 17.5], [15, 20]];
+  const KN = [[0, 0], [1.5, 2], [4, 6], [6.5, 9.5], [9.5, 14.5], [11.5, 18.5], [12.75, 21], [15, 25]]; // 25s cut: every scene slowed (shared with the score)
   const toDesign = (r) => { for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (r <= r1 || i === KN.length - 2) return d0 + (r - r0) * (d1 - d0) / (r1 - r0); } return r; };
   const cv = document.getElementById('c'), ctx = cv.getContext('2d');
   const PUR = '#8151FD', PUR2 = '#A98BFF', GRN = '#139A6B', GRN2 = '#1FD18E', INK = '#111114', PAPER = '#FAFAFA', MUTE = '#6E6E78', PILL = '#EFEFF1', DARK = '#0D0A16', USDC = '#2775CA';

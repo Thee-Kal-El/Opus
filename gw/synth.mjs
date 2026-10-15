@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SR = 48000, DUR = 20, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
+const SR = 48000, DUR = 25, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
 const L = new Float32Array(N), Rr = new Float32Array(N), revL = new Float32Array(N), revR = new Float32Array(N), dlyL = new Float32Array(N), dlyR = new Float32Array(N);
 let seed = 777;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -131,44 +131,44 @@ function groove(t0, t1, o = {}) {
   for (let t = t0; t < t1 - 1e-6; t += 1) [0, 0.375, 0.75].forEach((d) => { if (t + d < t1) saws(t + d, 0.2, chordAt(t + d), o.saw ?? 0.85); });
   for (let s = 0; s < (t1 - t0) / 0.125 - 1e-6; s++) { const t = t0 + s * 0.125, [root, iv] = chordAt(t); if (s % 2 === 0 || o.dbl) arpSaw(t, root + 24 + iv[SEQ[s % 8]] + (s % 16 >= 12 ? 12 : 0), o.arp ?? 0.6, s % 2 ? 0.5 : -0.5); }
 }
-// 0–1.5 pixel logo: blocks ticking in over a riser, the snap, the wordmark, the iris
-riser(0, 0.75, 1.0); zapRise(0.4, 0.35, 0.9); for (let i = 0; i < 22; i++) tick(0.08 + i * 0.03 + (i % 3) * 0.006, 0.35 + i * 0.02, 1400 + i * 90);
-bigKick(0.75, 1.1); softImpact(0.75, 1.3); braam(0.75, 1.2, CH.F, 1.1); clangS(0.75, 0.9, 49); laser(0.75, 0.5, 0, 2600, 300);
-for (let i = 0; i < 7; i++) (i % 2 ? popS : lowPop)(1.0 + i * 0.03, 0.55, i % 2 ? 900 + i * 40 : 120); bell(1.25, 77, 0.35, 0.2, 1.0); whoosh(1.28, 0.24, 1.2, true);
-// 1.5–4.0 hero
-softImpact(1.5, 1.0); groove(1.5, 3.75, { dbl: true });
-lowPop(1.5, 1, 110); tomHit(1.62, 0.9, 140); clangS(1.75, 0.8, 55); [1.92, 1.98, 2.04, 2.1].forEach((t, i) => bell(t, 84 + [0, 4, 7, 12][i], 0.18, i % 2 ? 0.4 : -0.4, 0.6));
-for (let k = 1; k <= 6; k++) { const x = -Math.log2(1 - k / 6.0001) / 10; key(2.0 + x * 0.95, 0.8, 2600 - k * 120); }
-metal(2.95, 0.8); lowPop(2.98, 0.8, 115); popS(3.06, 0.7, 850); lowPop(3.14, 0.8, 105); popS(3.22, 0.9, 1000); tomHit(3.34, 0.9, 130);
-for (let i = 0; i < 14; i++) tick(3.25 + 0.45 * (1 - Math.pow(1 - i / 14, 2)), 0.5, 2400 + i * 60); riser(3.45, 0.55, 1.1); zapRise(3.7, 0.3, 1.0); whoosh(3.72, 0.28, 1.3, true);
-// 4.0–6.5 bounty board
-bigKick(4.0, 1.1); softImpact(4.0, 1.3); braam(4.0, 0.9, CH.Dm, 1.0); groove(4.0, 6.0, { bass: 1.1 });
-for (let r = 0; r < 12; r++) (r % 2 ? popS : lowPop)(4.0 + r * 0.04, 0.4, r % 2 ? 800 + r * 30 : 120); [4.25, 4.5].forEach((t) => tomHit(t, 0.8, 140));
-whoosh(5.95, 0.4, 1.2, true); zapRise(6.15, 0.35, 1.0); riser(6.0, 0.5, 0.9);
-// ---- 6.5→ is slowed down (film runs 20s): design time d → real time F(d), knots shared with gw.js. Grooves stay on the
-// real 120 BPM grid; every hit is placed at F(design time) so it lands on its picture cue. Section boundaries fall on beats.
-const KN = [[6.5, 6.5], [9.5, 11.5], [11.5, 15], [12.75, 17.5], [15, 20]];
-const F = (d) => { if (d <= 6.5) return d; for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (d <= d1 || i === KN.length - 2) return r0 + (d - d0) * (r1 - r0) / (d1 - d0); } return d; };
+// ---- 25s cut: the 15s design timeline is slowed throughout (more reading time). Design time d → real time F(d); knots shared
+// with gw.js. Grooves run on the real 120 BPM grid per section; every hit sits at F(its picture cue). Boundaries land on beats.
+const KN = [[0, 0], [1.5, 2], [4, 6], [6.5, 9.5], [9.5, 14.5], [11.5, 18.5], [12.75, 21], [15, 25]];
+const F = (d) => { for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (d <= d1 || i === KN.length - 2) return r0 + (d - d0) * (r1 - r0) / (d1 - d0); } return d; };
 const S = (d) => { for (let i = 0; i < KN.length - 1; i++) { const [d0, r0] = KN[i], [d1, r1] = KN[i + 1]; if (d <= d1 || i === KN.length - 2) return (r1 - r0) / (d1 - d0); } return 1; };
-// 6.5–9.5 (real 6.5–11.5) phone flow
-bigKick(6.5, 1.1); softImpact(6.5, 1.2); clangS(6.5, 0.9, 52); groove(6.5, 11.0, { saw: 0.7 });
+// pixel logo (real 0–2): blocks ticking in over a riser, the snap, the wordmark, the iris
+riser(0, F(0.75), 1.0); zapRise(F(0.4), 0.45, 0.9); for (let i = 0; i < 22; i++) tick(F(0.08 + i * 0.03 + (i % 3) * 0.006), 0.35 + i * 0.02, 1400 + i * 90);
+bigKick(F(0.75), 1.1); softImpact(F(0.75), 1.3); braam(F(0.75), 1.4, CH.F, 1.1); clangS(F(0.75), 0.9, 49); laser(F(0.75), 0.5, 0, 2600, 300);
+for (let i = 0; i < 7; i++) (i % 2 ? popS : lowPop)(F(1.0 + i * 0.03), 0.55, i % 2 ? 900 + i * 40 : 120); bell(F(1.25), 77, 0.35, 0.2, 1.2); whoosh(F(1.28), 0.3, 1.2, true);
+// hero (real 2–6)
+softImpact(2.0, 1.0); groove(2.0, 5.75, { dbl: true });
+lowPop(F(1.5), 1, 110); tomHit(F(1.62), 0.9, 140); clangS(F(1.75), 0.8, 55); [1.92, 1.98, 2.04, 2.1].forEach((t, i) => bell(F(t), 84 + [0, 4, 7, 12][i], 0.18, i % 2 ? 0.4 : -0.4, 0.7));
+for (let k = 1; k <= 6; k++) { const x = -Math.log2(1 - k / 6.0001) / 10; key(F(2.0 + x * 0.95), 0.8, 2600 - k * 120); }
+metal(F(2.95), 0.8); lowPop(F(2.98), 0.8, 115); popS(F(3.06), 0.7, 850); lowPop(F(3.14), 0.8, 105); popS(F(3.22), 0.9, 1000); tomHit(F(3.34), 0.9, 130);
+for (let i = 0; i < 14; i++) tick(F(3.25 + 0.45 * (1 - Math.pow(1 - i / 14, 2))), 0.5, 2400 + i * 60); riser(F(3.45), 0.55 * S(3.5), 1.1); zapRise(F(3.7), 0.45, 1.0); whoosh(F(3.72), 0.42, 1.3, true);
+// bounty board (real 6–9.5)
+bigKick(6.0, 1.1); softImpact(6.0, 1.3); braam(6.0, 1.1, CH.Dm, 1.0); groove(6.0, 9.0, { bass: 1.1 });
+for (let r = 0; r < 12; r++) (r % 2 ? popS : lowPop)(F(4.0 + r * 0.04), 0.4, r % 2 ? 800 + r * 30 : 120); [4.25, 4.5].forEach((t) => tomHit(F(t), 0.8, 140));
+whoosh(F(5.95), 0.5, 1.2, true); zapRise(F(6.15), 0.45, 1.0); riser(F(6.0), 0.5 * S(6), 0.9);
+// phone flow (real 9.5–14.5)
+bigKick(9.5, 1.1); softImpact(9.5, 1.2); clangS(9.5, 0.9, 52); groove(9.5, 14.0, { saw: 0.7 });
 click(F(7.05), 1.6, 1300); lowPop(F(7.05), 0.9, 100); whoosh(F(7.27), 0.3, 1.0, false); tomHit(F(7.35), 1, 120); clangS(F(7.41), 0.6, 60);
 for (let i = 0; i < 26; i++) key(F(7.45 + i * 0.53 / 26), 0.6, 2600 + (i % 3) * 300); click(F(8.05), 1.6, 1500); clangS(F(8.05), 0.8, 58);
 whoosh(F(8.25), 0.3, 1.0, true); tomHit(F(8.35), 1, 110); softImpact(F(8.35), 0.9);
 for (let i = 0; i < 16; i++) { const t = F(8.55 + i * 0.032); (i % 3 === 2 ? lowPop : popS)(t, 0.5, i % 3 === 2 ? 130 : 1100 + i * 50); } [79, 84, 88, 91].forEach((m, i) => bell(F(8.55 + i * 0.06), m, 0.28, i % 2 ? 0.5 : -0.5, 1.2)); clangS(F(9.05), 0.9, 49); bell(F(9.05), 96, 0.25, 0, 1.4);
 riser(F(9.0), 0.5 * S(9), 0.8);
-// 9.5–11.5 (real 11.5–15) earners
-bigKick(11.5, 1.0); softImpact(11.5, 1.0); groove(11.5, 14.5, { kick: 0.8, saw: 0.6, arp: 0.55 });
+// earners (real 14.5–18.5)
+bigKick(14.5, 1.0); softImpact(14.5, 1.0); groove(14.5, 18.0, { kick: 0.8, saw: 0.6, arp: 0.55 });
 for (let i = 0; i < 9; i++) popS(F(9.6 + i * 0.04), 0.35, 900 + i * 60); for (let i = 0; i < 8; i++) (i % 2 ? popS : lowPop)(F(9.75 + i * 0.07), 0.65, i % 2 ? 950 : 115);
 riser(F(11.0), 0.5 * S(11), 1.0); whoosh(F(11.22), 0.45, 1.4, true);
-// 11.5–12.75 (real 15–17.5) category cuts, one per beat
+// category cuts (real 18.5–21), one per beat
 [11.5, 11.75, 12.0, 12.25, 12.5].map(F).forEach((t, i) => { bigKick(t, 1.0); [() => clangS(t, 0.8, 55), () => tomHit(t, 1, 120), () => metal(t, 0.9), () => lowPop(t, 1, 100), () => clangS(t, 0.8, 49)][i](); laser(t, 0.35, i % 2 ? 0.5 : -0.5, 2000 + i * 300, 300); });
-groove(15, 17, { dbl: true, kick: 0 }); roll(17, 17.5, 1);
-// 12.75–15 (real 17.5–20) end card
-bigKick(17.5, 1.15); softImpact(17.5, 1.5); braam(17.5, 2.5, CH.F, 1.3); clangS(17.5, 0.9, 44); pad(17.5, 2.5, CH.F, 1.0, { atk: 0.05, rel: 1.6 });
+groove(18.5, 20.5, { dbl: true, kick: 0 }); roll(20.5, 21, 1);
+// end card (real 21–25)
+bigKick(21, 1.15); softImpact(21, 1.5); braam(21, 3.0, CH.F, 1.3); clangS(21, 0.9, 44); pad(21, 4.0, CH.F, 1.0, { atk: 0.05, rel: 2.0 });
 for (let i = 0; i < 16; i++) tick(F(12.78 + i * 0.022), 0.4, 1800 + i * 80); for (let i = 0; i < 7; i++) (i % 2 ? popS : lowPop)(F(12.95 + i * 0.035), 0.55, i % 2 ? 900 : 115);
 bell(F(13.3), 77, 0.3, 0, 1.2); popS(F(13.55), 0.8, 900); lowPop(F(13.65), 0.8, 110); bell(F(13.85), 84, 0.3, 0.3, 1.0);
-groove(18.0, 19.5, { kick: 0.55, bass: 0.6, saw: 0.4, arp: 0.4 });
+groove(21.5, 24.0, { kick: 0.55, bass: 0.6, saw: 0.4, arp: 0.4 });
 
 // ---------- FX + master ----------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }
