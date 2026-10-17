@@ -20,6 +20,7 @@
   const im = new Image(); im.src = 'kal_cutout_x4.png'; await im.decode();
   const TTN = new Image(); TTN.src = 'tiktok_note.png'; await TTN.decode(); /* official TikTok note */
   const TWG = new Image(); TWG.src = 'twitch_glitch.png'; await TWG.decode(); /* official Twitch glitch */
+  const AVAX = new Image(); AVAX.src = 'avax_mark.png'; await AVAX.decode();
   const KICK = new Image(); KICK.src = 'kick_k.png'; await KICK.decode(); /* official Kick mark */
   await Promise.all([document.fonts.load(G(900, 100)), document.fonts.load(G(700, 100)), document.fonts.load(MONO(800, 60))]);
 
@@ -72,8 +73,7 @@
   const gloss = (x, y, r) => { c.save(); c.beginPath(); c.arc(x, y, r, 0, TAU); c.clip(); const gg = c.createLinearGradient(x, y - r, x, y + r * 0.2); gg.addColorStop(0, 'rgba(255,255,255,0.35)'); gg.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = gg; c.beginPath(); c.ellipse(x, y - r * 0.45, r * 0.85, r * 0.55, 0, 0, TAU); c.fill(); c.restore(); };
   const coin = (x, y, r, rot, col, draw) => { backing(x, y, r, col === '#111' ? '#14F195' : col); c.save(); c.translate(x, y); c.rotate(rot); c.shadowColor = col; c.shadowBlur = 70; c.beginPath(); c.arc(0, 0, r, 0, TAU); c.fillStyle = col; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = r * 0.09; c.strokeStyle = 'rgba(255,255,255,0.95)'; c.stroke(); draw(r); c.restore(); gloss(x, y, r); };
   const COIN = {
-    avax: (x, y, r, rot) => coin(x, y, r, rot, '#E84142', (r) => { c.fillStyle = '#fff'; c.lineJoin = 'round'; c.lineWidth = r * 0.05; c.strokeStyle = '#fff'; // Avalanche mark: big triangle + small triangle
-      [[[-0.06, -0.5], [-0.56, 0.36], [0.2, 0.36]], [[0.3, -0.02], [0.08, 0.36], [0.52, 0.36]]].forEach((t) => { c.beginPath(); t.forEach(([u, v]) => c.lineTo(u * r, v * r)); c.closePath(); c.fill(); c.stroke(); }); }),
+    avax: (x, y, r, rot) => coin(x, y, r, rot, '#E84142', (r) => { const k = AVAX, w = r * 1.12, h = w * k.height / k.width; c.drawImage(k, -w / 2, -h / 2 + r * 0.04, w, h); }), // official Avalanche mark
     eth: (x, y, r, rot) => coin(x, y, r, rot, '#627EEA', (r) => { c.fillStyle = '#fff'; c.beginPath(); c.moveTo(0, -r * 0.62); c.lineTo(r * 0.38, r * 0.02); c.lineTo(0, r * 0.22); c.lineTo(-r * 0.38, r * 0.02); c.closePath(); c.fill(); c.globalAlpha = 0.75; c.beginPath(); c.moveTo(0, r * 0.32); c.lineTo(r * 0.38, r * 0.1); c.lineTo(0, r * 0.62); c.lineTo(-r * 0.38, r * 0.1); c.closePath(); c.fill(); }),
     sol: (x, y, r, rot) => coin(x, y, r, rot, '#111', (r) => { const gg = c.createLinearGradient(-r, 0, r, 0); gg.addColorStop(0, '#9945FF'); gg.addColorStop(1, '#14F195'); c.fillStyle = gg; [-0.36, 0, 0.36].forEach((dy, i) => { c.save(); c.translate(0, dy * r); c.beginPath(); const w = r * 1.1, h = r * 0.2, sk = r * 0.18 * (i === 1 ? -1 : 1); c.moveTo(-w / 2 + sk, -h / 2); c.lineTo(w / 2 + sk, -h / 2); c.lineTo(w / 2 - sk, h / 2); c.lineTo(-w / 2 - sk, h / 2); c.closePath(); c.fill(); c.restore(); }); }),
     // Arc ecosystem coin: navy gradient disc with the Arc "A" (same vector as the Arc promo)
