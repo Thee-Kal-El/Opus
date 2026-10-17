@@ -43,16 +43,16 @@
   hazard(1480, 120);
 
   // ---------------- camera viewfinder over the headline ----------------
-  c.save(); c.strokeStyle = WHITE; c.lineWidth = 16; c.lineCap = 'square'; const L = 170, x0 = 110, y0 = 1700, x1 = W - 110, y1 = 3670;
+  c.save(); c.strokeStyle = WHITE; c.lineWidth = 16; c.lineCap = 'square'; const L = 170, x0 = 110, y0 = 1665, x1 = W - 110, y1 = 3635; /* equal 65px gap to the stripe above and the yellow band below */
   [[x0, y0, 1, 1], [x1, y0, -1, 1], [x0, y1, 1, -1], [x1, y1, -1, -1]].forEach(([x, y, dx, dy]) => { c.beginPath(); c.moveTo(x + dx * L, y); c.lineTo(x, y); c.lineTo(x, y + dy * L); c.stroke(); }); c.restore();
-  c.fillStyle = RED; c.beginPath(); c.arc(250, 1790, 30, 0, TAU); c.fill(); line('REC', 300, 1792, MONO(800, 80), WHITE, 'left', 6);
-  line('LIVE · 24/7', W - 230, 1792, MONO(800, 80), WHITE, 'right', 6);
+  c.fillStyle = RED; c.beginPath(); c.arc(250, 1755, 30, 0, TAU); c.fill(); line('REC', 300, 1757, MONO(800, 80), WHITE, 'left', 6);
+  line('LIVE · 24/7', W - 230, 1757, MONO(800, 80), WHITE, 'right', 6);
 
   // ---------------- HEADLINE ----------------
-  big('FUCK', W / 2 - 22, 2576, 900, WHITE, W - 420, 0.86, -4);
-  c.save(); c.translate(W / 2, 2666); c.rotate(-0.02); c.fillStyle = RED; c.fillRect(-1350, -22, 2700, 44); c.restore();
-  big('FLOCK', W / 2 - 21, 3436, 900, YEL, W - 420, 0.86, -4);
-  line('EVERY CAR  •  EVERY PLATE  •  EVERY DAY', W / 2 + 1.5, 3546, G(900, 112), WHITE, 'center', 8); /* nudge: trailing letter-spacing */
+  big('FUCK', W / 2 - 22, 2541, 900, WHITE, W - 420, 0.86, -4);
+  c.save(); c.translate(W / 2, 2631); c.rotate(-0.02); c.fillStyle = RED; c.fillRect(-1350, -22, 2700, 44); c.restore();
+  big('FLOCK', W / 2 - 21, 3401, 900, YEL, W - 420, 0.86, -4);
+  line('EVERY CAR  •  EVERY PLATE  •  EVERY DAY', W / 2 + 1.5, 3511, G(900, 112), WHITE, 'center', 8); /* nudge: trailing letter-spacing */
 
   // ---------------- bottom: why + where ----------------
   c.fillStyle = YEL; c.fillRect(0, 3700, W, 500);
