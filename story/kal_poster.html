@@ -19,6 +19,7 @@
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
   const im = new Image(); im.src = 'kal_cutout_x4.png'; await im.decode();
   const TTN = new Image(); TTN.src = 'tiktok_note.png'; await TTN.decode(); /* official TikTok note */
+  const TWG = new Image(); TWG.src = 'twitch_glitch.png'; await TWG.decode(); /* official Twitch glitch */
   const KICK = new Image(); KICK.src = 'kick_k.png'; await KICK.decode(); /* official Kick mark */
   await Promise.all([document.fonts.load(G(900, 100)), document.fonts.load(G(700, 100)), document.fonts.load(MONO(800, 60))]);
 
@@ -96,7 +97,7 @@
     yt: ['#fff', () => { rr(60, 105, 280, 195, 58); c.fillStyle = '#FF0000'; c.fill(); c.beginPath(); c.moveTo(168, 150); c.lineTo(250, 202); c.lineTo(168, 254); c.closePath(); c.fillStyle = '#fff'; c.fill(); }, '#FF0000'],
     tt: ['#000', () => { const k = TTN, h = 270, w = h * k.width / k.height; c.drawImage(k, 200 - w / 2, 200 - h / 2, w, h); }, '#25F4EE'],
     ig: [(T) => { const gg = c.createLinearGradient(0, T, T, 0); gg.addColorStop(0, '#FEDA75'); gg.addColorStop(0.3, '#FA7E1E'); gg.addColorStop(0.55, '#D62976'); gg.addColorStop(0.8, '#962FBF'); gg.addColorStop(1, '#4F5BD5'); return gg; }, () => { c.strokeStyle = '#fff'; c.lineWidth = 30; rr(90, 90, 220, 220, 66); c.stroke(); c.beginPath(); c.arc(200, 200, 54, 0, TAU); c.stroke(); c.fillStyle = '#fff'; c.beginPath(); c.arc(262, 138, 16, 0, TAU); c.fill(); }, '#D62976'],
-    tw: ['#9146FF', () => { c.fillStyle = '#fff'; c.beginPath(); c.moveTo(110, 80); c.lineTo(300, 80); c.lineTo(300, 230); c.lineTo(240, 290); c.lineTo(195, 290); c.lineTo(160, 325); c.lineTo(160, 290); c.lineTo(110, 290); c.closePath(); c.fill(); c.fillStyle = '#9146FF'; c.fillRect(175, 130, 26, 80); c.fillRect(240, 130, 26, 80); }, '#9146FF'],
+    tw: ['#9146FF', () => { const k = TWG, h = 250, w = h * k.width / k.height; c.drawImage(k, 200 - w / 2, 200 - h / 2, w, h); }, '#9146FF'],
     kick: ['#000', () => { const k = KICK, h = 240, w = h * k.width / k.height; c.drawImage(k, 200 - w / 2, 200 - h / 2, w, h); }, '#53FC18'],
   };
   const T = 400, gap = 120, row = 5 * T + 4 * gap, tx0 = (W - row) / 2, ty = 3610;
