@@ -61,10 +61,7 @@
   line('MAP THE CAMERAS  →  DEFLOCK.ME', W / 2, 4112, MONO(800, 120), YEL, 'center', 4);
 
   // ---------------- stencil grunge ----------------
-  // speckle knock-outs (spray-paint dropouts) + fine grain, so it reads like a street poster
-  c.save(); c.globalCompositeOperation = 'source-atop';
-  for (let i = 0; i < 2500; i++) { const x = hash(i, 1) * W, y = hash(i, 2) * H, r = 1.5 + Math.pow(hash(i, 3), 6) * 10; c.fillStyle = hash(i, 4) > 0.5 ? 'rgba(10,10,10,0.35)' : 'rgba(247,245,238,0.08)'; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
-  c.restore();
+  // fine print grain only (speckles removed for a clean print)
   const gr = document.createElement('canvas'); gr.width = gr.height = 512; const g = gr.getContext('2d'), d = g.createImageData(512, 512);
   for (let i = 0; i < d.data.length; i += 4) { const v = hash(i, 9) * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 22; } g.putImageData(d, 0, 0);
   c.save(); c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(gr, 'repeat'); c.fillRect(0, 0, W, H); c.restore();
