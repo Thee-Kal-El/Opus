@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Thee_Kal_El Poster</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block;width:100vw;height:auto}</style>
+</head>
+<body>
+<!-- 11x14 in print poster @ 300 dpi -->
+<canvas id="s" width="3300" height="4200"></canvas>
+<script>
+(async () => {
+  const W = 3300, H = 4200, TAU = Math.PI * 2, cv = document.getElementById('s'), c = cv.getContext('2d');
+  const PUR = '#9B4DFF', PINK = '#FF3DDB', CYAN = '#22E6FF', INK = '#07031A';
+  const G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`, MONO = (w, s) => `${w} ${s}px "JetBrains Mono", monospace`;
+  const hash = (a, b = 0) => { let n = Math.imul(a | 0, 73856093) ^ Math.imul(b | 0, 19349663); n = Math.imul(n ^ (n >>> 15), 0x2c1b3c6d); n ^= n >>> 12; return (n >>> 0) / 4294967296; };
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
+  const im = new Image(); im.src = 'kal_cutout_x4.png'; await im.decode();
+  await Promise.all([document.fonts.load(G(900, 100)), document.fonts.load(G(700, 100)), document.fonts.load(MONO(800, 60))]);
+
+  // ---- backdrop: deep purple, neon glow, data rain, perspective grid floor ----
+  let g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#12052E'); g.addColorStop(0.55, '#1E0846'); g.addColorStop(1, '#07031A'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  g = c.createRadialGradient(W / 2, 1500, 0, W / 2, 1500, 1900); g.addColorStop(0, 'rgba(190,80,255,0.75)'); g.addColorStop(0.4, 'rgba(120,40,230,0.35)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  c.font = MONO(700, 46); c.textAlign = 'center'; c.textBaseline = 'middle'; const CH = '0123456789ABCDEF';
+  for (let x = 40, i = 0; x < W; x += 92, i++) for (let y = 40, j = 0; y < 2800; y += 92, j++) { const v = hash(i, j); if (v < 0.55) continue; c.fillStyle = `rgba(190,150,255,${0.05 + 0.12 * hash(j, i)})`; c.fillText(CH[(v * 997 | 0) % 16], x, y); }
+  // light streaks
+  c.save(); c.globalCompositeOperation = 'lighter';
+  [[-200, 1900, W + 200, 1250, PINK], [-200, 1150, W + 200, 1700, CYAN], [-200, 2350, W + 200, 2050, PUR]].forEach(([x0, y0, x1, y1, col]) => { for (let k = 0; k < 3; k++) { c.strokeStyle = col; c.globalAlpha = [0.08, 0.18, 0.7][k]; c.lineWidth = [60, 22, 4][k]; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke(); } });
+  c.restore();
+  // grid floor
+  c.save(); const hz = 2650; c.beginPath(); c.rect(0, hz, W, H - hz); c.clip(); g = c.createLinearGradient(0, hz, 0, H); g.addColorStop(0, 'rgba(255,61,219,0.0)'); g.addColorStop(0.15, 'rgba(255,61,219,0.55)'); g.addColorStop(1, 'rgba(155,77,255,0.25)'); c.strokeStyle = g; c.lineWidth = 5;
+  for (let i = -24; i <= 24; i++) { c.beginPath(); c.moveTo(W / 2 + i * 40, hz); c.lineTo(W / 2 + i * 520, H); c.stroke(); }
+  for (let k = 1; k < 16; k++) { const y = hz + (H - hz) * Math.pow(k / 15, 2.2); c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); } c.restore();
+
+  // ---- neon hexagon behind him (callback to the old poster) ----
+  const hex = (cx, cy, r) => { c.beginPath(); for (let i = 0; i < 6; i++) { const a = i * TAU / 6 - Math.PI / 2; c.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); } c.closePath(); };
+  c.save(); hex(W / 2, 1500, 1180); c.fillStyle = 'rgba(80,20,160,0.35)'; c.fill();
+  c.globalCompositeOperation = 'lighter'; [[90, 0.12], [40, 0.3], [14, 1]].forEach(([lw, a]) => { c.strokeStyle = `rgba(230,120,255,${a})`; c.lineWidth = lw; hex(W / 2, 1500, 1180); c.stroke(); }); c.restore();
+  // blockchain nodes on the hex corners + links
+  const nodes = []; for (let i = 0; i < 6; i++) { const a = i * TAU / 6 - Math.PI / 2; nodes.push([W / 2 + Math.cos(a) * 1180, 1500 + Math.sin(a) * 1180]); }
+  nodes.forEach(([x, y]) => { c.save(); c.shadowColor = CYAN; c.shadowBlur = 60; c.fillStyle = INK; rr(x - 70, y - 70, 140, 140, 26); c.fill(); c.lineWidth = 10; c.strokeStyle = CYAN; c.stroke(); c.fillStyle = CYAN; rr(x - 28, y - 28, 56, 56, 8); c.fill(); c.restore(); });
+
+  // ---- the creator: sticker cutout with white outline + neon rim ----
+  const ph = 2900, pw = ph * im.width / im.height, px = (W - pw) / 2, py = 420;
+  const st = document.createElement('canvas'); st.width = W; st.height = H; const s = st.getContext('2d');
+  for (let i = 0; i < 32; i++) { const a = i * TAU / 32; s.drawImage(im, px + Math.cos(a) * 22, py + Math.sin(a) * 22, pw, ph); }
+  s.globalCompositeOperation = 'source-in'; s.fillStyle = '#fff'; s.fillRect(0, 0, W, H); s.globalCompositeOperation = 'source-over';
+  c.save(); c.shadowColor = 'rgba(255,61,219,0.9)'; c.shadowBlur = 120; c.drawImage(st, 0, 0); c.restore(); c.drawImage(st, 0, 0); c.drawImage(im, px, py, pw, ph);
+  // fade his lower half into the floor so the name reads
+  g = c.createLinearGradient(0, 2600, 0, 3200); g.addColorStop(0, 'rgba(7,3,26,0)'); g.addColorStop(1, 'rgba(7,3,26,0.97)'); c.fillStyle = g; c.fillRect(0, 2600, W, H - 2600);
+
+  // ---- floating crypto coins ----
+  const coin = (x, y, r, rot, col, draw) => { c.save(); c.translate(x, y); c.rotate(rot); c.shadowColor = col; c.shadowBlur = 70; c.beginPath(); c.arc(0, 0, r, 0, TAU); c.fillStyle = col; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = r * 0.09; c.strokeStyle = 'rgba(255,255,255,0.85)'; c.stroke(); draw(r); c.restore(); };
+  coin(470, 900, 190, -0.2, '#F7931A', (r) => { c.font = G(900, r * 1.3); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('₿', 0, r * 0.06); });
+  coin(2830, 860, 175, 0.18, '#627EEA', (r) => { c.fillStyle = '#fff'; c.beginPath(); c.moveTo(0, -r * 0.62); c.lineTo(r * 0.38, r * 0.02); c.lineTo(0, r * 0.22); c.lineTo(-r * 0.38, r * 0.02); c.closePath(); c.fill(); c.globalAlpha = 0.75; c.beginPath(); c.moveTo(0, r * 0.32); c.lineTo(r * 0.38, r * 0.1); c.lineTo(0, r * 0.62); c.lineTo(-r * 0.38, r * 0.1); c.closePath(); c.fill(); });
+  coin(2920, 2050, 150, -0.12, '#111', (r) => { const gg = c.createLinearGradient(-r, 0, r, 0); gg.addColorStop(0, '#9945FF'); gg.addColorStop(1, '#14F195'); c.fillStyle = gg; [-0.36, 0, 0.36].forEach((dy, i) => { c.save(); c.translate(0, dy * r); c.beginPath(); const w = r * 1.1, h = r * 0.2, sk = r * 0.18 * (i === 1 ? -1 : 1); c.moveTo(-w / 2 + sk, -h / 2); c.lineTo(w / 2 + sk, -h / 2); c.lineTo(w / 2 - sk, h / 2); c.lineTo(-w / 2 - sk, h / 2); c.closePath(); c.fill(); c.restore(); }); });
+  coin(380, 2120, 135, 0.25, '#2775CA', (r) => { c.font = G(900, r * 1.15); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('$', 0, r * 0.05); });
+
+  // ---- top chip ----
+  c.save(); c.font = G(800, 92); c.letterSpacing = '10px'; const chip = 'BLOCKCHAIN  •  CRYPTO  •  WEB3', cw = c.measureText(chip).width + 160; rr((W - cw) / 2, 150, cw, 170, 85); c.fillStyle = 'rgba(7,3,26,0.85)'; c.fill(); c.lineWidth = 8; c.strokeStyle = CYAN; c.shadowColor = CYAN; c.shadowBlur = 40; c.stroke(); c.shadowBlur = 0;
+  c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(chip, W / 2 + 5, 240); c.restore();
+
+  // ---- the handle ----
+  const handle = '@THEE_KAL_EL'; c.save(); c.font = G(900, 400); c.letterSpacing = '-6px'; let fs = Math.min(400, 400 * (W - 260) / c.measureText(handle).width); c.font = G(900, fs); c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineJoin = 'round';
+  const hy = 3330; c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillText(handle, W / 2 + 18, hy + 26);
+  c.lineWidth = fs * 0.12; c.strokeStyle = INK; c.strokeText(handle, W / 2, hy);
+  c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(34,230,255,0.85)'; c.fillText(handle, W / 2 - 12, hy); c.fillStyle = 'rgba(255,61,219,0.85)'; c.fillText(handle, W / 2 + 12, hy); c.globalCompositeOperation = 'source-over';
+  g = c.createLinearGradient(0, hy - fs * 0.75, 0, hy); g.addColorStop(0, '#FFFFFF'); g.addColorStop(1, '#E3C8FF'); c.fillStyle = g; c.fillText(handle, W / 2, hy); c.restore();
+  c.save(); c.font = G(700, 104); c.letterSpacing = '6px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#E9DBFF'; c.fillText('Blockchain tech, decoded.', W / 2, 3480); c.restore();
+
+  // ---- platform tiles ----
+  const T = 400, gap = 120, row = 5 * T + 4 * gap, tx0 = (W - row) / 2, ty = 3610;
+  const tile = (i, bg, draw, glow) => { const x = tx0 + i * (T + gap); c.save(); c.translate(x, ty); c.shadowColor = glow; c.shadowBlur = 80; rr(0, 0, T, T, 92); c.fillStyle = bg; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 8; c.strokeStyle = 'rgba(255,255,255,0.9)'; c.stroke(); c.save(); rr(0, 0, T, T, 92); c.clip(); draw(); c.restore(); c.restore(); };
+  // YouTube
+  tile(0, '#fff', () => { rr(60, 105, 280, 195, 58); c.fillStyle = '#FF0000'; c.fill(); c.beginPath(); c.moveTo(168, 150); c.lineTo(250, 202); c.lineTo(168, 254); c.closePath(); c.fillStyle = '#fff'; c.fill(); }, '#FF0000');
+  // TikTok
+  tile(1, '#000', () => { const note = (dx, dy, col) => { c.save(); c.translate(dx, dy); c.fillStyle = col; c.beginPath(); c.arc(160, 255, 62, 0, TAU); c.fill(); c.fillStyle = '#000'; c.beginPath(); c.arc(160, 255, 28, 0, TAU); c.fill(); c.fillStyle = col; c.fillRect(194, 85, 38, 172); c.beginPath(); c.moveTo(194, 85); c.quadraticCurveTo(212, 150, 300, 160); c.lineTo(300, 196); c.quadraticCurveTo(236, 196, 194, 150); c.closePath(); c.fill(); c.restore(); };
+    c.globalCompositeOperation = 'lighter'; note(-10, -6, '#25F4EE'); note(10, 6, '#FE2C55'); c.globalCompositeOperation = 'source-over'; note(0, 0, '#fff'); }, '#25F4EE');
+  // Instagram
+  tile(2, (() => { const gg = c.createLinearGradient(0, T, T, 0); gg.addColorStop(0, '#FEDA75'); gg.addColorStop(0.3, '#FA7E1E'); gg.addColorStop(0.55, '#D62976'); gg.addColorStop(0.8, '#962FBF'); gg.addColorStop(1, '#4F5BD5'); return gg; })(), () => { c.strokeStyle = '#fff'; c.lineWidth = 30; rr(90, 90, 220, 220, 66); c.stroke(); c.beginPath(); c.arc(200, 200, 54, 0, TAU); c.stroke(); c.fillStyle = '#fff'; c.beginPath(); c.arc(262, 138, 16, 0, TAU); c.fill(); }, '#D62976');
+  // Twitch
+  tile(3, '#9146FF', () => { c.fillStyle = '#fff'; c.beginPath(); c.moveTo(110, 80); c.lineTo(300, 80); c.lineTo(300, 230); c.lineTo(240, 290); c.lineTo(195, 290); c.lineTo(160, 325); c.lineTo(160, 290); c.lineTo(110, 290); c.closePath(); c.fill(); c.fillStyle = '#9146FF'; c.fillRect(175, 130, 26, 80); c.fillRect(240, 130, 26, 80); }, '#9146FF');
+  // Kick
+  tile(4, '#000', () => { c.fillStyle = '#53FC18'; const u = 46, ox = 92, oy = 85; [[0, 0, 2, 5], [2, 1.5, 1, 2], [3, 0.75, 1, 1], [3, 2.75, 1, 1], [4, 0, 1, 1], [4, 4, 1, 1]].forEach(([x, y, w, h]) => c.fillRect(ox + x * u, oy + y * u, w * u + 1, h * u + 1)); c.fillRect(ox + 3 * u, oy + 0, u + 1, 1.5 * u); c.fillRect(ox + 3 * u, oy + 3.5 * u, u + 1, 1.5 * u); }, '#53FC18');
+  // footer
+  c.save(); c.font = MONO(800, 70); c.letterSpacing = '14px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = CYAN; c.shadowColor = CYAN; c.shadowBlur = 30; c.fillText('SAME HANDLE · EVERY PLATFORM', W / 2, 4110); c.restore();
+  document.body.dataset.ready = '1';
+})();
+</script>
+</body>
+</html>
