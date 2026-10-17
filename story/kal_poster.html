@@ -80,7 +80,7 @@
       const k = r * 1.3 / 100; c.scale(k, k); c.translate(0, 3); c.strokeStyle = '#fff'; c.lineCap = 'round'; c.lineJoin = 'round'; c.lineWidth = 15; c.beginPath(); c.moveTo(-34, 40); c.bezierCurveTo(-30, -10, -18, -42, 0, -42); c.bezierCurveTo(18, -42, 30, -10, 34, 40); c.stroke(); c.lineWidth = 12; c.beginPath(); c.moveTo(-22, 18); c.quadraticCurveTo(10, 8, 40, 26); c.stroke(); c.restore(); gloss(x, y, r); },
   };
   // Solana and Bitcoin swapped places
-  if (V === 'a') { COIN.sol(450, 900, 250, 0); COIN.eth(2850, 880, 250, 0); COIN.btc(2975, 2060, 215, 0); COIN.arc(330, 2100, 215, 0); }
+  if (V === 'a') { COIN.sol(450, 890, 250, 0); COIN.eth(2850, 890, 250, 0); COIN.btc(2975, 2080, 215, 0); COIN.arc(325, 2080, 215, 0); }
 
   // ---- top chip ----
   c.save(); c.font = G(800, 92); c.letterSpacing = '10px'; const chip = 'BLOCKCHAIN  •  CRYPTO  •  WEB3', cw = c.measureText(chip).width + 160; rr((W - cw) / 2, 150, cw, 170, 85); c.fillStyle = 'rgba(7,3,26,0.85)'; c.fill(); c.lineWidth = 8; c.strokeStyle = CYAN; c.shadowColor = CYAN; c.shadowBlur = 40; c.stroke(); c.shadowBlur = 0;
