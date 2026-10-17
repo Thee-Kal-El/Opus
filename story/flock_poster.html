@@ -22,47 +22,33 @@
 
   c.fillStyle = INK; c.fillRect(0, 0, W, H);
 
+  // Roadside edition: readable by passing drivers in ~2 seconds — arrow + 4 huge words, no small print.
   // ---------------- TOP: the arrow ----------------
-  // yellow field with a giant black arrow pointing straight up
-  c.fillStyle = YEL; c.fillRect(0, 0, W, 1500);
+  c.fillStyle = YEL; c.fillRect(0, 0, W, 1480);
   c.save(); c.fillStyle = INK; c.beginPath();
-  const ax = W / 2, tip = 110, headB = 820, headW = 1000, shaftW = 300, shaftB = 1090;
+  const ax = W / 2, tip = 70, headB = 760, headW = 1450, shaftW = 380, shaftB = 1090;
   c.moveTo(ax, tip); c.lineTo(ax + headW, headB); c.lineTo(ax + shaftW, headB); c.lineTo(ax + shaftW, shaftB); c.lineTo(ax - shaftW, shaftB); c.lineTo(ax - shaftW, headB); c.lineTo(ax - headW, headB); c.closePath(); c.fill(); c.restore();
-  // camera icon inside the arrow head
-  c.save(); c.translate(ax, 560); c.fillStyle = YEL; c.beginPath(); c.roundRect(-210, -95, 330, 190, 26); c.fill(); c.beginPath(); c.moveTo(120, -50); c.lineTo(250, -105); c.lineTo(250, 105); c.lineTo(120, 50); c.closePath(); c.fill();
-  c.fillStyle = INK; c.beginPath(); c.arc(-45, 0, 62, 0, TAU); c.fill(); c.fillStyle = RED; c.beginPath(); c.arc(-45, 0, 30, 0, TAU); c.fill(); c.fillStyle = RED; c.beginPath(); c.arc(-170, -60, 15, 0, TAU); c.fill(); c.restore();
-  // side labels on the yellow
-  line('LOOK', 520, 520, G(900, 190), INK, 'center', 10); line('UP', 2780, 520, G(900, 190), INK, 'center', 10);
-  line('↑', 520, 760, G(900, 220), INK); line('↑', 2780, 760, G(900, 220), INK);
-  line("THAT'S A FLOCK CAMERA.", ax, 1265, G(900, 170), INK, 'center', 8);
-  line('IT SEES', ax, 925, G(900, 92), YEL, 'center', 6); line('YOU.', ax, 1025, G(900, 92), YEL, 'center', 6);
+  // camera icon in the arrow head
+  c.save(); c.translate(ax, 540); c.scale(1.25, 1.25); c.fillStyle = YEL; c.beginPath(); c.roundRect(-210, -95, 330, 190, 26); c.fill(); c.beginPath(); c.moveTo(120, -50); c.lineTo(250, -105); c.lineTo(250, 105); c.lineTo(120, 50); c.closePath(); c.fill();
+  c.fillStyle = INK; c.beginPath(); c.arc(-45, 0, 62, 0, TAU); c.fill(); c.fillStyle = RED; c.beginPath(); c.arc(-45, 0, 30, 0, TAU); c.fill(); c.restore();
+  big('FLOCK CAMERA', W / 2, 1420, 330, INK, W - 200, 0.82, 0);
 
   // hazard stripe band
-  c.save(); c.beginPath(); c.rect(0, 1500, W, 150); c.clip(); c.fillStyle = INK; c.fillRect(0, 1500, W, 150); c.fillStyle = YEL;
-  for (let x = -300; x < W + 300; x += 220) { c.beginPath(); c.moveTo(x, 1650); c.lineTo(x + 110, 1650); c.lineTo(x + 260, 1500); c.lineTo(x + 150, 1500); c.closePath(); c.fill(); } c.restore();
+  c.save(); c.beginPath(); c.rect(0, 1480, W, 130); c.clip(); c.fillStyle = INK; c.fillRect(0, 1480, W, 130); c.fillStyle = YEL;
+  for (let x = -300; x < W + 300; x += 220) { c.beginPath(); c.moveTo(x, 1610); c.lineTo(x + 110, 1610); c.lineTo(x + 240, 1480); c.lineTo(x + 130, 1480); c.closePath(); c.fill(); } c.restore();
 
-  // ---------------- HEADLINE ----------------
-  big('FUCK', W / 2, 2420, 900, WHITE, W - 240, 0.8, -6);
-  big('FLOCK', W / 2, 3230, 900, YEL, W - 240, 0.8, -6);
-  // red redaction bar slashing through, behind nothing — a hit of red
-  c.save(); c.translate(W / 2, 2500); c.rotate(-0.02); c.fillStyle = RED; c.fillRect(-1450, -22, 2900, 44); c.restore();
+  // ---------------- HEADLINE: as big as the sheet allows ----------------
+  big('FUCK', W / 2, 2560, 1050, WHITE, W - 160, 0.86, -4);
+  big('FLOCK', W / 2, 3520, 1050, YEL, W - 160, 0.86, -4);
 
-  // ---------------- FACTS ----------------
-  const facts = ['Every car that passes gets photographed:', 'plate, make, color, dents, bumper stickers.', 'Logged, searchable, and shared with', 'police agencies across the country.'];
-  facts.forEach((s, i) => line(s, W / 2, 3385 + i * 104, G(i % 2 ? 600 : 800, 96), i % 2 ? '#CFCBC0' : WHITE));
-  // three chips
-  const chips = ['EVERY CAR', 'EVERY PLATE', 'EVERY DAY'], cw = 900, cg = 90, cx0 = (W - (3 * cw + 2 * cg)) / 2;
-  chips.forEach((s, i) => { const x = cx0 + i * (cw + cg); c.save(); c.beginPath(); c.roundRect(x, 3820, cw, 150, 75); c.lineWidth = 12; c.strokeStyle = YEL; c.stroke(); c.restore(); line(s, x + cw / 2, 3898, G(900, 92), YEL, 'center', 6); });
-
-  // ---------------- FOOTER ----------------
-  c.fillStyle = YEL; c.fillRect(0, 4030, W, 170);
-  line("YOU DIDN'T CONSENT TO THIS.", 90, 4117, G(900, 92), INK, 'left', 4);
-  line('MAP THEM: DEFLOCK.ME', W - 90, 4117, MONO(800, 78), INK, 'right', 2);
+  // ---------------- one line: why ----------------
+  c.fillStyle = YEL; c.fillRect(0, 3700, W, 500);
+  big('IT TRACKS YOUR CAR', W / 2, 4060, 330, INK, W - 200, 0.82, 0);
 
   // ---------------- stencil grunge ----------------
   // speckle knock-outs (spray-paint dropouts) + fine grain, so it reads like a street poster
   c.save(); c.globalCompositeOperation = 'source-atop';
-  for (let i = 0; i < 4500; i++) { const x = hash(i, 1) * W, y = hash(i, 2) * H, r = 1.5 + Math.pow(hash(i, 3), 6) * 10; c.fillStyle = hash(i, 4) > 0.5 ? 'rgba(10,10,10,0.35)' : 'rgba(247,245,238,0.08)'; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
+  for (let i = 0; i < 2500; i++) { const x = hash(i, 1) * W, y = hash(i, 2) * H, r = 1.5 + Math.pow(hash(i, 3), 6) * 10; c.fillStyle = hash(i, 4) > 0.5 ? 'rgba(10,10,10,0.35)' : 'rgba(247,245,238,0.08)'; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
   c.restore();
   const gr = document.createElement('canvas'); gr.width = gr.height = 512; const g = gr.getContext('2d'), d = g.createImageData(512, 512);
   for (let i = 0; i < d.data.length; i += 4) { const v = hash(i, 9) * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 22; } g.putImageData(d, 0, 0);
