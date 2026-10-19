@@ -1,7 +1,7 @@
 // Score for BLOCKCHAIN 101 · EP01 — 180s of dark electric phonk, synthesized entirely in code (no samples).
 // F# phrygian, 120 BPM (bar = 2s, matches the film's grid). Detuned 808-ratio cowbell riffs, distorted sliding 808s, crunchy
 // claps, rolling hats, dark detuned drone. Arrangement follows the picture: lo-fi boot 0–6 · drop 6 · groove A 12–30 ·
-// lighter groove B under the history cards 30–74 · full groove 76–122 · half-time "gatekeeper" tension 122–129.6 →
+// full groove under the key sectors 30–78 · lighter groove B under the history cards 78–122 · half-time "gatekeeper" tension 122–129.6 →
 // shatter → rebuild → drop 134 · careers 146–168 · outro 168–180. Every bullet / card / block has its own SFX.
 //   node course/ep01/synth.mjs  ->  out/blockchain101_ep01_score.wav
 import { writeFileSync, mkdirSync } from 'node:fs';
@@ -132,15 +132,17 @@ glitch(11.95, 1); boom(12, 0.8); groove(12, 30, { fill: true });
 [14, 14.75, 15.5, 16.25].forEach((t, i) => { lowPop(t, 0.9, 85 + i * 8); tick(t + 0.03, 0.5, 1800 + i * 200); });
 [14.5, 17.5, 20.5, 24.8].forEach((t, i) => (i % 2 ? lowPop(t, 0.8, 110) : tick(t, 0.9, 2000)));
 alarm(21.2, 1.4, 1); zap(21.2, 0.9, 1800, 90, 0.5); bell(24.2, R0 + 19, 0.7, 0.2, 1.4); bell(24.35, R0 + 24, 0.5, -0.2, 1.4);
-// 30 · HISTORY — groove B, lighter so the cards read
-glitch(29.95, 1); boom(30, 0.9); air(30.2, 1.6, 0.8);
-groove(30, 74, { cow: 0.7, kick: 0.85, hat: 0.8, drone: 0.9, fill: true });
-for (let i = 0; i < 9; i++) { const t = 32 + i * 42 / 9; air(t - 0.15, 0.8, 0.9); lowPop(t, 0.8, 80 + (i % 3) * 15); bell(t + 0.05, R0 + 12 + [0, 3, 7][i % 3], 0.25, i % 2 ? 0.4 : -0.4, 1.0); }
-// 74 · THE FIELDS — full groove, harder
-glitch(73.95, 1); boom(74, 1); shatter(74, 0.6);
-for (let k = 0; k < 8; k++) { const t = 76.2 + k * 0.18; (k % 2 ? lowPop : tick)(t, 0.8, k % 2 ? 100 + k * 6 : 2200 + k * 90); }
-groove(74, 122, { rolls: true, fill: true });
-for (let i = 0; i < 8; i++) { const T0 = 80 + i * 42 / 8; air(T0 - 0.12, 0.6, 0.9); zap(T0, 0.35, 2600, 300, 0.25); for (let j = 0; j < 3; j++) (j % 2 ? lowPop : tick)(T0 + 0.6 + j * 0.75, 0.7, j % 2 ? 105 : 2100); }
+// 30 · KEY SECTORS — full groove, harder
+glitch(29.95, 1); boom(30, 1); shatter(30, 0.6);
+for (let k = 0; k < 8; k++) { const t = 32.2 + k * 0.18; (k % 2 ? lowPop : tick)(t, 0.8, k % 2 ? 100 + k * 6 : 2200 + k * 90); }
+groove(30, 78, { rolls: true, fill: true });
+for (let i = 0; i < 8; i++) { const T0 = 36 + i * 42 / 8; air(T0 - 0.12, 0.6, 0.9); zap(T0, 0.35, 2600, 300, 0.25); for (let j = 0; j < 3; j++) (j % 2 ? lowPop : tick)(T0 + 0.6 + j * 0.75, 0.7, j % 2 ? 105 : 2100); }
+// 78 · HISTORY — groove B, lighter so the cards read
+glitch(77.95, 1); boom(78, 0.9); air(78.2, 1.6, 0.8);
+groove(78, 122, { cow: 0.7, kick: 0.85, hat: 0.8, drone: 0.9, fill: true });
+for (let i = 0; i < 9; i++) { const t = 80 + i * 42 / 9; air(t - 0.15, 0.8, 0.9); lowPop(t, 0.8, 80 + (i % 3) * 15); bell(t + 0.05, R0 + 12 + [0, 3, 7][i % 3], 0.25, i % 2 ? 0.4 : -0.4, 1.0); }
+// opener tunnels whoosh through
+[12, 30, 78, 122, 146].forEach((T) => { whoosh(T + 0.05, 1.6, 0.9, true); });
 // 122 · POWER — gatekeeper tension: half-time, alarm, long 808s, no cowbell
 glitch(121.95, 1); boom(122, 1);
 groove(122, 128, { half: true, noCow: true, hat: 0.6, drone: 1.2 }); alarm(124.6, 0.8, 0.6); alarm(126.6, 0.8, 0.6);
