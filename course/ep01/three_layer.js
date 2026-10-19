@@ -11,7 +11,7 @@ const hash = (a, b = 0) => { let n = Math.imul(a | 0, 73856093) ^ Math.imul(b | 
 const ease = (p) => (p <= 0 ? 0 : p >= 1 ? 1 : 1 - Math.pow(1 - p, 3));
 
 const big = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-big.setPixelRatio(1); big.setSize(W, H, false); big.setClearColor(0x000000, 0);
+big.setPixelRatio(1); big.setSize(W / 2, H / 2, false); // half-res: software WebGL at 1080p is too slow; the 2D compositor upscales + blooms big.setClearColor(0x000000, 0);
 const small = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
 small.setPixelRatio(1); small.setSize(512, 512, false); small.setClearColor(0x000000, 0);
 

@@ -60,28 +60,36 @@
 
   // ---------------- world: skyline, grid floor, data rain ----------------
   const SKY = []; for (let i = 0, x = -40; x < W + 80; i++) { const w = 50 + hash(i, 1) * 110, h = 90 + Math.pow(hash(i, 2), 1.6) * 330; SKY.push([x, w, h, i]); x += w + 6; }
-  function world(c, t, acc = CY, acc2 = MG, alarm = 0) {
+  // static layers (sky, sun-glow, floor, radial grid, skyline) are pre-rendered once per colour scheme and reused every frame
+  const WCACHE = {};
+  function worldCache(acc, acc2, alarm) {
+    const key = acc + acc2 + alarm; if (WCACHE[key]) return WCACHE[key];
+    const hz = 700, st = document.createElement('canvas'); st.width = W; st.height = H; const c = st.getContext('2d');
     let g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, alarm ? '#14030A' : '#06041A'); g.addColorStop(0.62, alarm ? '#2A0612' : '#1A0A38'); g.addColorStop(1, BG); c.fillStyle = g; c.fillRect(0, 0, W, H);
-    const hz = 700;
-    // horizon sun-glow
     g = c.createRadialGradient(W / 2, hz, 0, W / 2, hz, 900); g.addColorStop(0, rgba(alarm ? RED : acc2, 0.38)); g.addColorStop(0.5, rgba(alarm ? RED : VIO, 0.12)); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-    // data rain (far layer)
-    c.save(); c.font = MONO(700, 20); c.textAlign = 'center'; c.textBaseline = 'middle';
-    for (let i = 0; i < 48; i++) { const x = 20 + i * 40, sp = 30 + hash(i, 7) * 80; for (let j = 0; j < 20; j++) { const v = hash(i, j); if (v < 0.55) continue; const y = (j * 36 + t * sp) % 720; c.fillStyle = rgba(acc, 0.03 + 0.08 * hash(j, i)); c.fillText(GL[(hash(i, j, Math.floor(t * 3 + i)) * GL.length) | 0], x, y); } }
-    c.restore();
-    // skyline (parallax drift) with lit windows
-    c.save(); const off = (t * 6) % 200;
-    for (const [x0, w, h, i] of SKY) { const x = x0 - off, y = hz - h; c.fillStyle = '#070512'; c.fillRect(x, y, w, h + 2); c.fillStyle = rgba(acc, 0.35); c.fillRect(x, y, w, 2);
-      for (let wy = y + 14; wy < hz - 10; wy += 18) for (let wx = x + 8; wx < x + w - 8; wx += 14) { const v = hash(i, wx | 0, wy | 0); if (v < 0.8) continue; c.fillStyle = v > 0.95 ? rgba(acc2, 0.7) : rgba(acc, 0.35 + 0.3 * Math.sin(t * 2 + v * 40) ** 2); c.fillRect(wx, wy, 5, 7); }
-      if (hash(i, 9) > 0.8) { c.fillStyle = (Math.floor(t * 2 + i) % 2) ? RED : 'rgba(255,51,85,0.25)'; c.fillRect(x + w / 2 - 3, y - 14, 6, 6); } }
-    c.restore();
-    // grid floor
     c.save(); c.beginPath(); c.rect(0, hz, W, H - hz); c.clip(); g = c.createLinearGradient(0, hz, 0, H); g.addColorStop(0, '#0B0620'); g.addColorStop(1, '#020108'); c.fillStyle = g; c.fillRect(0, hz, W, H - hz);
     c.strokeStyle = rgba(alarm ? RED : acc2, 0.5); c.lineWidth = 2; c.shadowColor = alarm ? RED : acc2; c.shadowBlur = 8;
-    for (let i = -30; i <= 30; i++) { c.beginPath(); c.moveTo(W / 2 + i * 26, hz); c.lineTo(W / 2 + i * 260, H); c.stroke(); }
-    const sc = (t * 0.6) % 1; for (let k = 0; k < 14; k++) { const z = (k + sc) / 14, y = hz + (H - hz) * Math.pow(z, 2.4); c.globalAlpha = clamp(z * 2); c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); } c.restore();
+    for (let i = -30; i <= 30; i++) { c.beginPath(); c.moveTo(W / 2 + i * 26, hz); c.lineTo(W / 2 + i * 260, H); c.stroke(); } c.restore();
+    const sk = document.createElement('canvas'); sk.width = W + 260; sk.height = 460; const k = sk.getContext('2d'), y0 = 460;
+    for (const [x0, w, h, i] of SKY) for (const shift of [0, 200 * Math.ceil((W + 60) / 200) - 200 * Math.floor(W / 200)]) { if (shift && x0 > 260) continue; const x = x0 + 40 + (shift ? SKY_SPAN : 0), y = y0 - h; k.fillStyle = '#070512'; k.fillRect(x, y, w, h); k.fillStyle = rgba(acc, 0.35); k.fillRect(x, y, w, 2);
+      for (let wy = y + 14; wy < y0 - 10; wy += 18) for (let wx = x + 8; wx < x + w - 8; wx += 14) { const v = hash(i, (wx - x) | 0, (wy - y) | 0); if (v < 0.8) continue; k.fillStyle = v > 0.95 ? rgba(acc2, 0.7) : rgba(acc, 0.35 + 0.3 * hash(i, wx | 0)); k.fillRect(wx, wy, 5, 7); } }
+    return (WCACHE[key] = { st, sk });
+  }
+  const SKY_SPAN = SKY.length ? SKY[SKY.length - 1][0] + SKY[SKY.length - 1][1] + 6 + 40 : W;
+  function world(c, t, acc = CY, acc2 = MG, alarm = 0) {
+    const { st, sk } = worldCache(acc, acc2, alarm), hz = 700; c.drawImage(st, 0, 0);
+    // data rain (far layer)
+    c.save(); c.font = MONO(700, 20); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = rgba(acc, 0.07);
+    for (let i = 0; i < 48; i += 2) { const x = 20 + i * 40, sp = 30 + hash(i, 7) * 80; for (let j = 0; j < 20; j++) { const v = hash(i, j); if (v < 0.55) continue; const y = (j * 36 + t * sp) % 720; c.fillText(GL[(hash(i, j, Math.floor(t * 3 + i)) * GL.length) | 0], x, y); } }
+    c.restore();
+    // skyline (cached) drifting slowly, plus blinking roof beacons
+    const off = (t * 6) % 200; c.drawImage(sk, -40 - off, hz - 460);
+    for (const [x0, w, h, i] of SKY) { if (hash(i, 9) <= 0.8) continue; c.fillStyle = (Math.floor(t * 2 + i) % 2) ? RED : 'rgba(255,51,85,0.25)'; c.fillRect(x0 - off + w / 2 - 3, hz - h - 14, 6, 6); }
+    // moving horizontal grid lines (no shadow → cheap)
+    c.save(); c.strokeStyle = rgba(alarm ? RED : acc2, 0.6); c.lineWidth = 3; const sc = (t * 0.6) % 1; for (let kk = 0; kk < 14; kk++) { const z = (kk + sc) / 14, y = hz + (H - hz) * Math.pow(z, 2.4); c.globalAlpha = clamp(z * 2); c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); } c.restore();
     c.fillStyle = rgba(acc, 0.8); c.fillRect(0, hz - 1, W, 2);
   }
+
 
   // ---------------- presenter lane ----------------
   // ?lane=right (default) | left | none. All copy & graphics live in the content area [CA0, CA1]; the lane stays clear for the host.
@@ -93,7 +101,12 @@
     for (let i = 0; i < 3; i++) { const r = 250 - i * 55 + Math.sin(t * 2 + i) * 6; c.beginPath(); c.ellipse(LX, 985, r, r * 0.16, 0, 0, TAU); c.lineWidth = 3; c.strokeStyle = rgba(i === 1 ? MG : CY, 0.55 - i * 0.12); c.shadowColor = CY; c.shadowBlur = 20; c.stroke(); }
     const sweep = (t * 0.6) % 1; c.beginPath(); c.ellipse(LX, 985, 250, 40, 0, sweep * TAU, sweep * TAU + 1.2); c.lineWidth = 6; c.strokeStyle = WH; c.stroke(); c.restore(); }
   // 3D compositing with a blur bloom; dx shifts full-frame passes into the content area
-  function draw3D(c, src, x, y, w, h, alpha = 1, bloom = 1) { if (!src || alpha <= 0) return; c.save(); c.globalAlpha = alpha; if (bloom > 0) { c.globalCompositeOperation = 'lighter'; c.filter = `blur(${12 * bloom}px)`; c.drawImage(src, x, y, w, h); c.filter = 'none'; c.globalCompositeOperation = 'source-over'; } c.drawImage(src, x, y, w, h); c.restore(); }
+  // bloom = the pass shrunk to 1/8 and stretched back (bilinear = cheap blur), added on top
+  let GLOW = null;
+  function draw3D(c, src, x, y, w, h, alpha = 1, bloom = 1) { if (!src || alpha <= 0) return; c.save(); c.globalAlpha = alpha; c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+    if (bloom > 0) { if (!GLOW) { GLOW = document.createElement('canvas'); GLOW.width = 240; GLOW.height = 135; } const g = GLOW.getContext('2d'); g.clearRect(0, 0, 240, 135); g.drawImage(src, 0, 0, 240, 135);
+      c.globalCompositeOperation = 'lighter'; c.globalAlpha = alpha * 0.9 * bloom; c.drawImage(GLOW, x, y, w, h); c.globalCompositeOperation = 'source-over'; c.globalAlpha = alpha; }
+    c.drawImage(src, x, y, w, h); c.restore(); }
   const T3 = () => window.T3;
 
   // ---------------- HUD ----------------
@@ -333,7 +346,7 @@
     if (!SCAN) { SCAN = document.createElement('canvas'); SCAN.width = 4; SCAN.height = 4; const s = SCAN.getContext('2d'); s.fillStyle = 'rgba(0,0,0,0.22)'; s.fillRect(0, 0, 4, 1); }
     c.fillStyle = c.createPattern(SCAN, 'repeat'); c.fillRect(0, 0, W, H);
     if (!GRAIN) { GRAIN = document.createElement('canvas'); GRAIN.width = GRAIN.height = 256; const g = GRAIN.getContext('2d'), d = g.createImageData(256, 256); for (let i = 0; i < d.data.length; i += 4) { const v = hash(i, 11) * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 14; } g.putImageData(d, 0, 0); }
-    const fr = Math.round(t * FPS); c.save(); c.globalCompositeOperation = 'overlay'; c.fillStyle = c.createPattern(GRAIN, 'repeat'); c.translate(-(hash(fr, 1) * 256 | 0), -(hash(fr, 2) * 256 | 0)); c.fillRect(0, 0, W + 256, H + 256); c.restore();
+    const fr = Math.round(t * FPS); c.save(); c.globalAlpha = 0.5; c.fillStyle = c.createPattern(GRAIN, 'repeat'); c.translate(-(hash(fr, 1) * 256 | 0), -(hash(fr, 2) * 256 | 0)); c.fillRect(0, 0, W + 256, H + 256); c.restore();
     const vg = c.createRadialGradient(W / 2, H / 2, H * 0.4, W / 2, H / 2, H * 1.05); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.55)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
   }
   function renderAt(t) {
