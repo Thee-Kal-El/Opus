@@ -90,12 +90,12 @@ pipe = grime_metal('pipe', (0.22, 0.2, 0.17), 0.85, (0.3, 0.6), 12)
 for k, (x, z) in enumerate(((-2.6, 2.1), (-2.2, 2.25), (2.5, 2.15), (2.8, 1.6))): cyl((x, 0, z), 0.09 + 0.03 * k, 7, pipe, rot=(math.pi / 2, 0, 0), verts=20, name='pipe')
 # console in the foreground with a CRT and indicator lights
 box((0, -0.2, -1.55), (3.4, 1.2, 0.8), dark, name='console'); box((0, 0.15, -1.05), (3.4, 0.6, 0.25), trim, rot=(math.radians(-25), 0, 0), name='console_top')
-crt_m = emission('crt', (0.25, 1.0, 0.45), 0.07); box((-1.35, 0.3, -0.9), (0.3, 0.05, 0.2), crt_m, rot=(math.radians(-25), 0, 0), name='crt')
+crt_m = emission('crt', (0.25, 1.0, 0.45), 0.02); box((-1.35, 0.3, -0.9), (0.3, 0.05, 0.2), crt_m, rot=(math.radians(-25), 0, 0), name='crt')
 for i in range(10):
     c = (1.0, 0.55, 0.15) if i % 3 else (1.0, 0.15, 0.1)
     box((0.2 + i * 0.12, 0.12, -0.93), (0.05, 0.04, 0.03), emission(f'ind{i}', c, 6 if (i * 7) % 5 else 1), rot=(math.radians(-25), 0, 0), name='led')
 # practical lights + haze inside the room
-light('POINT', (-2.4, -1.5, 1.8), 60, (1.0, 0.5, 0.18), size=0.2, name='amber'); light('POINT', (2.6, 0.5, 1.9), 35, (1.0, 0.45, 0.15), size=0.2, name='amber2'); light('AREA', (0, 2.2, 0), 30, (1.0, 0.8, 0.6), rot=(math.radians(90), 0, 0), size=4, name='port_spill'); light('POINT', (1.0, -0.2, -0.8), 4, (0.3, 1.0, 0.5), size=0.2, name='crt_glow')
+light('POINT', (-2.4, -1.5, 1.8), 60, (1.0, 0.5, 0.18), size=0.2, name='amber'); light('POINT', (2.6, 0.5, 1.9), 35, (1.0, 0.45, 0.15), size=0.2, name='amber2'); light('AREA', (0, 2.2, 0), 30, (1.0, 0.8, 0.6), rot=(math.radians(90), 0, 0), size=4, name='port_spill')
 for o in bpy.data.objects:
     if o.name in ('port_spill', 'crt_glow', 'amber2'): o.data.volume_factor = 0.0
 sun.data.volume_factor = 0.35
