@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>PUBG Scopes Matter Thumbnail</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="s" width="1080" height="1920"></canvas>
+<script>
+// PUBG "SCOPES MATTER!" — vertical cover/thumbnail: red-dot view of a far-off kill with a magnifier bubble on the 1-pixel enemy;, 1080x1920. The whole corridor kill (Real-ESRGAN x4 plate), no panel
+// or facecam, feathered into a blurred extension of itself; speed streaks toward the enemy, gentle teal/orange
+// grade, stacked headline up top, and the KICK + TWITCH pill at the bottom.
+(async () => {
+  const c = document.getElementById('s').getContext('2d'), W = 1080, H = 1920, TAU = Math.PI * 2;
+  const YEL = '#FFE500', KICK = '#53FC18', TWI = '#9146FF', INK = '#06070A';
+  const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
+  await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40))]);
+  const img = (src) => new Promise((r) => { const i = new Image(); i.onload = () => r(i); i.src = src; });
+  const [plate, zoom, kick, twitch] = await Promise.all([img('../thumb/scopes/game_x4.png'), img('../thumb/scopes/zoom_x4.png'), img('kick_k.png'), img('twitch_glitch.png')]);
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
+
+  // ---- the scene, uncropped corridor: sharp plate (x 0..3672, y 300..3640) across the middle, feathered into a blurred,
+  // enlarged copy of itself above and below, so nothing is boxed in
+  const SX = 0, SY = 300, SW = 3672, SH = 3500, k = W / SW, TOP = 430, PH = SH * k, EX = (470 * 4) * k, EY = TOP + ((1110 - 560) * 4 - SY) * k;
+  c.filter = 'blur(26px) brightness(0.55) saturate(1.25)'; c.drawImage(plate, 600, 300, 2472, 3500, -40, -40, W + 80, H + 80); c.filter = 'none';   /* HUD rows excluded so the bottom blur matches the top */
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+  o.filter = 'contrast(1.12) saturate(1.25) brightness(1.06)'; o.drawImage(plate, SX, SY, SW, SH, 0, TOP, W, PH); o.filter = 'none';
+  o.globalCompositeOperation = 'destination-in'; let g = o.createLinearGradient(0, TOP, 0, TOP + PH); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.16, 'rgba(0,0,0,1)'); g.addColorStop(0.86, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)'); o.fillStyle = g; o.fillRect(0, 0, W, H);
+  c.drawImage(off, 0, 0);
+  // warm/cool split grade, gentle
+  c.save(); c.globalCompositeOperation = 'soft-light'; c.globalAlpha = 0.5; g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#1B8AA0'); g.addColorStop(0.55, '#E0864A'); g.addColorStop(1, '#1B6A80'); c.fillStyle = g; c.fillRect(0, 0, W, H); c.restore();
+  // soft vignette for the type
+  g = c.createRadialGradient(EX, EY, 380, EX, EY, 1250); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.55)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+
+  // hide the other player's name in the kill feed (keep YOU KILLED + 2 KILLS)
+  c.save(); c.beginPath(); rr(455, 1180, 310, 44, 12); c.clip(); c.filter = 'blur(10px)'; c.drawImage(c.canvas, 0, 0); c.filter = 'none'; c.fillStyle = 'rgba(20,16,12,0.55)'; c.fillRect(455, 1180, 310, 44); c.restore();
+  // ---- magnifier: the 1-pixel enemy inside the red dot, blown up in a lens bubble with a leader line
+  { const MX = 790, MY = 760, MR = 190;
+    c.save(); c.strokeStyle = YEL; c.lineWidth = 7; c.setLineDash([16, 12]); c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 10;
+    c.beginPath(); c.arc(EX, EY, 30, 0, TAU); c.stroke(); c.beginPath(); c.moveTo(EX + 22, EY - 22); c.lineTo(MX - MR * 0.72, MY + MR * 0.72); c.stroke(); c.restore();
+    c.save(); c.shadowColor = 'rgba(0,0,0,0.85)'; c.shadowBlur = 40; c.beginPath(); c.arc(MX, MY, MR + 14, 0, TAU); c.fillStyle = YEL; c.fill(); c.restore();
+    c.save(); c.beginPath(); c.arc(MX, MY, MR, 0, TAU); c.clip(); c.filter = 'contrast(1.15) saturate(1.3)'; c.drawImage(zoom, 25, 45, 270, 270, MX - MR, MY - MR, MR * 2, MR * 2); c.filter = 'none';
+    const gg = c.createRadialGradient(MX - 60, MY - 70, 10, MX, MY, MR); gg.addColorStop(0, 'rgba(255,255,255,0.25)'); gg.addColorStop(0.4, 'rgba(255,255,255,0)'); gg.addColorStop(1, 'rgba(0,0,0,0.35)'); c.fillStyle = gg; c.fillRect(MX - MR, MY - MR, MR * 2, MR * 2); c.restore();
+    c.beginPath(); c.arc(MX, MY, MR + 14, 0, TAU); c.lineWidth = 6; c.strokeStyle = '#000'; c.stroke();
+    // range tag
+    c.save(); c.translate(MX, MY + MR + 58); c.rotate(-0.04); rr(-130, -40, 260, 80, 16); c.fillStyle = '#E3170F'; c.fill(); c.lineWidth = 5; c.strokeStyle = '#000'; c.stroke();
+    c.font = 'italic ' + D(48); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '0px'; c.fillText('RED DOT', 0, 3); c.restore(); }
+
+  // ---- headline, stacked over the ceiling
+  function word(s, x, y, size, fill, rot = -0.04, sx = 0.9) {
+    c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = 'italic ' + D(size); c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '-3px'; c.lineJoin = 'round';
+    c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillText(s, 10, 14); c.lineWidth = size * 0.16; c.strokeStyle = '#000'; c.strokeText(s, 0, 0);
+    if (Array.isArray(fill)) { const g2 = c.createLinearGradient(0, -size / 2, 0, size / 2); fill.forEach((f, i) => g2.addColorStop(i / (fill.length - 1), f)); c.fillStyle = g2; } else c.fillStyle = fill; c.fillText(s, 0, 0); c.restore();
+  }
+  rr(375, 70, 330, 100, 20); c.fillStyle = '#F2A900'; c.fill(); c.lineWidth = 6; c.strokeStyle = '#000'; c.stroke(); c.font = D(76); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '2px'; c.fillText('PUBG', 540, 123);
+  word('SCOPES', 540, 290, 170, '#FFFFFF');
+  word('MATTER!', 540, 450, 180, ['#FFF7B0', YEL, '#FF9A1A']);
+
+  // ---- KICK + TWITCH pill in the floor shadow
+  const sy = 1500, px = 60, pw = 960, ph = 190; rr(px, sy, pw, ph, ph / 2); c.fillStyle = 'rgba(8,9,12,0.88)'; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 30; c.fill(); c.shadowBlur = 0;
+  c.lineWidth = 6; g = c.createLinearGradient(px, 0, px + pw, 0); g.addColorStop(0, KICK); g.addColorStop(1, TWI); c.strokeStyle = g; c.stroke();
+  c.save(); rr(px + 40, sy + 30, 130, 130, 28); c.fillStyle = '#000'; c.fill(); c.lineWidth = 4; c.strokeStyle = KICK; c.stroke(); c.drawImage(kick, px + 62, sy + 45, 86, 100); c.restore();
+  c.save(); rr(px + 190, sy + 30, 130, 130, 28); c.fillStyle = TWI; c.fill(); c.drawImage(twitch, px + 214, sy + 43, 82, 104); c.restore();
+  c.font = G(800, 40); c.fillStyle = '#B4BAC2'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.letterSpacing = '4px'; c.fillText('LIVE ON KICK + TWITCH', px + 355, sy + 62);
+  c.font = D(78); c.fillStyle = '#FFFFFF'; c.letterSpacing = '0px'; c.fillText('Thee_Kal_El', px + 352, sy + 128);
+  document.title = 'done';
+})();
+</script></body></html>
