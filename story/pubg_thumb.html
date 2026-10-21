@@ -12,7 +12,7 @@
   const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
   await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40))]);
   const img = (src) => new Promise((r) => { const i = new Image(); i.onload = () => r(i); i.src = src; });
-  const [scope, field, kick, twitch] = await Promise.all([img('../thumb/s_1.00.jpg'), img('../thumb/pubg_6.6.jpg'), img('kick_k.png'), img('twitch_glitch.png')]);
+  const [me, scope, field, kick, twitch] = await Promise.all([img('kal_reaction_sticker.png'), img('../thumb/s_1.00.jpg'), img('../thumb/pubg_6.6.jpg'), img('kick_k.png'), img('twitch_glitch.png')]);
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
   function word(s, x, y, size, fill, rot = 0, align = 'center', sx = 0.9, ital = true) {
     c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = (ital ? 'italic ' : '') + D(size); c.textAlign = align; c.textBaseline = 'middle'; c.letterSpacing = '-3px'; c.lineJoin = 'round';
@@ -48,6 +48,12 @@
   // ---- headline
   word('“OOOO”', 540, 330, 215, ['#FFFFFF', '#FFF4A8', YEL, '#FFB800'], -0.06, 'center', 1.12, false);
 
+  // ---- reaction: Kal cut out with a sticker border, bottom-right, looking across at the kill (bottom edge tucks under the pill)
+  { const mw = 640, mh = mw * me.height / me.width, off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+    o.save(); o.shadowColor = 'rgba(0,0,0,0.75)'; o.shadowBlur = 40; o.translate(W - mw + 70, 1125); o.rotate(0.04); o.drawImage(me, 0, 0, mw, mh); o.restore();
+    // fade the flat bottom edge out so it melts into the dark under the pill
+    const fg = o.createLinearGradient(0, 1600, 0, 1730); fg.addColorStop(0, 'rgba(0,0,0,0)'); fg.addColorStop(1, 'rgba(0,0,0,1)'); o.globalCompositeOperation = 'destination-out'; o.fillStyle = fg; o.fillRect(0, 1600, W, H - 1600);
+    c.drawImage(off, 0, 0); }
   // ---- KICK + TWITCH pill, centred under the scope
   const sy = 1570, px = 60, pw = 960, ph = 190; rr(px, sy, pw, ph, ph / 2); c.fillStyle = 'rgba(8,9,12,0.9)'; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 30; c.fill(); c.shadowBlur = 0;
   c.lineWidth = 6; g = c.createLinearGradient(px, 0, px + pw, 0); g.addColorStop(0, KICK); g.addColorStop(1, TWI); c.strokeStyle = g; c.stroke();
