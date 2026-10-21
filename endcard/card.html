@@ -17,6 +17,8 @@
   const img = (src) => new Promise((r) => { const i = new Image(); i.onload = () => r(i); i.src = src; });
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
   let kick, twitch;
+  // ?dy=N shifts the whole card vertically; ?local=1 swaps the full bottom band for a soft shadow behind the card only
+  const Q = new URLSearchParams(location.search), DY = +(Q.get('dy') || 0), LOCAL = Q.get('local') === '1';
 
   function slam(text, x, y, size, fill, t0, t, rot = -0.04) {
     const p = prog(t, t0, t0 + 0.22); if (p <= 0) return; const s = 1 + (1 - outBack(p)) * 0.9, a = clamp(p * 3);
@@ -44,11 +46,14 @@
   function renderAt(t) {
     c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, W, H); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
     // dark band over the game half
-    const band = out3(prog(t, 0, 0.3)); c.save(); c.globalAlpha = band; let g = c.createLinearGradient(0, 1120, 0, H); g.addColorStop(0, 'rgba(6,4,14,0)'); g.addColorStop(0.12, 'rgba(6,4,14,0.82)'); g.addColorStop(1, 'rgba(6,4,14,0.92)'); c.fillStyle = g; c.fillRect(0, 1120, W, H - 1120);
+    c.translate(0, DY);
+    const band = out3(prog(t, 0, 0.3)); c.save(); c.globalAlpha = band; let g;
+    if (LOCAL) { c.save(); c.translate(540, 1505); c.scale(1, 0.62); g = c.createRadialGradient(0, 0, 120, 0, 0, 640); g.addColorStop(0, 'rgba(6,4,14,0.78)'); g.addColorStop(0.6, 'rgba(6,4,14,0.55)'); g.addColorStop(1, 'rgba(6,4,14,0)'); c.fillStyle = g; c.fillRect(-640, -640, 1280, 1280); c.restore(); }
+    else { g = c.createLinearGradient(0, 1120, 0, H); g.addColorStop(0, 'rgba(6,4,14,0)'); g.addColorStop(0.12, 'rgba(6,4,14,0.82)'); g.addColorStop(1, 'rgba(6,4,14,0.92)'); c.fillStyle = g; c.fillRect(0, 1120, W, H - 1120); }
     // speed lines from the logos
-    c.translate(540, 1640); for (let i = 0; i < 40; i++) { const a = i / 40 * TAU + t * 0.15; c.beginPath(); c.moveTo(Math.cos(a) * 260, Math.sin(a) * 260); c.lineTo(Math.cos(a) * 1200, Math.sin(a) * 1200); c.strokeStyle = i % 2 ? 'rgba(83,252,24,0.07)' : 'rgba(145,70,255,0.08)'; c.lineWidth = 14; c.stroke(); } c.restore();
+    c.translate(540, 1640); for (let i = 0; i < (LOCAL ? 0 : 40); i++) { const a = i / 40 * TAU + t * 0.15; c.beginPath(); c.moveTo(Math.cos(a) * 260, Math.sin(a) * 260); c.lineTo(Math.cos(a) * 1200, Math.sin(a) * 1200); c.strokeStyle = i % 2 ? 'rgba(83,252,24,0.07)' : 'rgba(145,70,255,0.08)'; c.lineWidth = 14; c.stroke(); } c.restore();
     // impact flash on each slam
-    [0.15, 0.45].forEach((t0) => { const f = 1 - prog(t, t0, t0 + 0.18); if (t >= t0 && f > 0) { c.fillStyle = `rgba(255,255,255,${0.35 * f})`; c.fillRect(0, 1120, W, H - 1120); } });
+    [0.15, 0.45].forEach((t0) => { const f = 1 - prog(t, t0, t0 + 0.18); if (t >= t0 && f > 0) { c.fillStyle = `rgba(255,255,255,${0.35 * f})`; if (LOCAL) c.fillRect(0, 1180, W, 680); else c.fillRect(0, 1120, W, H - 1120); } });
     // LIVE chip
     const lp = prog(t, 0.05, 0.25); if (lp > 0) { c.save(); c.globalAlpha = lp; c.translate(540, 1190); rr(-95, -34, 190, 68, 34); c.fillStyle = RED; c.shadowColor = 'rgba(255,40,40,0.8)'; c.shadowBlur = 24; c.fill(); c.shadowBlur = 0;
       c.fillStyle = `rgba(255,255,255,${0.55 + 0.45 * (Math.floor(t * 2.5) % 2)})`; c.beginPath(); c.arc(-50, 0, 11, 0, TAU); c.fill(); c.font = D(38); c.fillStyle = '#fff'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.letterSpacing = '3px'; c.fillText('LIVE', -28, 2); c.restore(); }

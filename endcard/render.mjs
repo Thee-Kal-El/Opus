@@ -1,6 +1,6 @@
 // Renders the transparent end-card overlay and composites it onto the end of a clip (holding the last frame for HOLD seconds),
 // mixing the card's SFX (endcard/sfx.mjs) in under the clip audio.
-//   node endcard/render.mjs <clip.mp4> <start-seconds> <out.mp4>  [--hold 2.0] [--stills 0.5,1.5]
+//   node endcard/render.mjs <clip.mp4> <start-seconds> <out.mp4>  [--hold 2.0] [--dy -545] [--local] [--stills 0.5,1.5]
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -14,7 +14,8 @@ const dur = parseFloat(spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'fo
 const browser = await chromium.launch({ args: ['--force-color-profile=srgb', '--allow-file-access-from-files'] });
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
 page.on('pageerror', (e) => { console.error(e); process.exit(1); });
-await page.goto(pathToFileURL(resolve(here, 'card.html')).href); await page.evaluate(() => window.CARD.ready);
+const opt = (k) => (args.includes(k) ? args[args.indexOf(k) + 1] : null), dy = opt('--dy'), local = args.includes('--local');
+await page.goto(pathToFileURL(resolve(here, 'card.html')).href + `?dy=${dy || 0}&local=${local ? 1 : 0}`); await page.evaluate(() => window.CARD.ready);
 const grab = (t) => page.evaluate((t) => { window.CARD.renderAt(t); return document.getElementById('c').toDataURL('image/png').split(',')[1]; }, t);
 const frames = resolve(here, '..', 'out', 'endcard_frames'); rmSync(frames, { recursive: true, force: true }); mkdirSync(frames, { recursive: true });
 const len = dur - start + HOLD, N = Math.ceil(len * 30);
