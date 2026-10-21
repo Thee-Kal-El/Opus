@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Motion Backgrounds</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas>
+<script src="backgrounds.js"></script>
+<script>
+// Viewer / renderer for motionbg/backgrounds.js
+//   index.html                      → contact sheet of all 8 (animated, ember palette)
+//   index.html?bg=moire&pal=kick&w=1080&h=1920   → one background full-frame
+// window.FILM = { W, H, FPS, DUR, renderAt } so the usual render scripts can record it.
+(() => {
+  const Q = new URLSearchParams(location.search), cv = document.getElementById('c'), c = cv.getContext('2d');
+  const { BG, LIST, PALETTES, LOOP } = window.MOTIONBG, pal = PALETTES[Q.get('pal') || 'ember'], one = Q.get('bg');
+  const W = cv.width = +(Q.get('w') || 1920), H = cv.height = +(Q.get('h') || 1080);
+  const F = (w, s) => `${w} ${s}px "Inter Tight", sans-serif`, SERIF = (s) => `italic 400 ${s}px "Instrument Serif", serif`;
+  function renderAt(t) {
+    if (one) { BG[one](c, t, W, H, pal); return; }
+    c.fillStyle = '#111'; c.fillRect(0, 0, W, H);
+    c.font = F(800, 46); c.fillStyle = '#fff'; c.textBaseline = 'alphabetic'; c.fillText('Motion Backgrounds · Lines', 60, 86);
+    c.font = SERIF(30); c.fillStyle = '#9A9A9A'; c.fillText('procedural, loop every ' + LOOP + 's, any size, swappable palettes', 60, 126);
+    const cw = 420, ch = 236, gx = 40, gy = 70, x0 = 60, y0 = 170;
+    LIST.forEach(([num, label, key], i) => {
+      const x = x0 + (i % 4) * (cw + gx), y = y0 + Math.floor(i / 4) * (ch + gy);
+      c.save(); c.beginPath(); c.roundRect(x, y, cw, ch, 14); c.clip(); c.translate(x, y); BG[key](c, t, cw, ch, pal); c.restore();
+      c.font = F(500, 22); c.fillStyle = '#666'; c.fillText(num, x, y + ch + 36); c.fillStyle = '#fff'; c.fillText(label, x + 42, y + ch + 36);
+      c.font = '400 18px "JetBrains Mono", monospace'; c.fillStyle = '#FF5A1F'; c.textAlign = 'right'; c.fillText(key, x + cw, y + ch + 36); c.textAlign = 'left';
+    });
+  }
+  window.FILM = { W, H, FPS: 30, DUR: LOOP, renderAt, ready: document.fonts.ready };
+  if (!/[?&]render\b/.test(location.search)) document.fonts.ready.then(() => { const t0 = performance.now(); const loop = () => { renderAt((performance.now() - t0) / 1000); requestAnimationFrame(loop); }; loop(); });
+})();
+</script></body></html>
