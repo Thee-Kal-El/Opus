@@ -22,13 +22,13 @@
 
   // ---- background: the open field from the clip, blurred + graded dark, red heat behind the scope
   c.save(); c.filter = 'blur(10px) brightness(0.45) saturate(1.2)'; c.drawImage(field, 0, 560, 918, 1072, -60, -40, W + 120, H + 80); c.restore();
-  let g = c.createRadialGradient(540, 800, 120, 540, 800, 900); g.addColorStop(0, 'rgba(255,40,30,0.38)'); g.addColorStop(0.5, 'rgba(120,10,10,0.15)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  let g = c.createRadialGradient(540, 960, 120, 540, 960, 950); g.addColorStop(0, 'rgba(255,40,30,0.38)'); g.addColorStop(0.5, 'rgba(120,10,10,0.15)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
   g = c.createLinearGradient(0, 1400, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.85)'); c.fillStyle = g; c.fillRect(0, 1400, W, 520);
   // speed lines out of the lens
-  c.save(); c.translate(540, 800); for (let i = 0; i < 46; i++) { const a = i / 46 * TAU + 0.03; c.beginPath(); c.moveTo(Math.cos(a) * 500, Math.sin(a) * 500); c.lineTo(Math.cos(a) * 1500, Math.sin(a) * 1500); c.strokeStyle = i % 2 ? 'rgba(255,229,0,0.10)' : 'rgba(255,255,255,0.05)'; c.lineWidth = 10 + (i % 3) * 6; c.stroke(); } c.restore();
+  c.save(); c.translate(540, 960); for (let i = 0; i < 46; i++) { const a = i / 46 * TAU + 0.03; c.beginPath(); c.moveTo(Math.cos(a) * 530, Math.sin(a) * 530); c.lineTo(Math.cos(a) * 1500, Math.sin(a) * 1500); c.strokeStyle = i % 2 ? 'rgba(255,229,0,0.10)' : 'rgba(255,255,255,0.05)'; c.lineWidth = 10 + (i % 3) * 6; c.stroke(); } c.restore();
 
-  // ---- the scope: source circle centre (472,1066) r≈296 → drawn at (540,760) r=440, with a heavy black tube ring
-  const CX = 540, CY = 800, R = 470, k = R / 296;
+  // ---- the scope: source circle centre (466,1064) r≈296 → drawn centred at (540,960) r=500, with a heavy black tube ring
+  const CX = 540, CY = 960, R = 500, k = R / 296;
   c.save(); c.shadowColor = 'rgba(255,40,30,0.9)'; c.shadowBlur = 70; c.beginPath(); c.arc(CX, CY, R + 34, 0, TAU); c.fillStyle = '#0A0A0A'; c.fill(); c.restore();
   c.save(); c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.clip();
   c.filter = 'contrast(1.18) saturate(1.35) brightness(1.08)'; c.drawImage(scope, CX - 466 * k, CY - 1064 * k, 918 * k, 1632 * k); c.filter = 'none';
@@ -38,25 +38,26 @@
   c.restore();
   c.beginPath(); c.arc(CX, CY, R + 12, 0, TAU); c.lineWidth = 26; c.strokeStyle = '#151515'; c.stroke();
   c.beginPath(); c.arc(CX, CY, R + 30, 0, TAU); c.lineWidth = 6; c.strokeStyle = RED; c.stroke();
-  // the hit: blood puff at source (450,960) → circle it + tag
+  // the hit: blood puff over the kneeling enemy at source (480,1004)
   const hx = CX + (480 - 466) * k, hy = CY + (1004 - 1064) * k;
-  c.save(); c.shadowColor = RED; c.shadowBlur = 24; c.beginPath(); c.arc(hx, hy, 105, 0, TAU); c.lineWidth = 10; c.strokeStyle = RED; c.stroke(); c.restore();
   // arrow from the headline into the hit
   c.save(); c.strokeStyle = YEL; c.fillStyle = YEL; c.lineWidth = 14; c.lineCap = 'round'; c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 12;
-  c.beginPath(); c.moveTo(930, 330); c.quadraticCurveTo(820, 520, hx + 98, hy - 50); c.stroke();
-  const ang = Math.atan2(hy - 50 - 520, hx + 98 - 820); c.translate(hx + 98, hy - 50); c.rotate(ang); c.beginPath(); c.moveTo(14, 0); c.lineTo(-38, -26); c.lineTo(-38, 26); c.closePath(); c.fill(); c.restore();
+  c.beginPath(); c.moveTo(985, 470); c.quadraticCurveTo(880, 640, hx + 72, hy - 18); c.stroke();
+  const ang = Math.atan2(hy - 18 - 640, hx + 72 - 880); c.translate(hx + 72, hy - 18); c.rotate(ang); c.beginPath(); c.moveTo(14, 0); c.lineTo(-38, -26); c.lineTo(-38, 26); c.closePath(); c.fill(); c.restore();
 
   // ---- headline
-  word('“OOOO”', 540, 240, 215, ['#FFFFFF', '#FFF4A8', YEL, '#FFB800'], -0.06, 'center', 1.12, false);
+  word('“OOOO”', 540, 330, 215, ['#FFFFFF', '#FFF4A8', YEL, '#FFB800'], -0.06, 'center', 1.12, false);
 
-  // ---- KICK + TWITCH strip (left of the app buttons, above the caption zone)
-  const sy = 1335; rr(50, sy, 840, 120, 60); c.fillStyle = 'rgba(8,9,12,0.88)'; c.fill(); c.lineWidth = 4; g = c.createLinearGradient(50, 0, 890, 0); g.addColorStop(0, KICK); g.addColorStop(1, TWI); c.strokeStyle = g; c.stroke();
-  c.save(); rr(78, sy + 18, 84, 84, 18); c.fillStyle = '#000'; c.fill(); c.lineWidth = 3; c.strokeStyle = KICK; c.stroke(); c.drawImage(kick, 92, sy + 28, 56, 64); c.restore();
-  c.save(); rr(178, sy + 18, 84, 84, 18); c.fillStyle = TWI; c.fill(); c.drawImage(twitch, 194, sy + 27, 52, 66); c.restore();
-  c.font = G(800, 30); c.fillStyle = '#9AA0A6'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.letterSpacing = '3px'; c.fillText('LIVE ON KICK + TWITCH', 288, sy + 40);
-  c.font = D(48); c.fillStyle = '#FFFFFF'; c.letterSpacing = '0px'; c.fillText('Thee_Kal_El', 288, sy + 84);
-  // little PUBG tag top-left
-  rr(50, 60, 150, 54, 12); c.fillStyle = '#F2A900'; c.fill(); c.font = D(36); c.fillStyle = INK; c.textAlign = 'center'; c.fillText('PUBG', 125, 89);
+  // ---- KICK + TWITCH pill, centred under the scope
+  const sy = 1570, px = 60, pw = 960, ph = 190; rr(px, sy, pw, ph, ph / 2); c.fillStyle = 'rgba(8,9,12,0.9)'; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 30; c.fill(); c.shadowBlur = 0;
+  c.lineWidth = 6; g = c.createLinearGradient(px, 0, px + pw, 0); g.addColorStop(0, KICK); g.addColorStop(1, TWI); c.strokeStyle = g; c.stroke();
+  c.save(); rr(px + 40, sy + 30, 130, 130, 28); c.fillStyle = '#000'; c.fill(); c.lineWidth = 4; c.strokeStyle = KICK; c.stroke(); c.drawImage(kick, px + 62, sy + 45, 86, 100); c.restore();
+  c.save(); rr(px + 190, sy + 30, 130, 130, 28); c.fillStyle = TWI; c.fill(); c.drawImage(twitch, px + 214, sy + 43, 82, 104); c.restore();
+  c.font = G(800, 40); c.fillStyle = '#B4BAC2'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.letterSpacing = '4px'; c.fillText('LIVE ON KICK + TWITCH', px + 355, sy + 62);
+  c.font = D(78); c.fillStyle = '#FFFFFF'; c.letterSpacing = '0px'; c.fillText('Thee_Kal_El', px + 352, sy + 128);
+  // PUBG tag, centred and big
+  rr(375, 60, 330, 110, 20); c.fillStyle = '#F2A900'; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 20; c.fill(); c.shadowBlur = 0; c.lineWidth = 6; c.strokeStyle = '#000'; c.stroke();
+  c.font = D(84); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '2px'; c.fillText('PUBG', 540, 118);
   document.title = 'done';
 })();
 </script></body></html>
