@@ -31,14 +31,14 @@
   c.shadowColor = 'rgba(255,30,20,0.85)'; c.shadowBlur = 60; rr(PX - 12, PY - 12, PW + 24, PH + 24, 34); c.fillStyle = '#0A0A0A'; c.fill(); c.shadowBlur = 0;
   c.save(); rr(PX, PY, PW, PH, 24); c.clip();
   // source crop (in plate px): x 0..3200, y 1040..3664 — blood in the air, the enemy by the tree, Kal aiming in the foreground
-  c.filter = 'contrast(1.12) saturate(1.25) brightness(1.05)'; c.drawImage(duel, 0, 1040, 3200, 2624, PX, PY, PW, PH); c.filter = 'none';
+  c.filter = 'contrast(1.12) saturate(1.25) brightness(1.05)'; c.drawImage(duel, 0, 640, 3672, 3011, PX, PY, PW, PH); c.filter = 'none';
   g = c.createLinearGradient(0, PY, 0, PY + PH); g.addColorStop(0.7, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.55)'); c.fillStyle = g; c.fillRect(PX, PY, PW, PH);
   c.restore();
   rr(PX, PY, PW, PH, 24); c.lineWidth = 8; c.strokeStyle = RED; c.stroke();
   c.restore();
   // crosshair-style target bracket on the enemy (enemy at plate ~ (1560,2110))
-  const ex = PX + 1560 * PW / 3200, ey = PY + (2110 - 1040) * PH / 2624;
-  c.save(); c.strokeStyle = RED; c.lineWidth = 9; c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 10; const b = 62, l = 26;
+  const ex = PX + 2280 * PW / 3672, ey = PY + (2090 - 640) * PH / 3011;
+  c.save(); c.strokeStyle = RED; c.lineWidth = 9; c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 10; const b = 50, l = 22;
   [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sy2]) => { c.beginPath(); c.moveTo(ex + sx * b, ey + sy2 * (b - l)); c.lineTo(ex + sx * b, ey + sy2 * b); c.lineTo(ex + sx * (b - l), ey + sy2 * b); c.stroke(); }); c.restore();
 
   // ---- kill-feed slash across the duel
