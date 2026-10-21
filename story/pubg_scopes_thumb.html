@@ -29,8 +29,6 @@
   // soft vignette for the type
   g = c.createRadialGradient(EX, EY, 380, EX, EY, 1250); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.55)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
 
-  // hide the other player's name in the kill feed (keep YOU KILLED + 2 KILLS)
-  c.save(); c.beginPath(); rr(455, 1180, 310, 44, 12); c.clip(); c.filter = 'blur(10px)'; c.drawImage(c.canvas, 0, 0); c.filter = 'none'; c.fillStyle = 'rgba(20,16,12,0.55)'; c.fillRect(455, 1180, 310, 44); c.restore();
   // ---- magnifier: the 1-pixel enemy inside the red dot, blown up in a lens bubble with a leader line
   { const MX = 790, MY = 760, MR = 190;
     c.save(); c.strokeStyle = YEL; c.lineWidth = 7; c.setLineDash([16, 12]); c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 10;
@@ -40,8 +38,13 @@
     const gg = c.createRadialGradient(MX - 60, MY - 70, 10, MX, MY, MR); gg.addColorStop(0, 'rgba(255,255,255,0.25)'); gg.addColorStop(0.4, 'rgba(255,255,255,0)'); gg.addColorStop(1, 'rgba(0,0,0,0.35)'); c.fillStyle = gg; c.fillRect(MX - MR, MY - MR, MR * 2, MR * 2); c.restore();
     c.beginPath(); c.arc(MX, MY, MR + 14, 0, TAU); c.lineWidth = 6; c.strokeStyle = '#000'; c.stroke();
     // range tag
-    c.save(); c.translate(MX, MY + MR + 58); c.rotate(-0.04); rr(-130, -40, 260, 80, 16); c.fillStyle = '#E3170F'; c.fill(); c.lineWidth = 5; c.strokeStyle = '#000'; c.stroke();
-    c.font = 'italic ' + D(48); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '0px'; c.fillText('RED DOT', 0, 3); c.restore(); }
+    c.save(); c.translate(MX, MY + MR + 58); c.rotate(-0.04); rr(-150, -40, 300, 80, 16); c.fillStyle = YEL; c.fill(); c.lineWidth = 5; c.strokeStyle = '#000'; c.stroke();
+    c.font = 'italic ' + D(48); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '0px'; c.fillText('4X SCOPE', 0, 3); c.restore();
+    // RED DOT tag on the left, pointing at the sight
+    c.save(); c.translate(250, 860); c.rotate(-0.04); rr(-130, -40, 260, 80, 16); c.fillStyle = '#E3170F'; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 20; c.fill(); c.shadowBlur = 0; c.lineWidth = 5; c.strokeStyle = '#000'; c.stroke();
+    c.font = 'italic ' + D(48); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('RED DOT', 0, 3); c.restore();
+    c.save(); c.strokeStyle = '#fff'; c.fillStyle = '#fff'; c.lineWidth = 8; c.lineCap = 'round'; c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 10;
+    c.beginPath(); c.moveTo(270, 905); c.quadraticCurveTo(300, 960, 385, 950); c.stroke(); c.translate(385, 950); c.rotate(-0.15); c.beginPath(); c.moveTo(14, 0); c.lineTo(-20, -16); c.lineTo(-20, 16); c.closePath(); c.fill(); c.restore(); }
 
   // ---- headline, stacked over the ceiling
   function word(s, x, y, size, fill, rot = -0.04, sx = 0.9) {
