@@ -22,7 +22,11 @@
     const p = prog(t, t0, t0 + 0.22); if (p <= 0) return; const s = 1 + (1 - outBack(p)) * 0.9, a = clamp(p * 3);
     c.save(); c.translate(x, y); c.rotate(rot); c.scale(s, s); c.globalAlpha = a; c.font = 'italic ' + D(size); c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '-2px'; c.lineJoin = 'round';
     c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillText(text, 8, 12); c.lineWidth = size * 0.17; c.strokeStyle = '#000'; c.strokeText(text, 0, 0);
-    if (typeof fill === 'function') fill(c, size); else c.fillStyle = fill; c.fillText(text, 0, 0);
+    if (Array.isArray(fill)) {   // [[segment, colour], ...] — solid colour per word, so nothing bleeds across the glyph edges
+      c.textAlign = 'left'; let x0 = -c.measureText(text).width / 2;
+      for (const [seg, col] of fill) { c.fillStyle = col; c.fillText(seg, x0, 0); x0 += c.measureText(seg).width; }
+      c.textAlign = 'center';
+    } else { c.fillStyle = fill; c.fillText(text, 0, 0); }
     // shine sweep across the word after it lands
     const sp = ((t - t0 - 0.6) % 2.2) / 0.5; if (t > t0 + 0.6 && sp > 0 && sp < 1) { const w = c.measureText(text).width, sx = -w / 2 + sp * w * 1.4 - w * 0.2;
       const g = c.createLinearGradient(sx - 60, 0, sx + 60, 0); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.5, 'rgba(255,255,255,0.75)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillText(text, 0, 0); }
@@ -49,7 +53,7 @@
     const lp = prog(t, 0.05, 0.25); if (lp > 0) { c.save(); c.globalAlpha = lp; c.translate(540, 1190); rr(-95, -34, 190, 68, 34); c.fillStyle = RED; c.shadowColor = 'rgba(255,40,40,0.8)'; c.shadowBlur = 24; c.fill(); c.shadowBlur = 0;
       c.fillStyle = `rgba(255,255,255,${0.55 + 0.45 * (Math.floor(t * 2.5) % 2)})`; c.beginPath(); c.arc(-50, 0, 11, 0, TAU); c.fill(); c.font = D(38); c.fillStyle = '#fff'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.letterSpacing = '3px'; c.fillText('LIVE', -28, 2); c.restore(); }
     slam('WATCH LIVE ON', 540, 1300, 110, '#FFFFFF', 0.15, t);
-    slam('KICK & TWITCH!', 540, 1440, 132, (cc, size) => { const g = cc.createLinearGradient(-430, 0, 430, 0); g.addColorStop(0, KICK); g.addColorStop(0.325, KICK); g.addColorStop(0.335, '#FFFFFF'); g.addColorStop(0.425, '#FFFFFF'); g.addColorStop(0.435, '#B48CFF'); g.addColorStop(1, TWI); cc.fillStyle = g; }, 0.45, t);
+    slam('KICK & TWITCH!', 540, 1440, 132, [['KICK ', KICK], ['& ', '#FFFFFF'], ['TWITCH!', '#A970FF']], 0.45, t);
     tile(kick, '#000', KICK, 400, 1645, 0.85, t, 0);
     tile(twitch, TWI, '#C9A8FF', 680, 1645, 1.0, t, 1);
     // handle types on
