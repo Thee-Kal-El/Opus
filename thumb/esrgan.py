@@ -1,4 +1,4 @@
-# Minimal Real-ESRGAN x4 (RRDBNet) upscaler on CPU, tiled.  python3 thumb/esrgan.py in.png out.png [x0 y0 x1 y1]
+# Minimal Real-ESRGAN x4 upscaler on CPU, tiled.  [FAST=1 for the compact general-x4v3 model]  python3 thumb/esrgan.py in.png out.png [x0 y0 x1 y1]
 import sys, torch, torch.nn as nn, torch.nn.functional as F, numpy as np
 from PIL import Image
 
@@ -24,7 +24,19 @@ class RRDBNet(nn.Module):
         f = s.l(s.conv_up1(F.interpolate(f, scale_factor=2, mode='nearest'))); f = s.l(s.conv_up2(F.interpolate(f, scale_factor=2, mode='nearest')))
         return s.conv_last(s.l(s.conv_hr(f)))
 
-net = RRDBNet(); sd = torch.load('/root/.sr/RealESRGAN_x4plus.pth', map_location='cpu'); net.load_state_dict(sd.get('params_ema', sd), strict=True); net.eval()
+class SRVGG(nn.Module):  # realesr-general-x4v3 (compact, ~10x faster)
+    def __init__(s, nf=64, nc=32):
+        super().__init__(); b = [nn.Conv2d(3, nf, 3, 1, 1), nn.PReLU(nf)]
+        for _ in range(nc): b += [nn.Conv2d(nf, nf, 3, 1, 1), nn.PReLU(nf)]
+        b += [nn.Conv2d(nf, 48, 3, 1, 1)]; s.body = nn.ModuleList(b); s.up = nn.PixelShuffle(4)
+    def forward(s, x):
+        o = x
+        for m in s.body: o = m(o)
+        return s.up(o) + F.interpolate(x, scale_factor=4, mode='nearest')
+import os
+if os.environ.get('FAST'): net = SRVGG(); sd = torch.load('/root/.sr/realesr-general-x4v3.pth', map_location='cpu')
+else: net = RRDBNet(); sd = torch.load('/root/.sr/RealESRGAN_x4plus.pth', map_location='cpu')
+net.load_state_dict(sd.get('params_ema', sd.get('params', sd)), strict=True); net.eval()
 torch.set_num_threads(4)
 im = Image.open(sys.argv[1]).convert('RGB')
 if len(sys.argv) > 3: im = im.crop(tuple(int(v) for v in sys.argv[3:7]))
