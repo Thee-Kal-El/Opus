@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>PUBG Never Saw It Thumbnail</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="s" width="1080" height="1920"></canvas>
+<script>
+// PUBG "NEVER SAW IT COMING!" (CLIPS_3) — vertical cover/thumbnail, 1080x1920. The whole corridor kill (Real-ESRGAN x4 plate), no panel
+// or facecam, feathered into a blurred extension of itself; speed streaks toward the enemy, gentle teal/orange
+// grade, stacked headline up top, and the KICK + TWITCH pill at the bottom.
+(async () => {
+  const c = document.getElementById('s').getContext('2d'), W = 1080, H = 1920, TAU = Math.PI * 2;
+  const YEL = '#FFE500', KICK = '#53FC18', TWI = '#9146FF', INK = '#06070A';
+  const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
+  await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40))]);
+  const img = (src) => new Promise((r) => { const i = new Image(); i.onload = () => r(i); i.src = src; });
+  const [plate, kick, twitch] = await Promise.all([img('../thumb/clips3/game_x4.png'), img('kick_k.png'), img('twitch_glitch.png')]);
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
+
+  // ---- the scene, uncropped corridor: sharp plate (x 0..3672, y 300..3640) across the middle, feathered into a blurred,
+  // enlarged copy of itself above and below, so nothing is boxed in
+  const SX = 0, SY = 400, SW = 4320, SH = 3500, k = W / SW, TOP = 470, PH = SH * k, EX = 2000 * k, EY = TOP + (2560 - SY) * k;
+  c.filter = 'blur(26px) brightness(0.55) saturate(1.25)'; c.drawImage(plate, 700, 400, 2920, 3500, -40, -40, W + 80, H + 80); c.filter = 'none';   /* HUD rows excluded so the bottom blur matches the top */
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+  o.filter = 'contrast(1.12) saturate(1.25) brightness(1.06)'; o.drawImage(plate, SX, SY, SW, SH, 0, TOP, W, PH); o.filter = 'none';
+  o.globalCompositeOperation = 'destination-in'; let g = o.createLinearGradient(0, TOP, 0, TOP + PH); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.16, 'rgba(0,0,0,1)'); g.addColorStop(0.86, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)'); o.fillStyle = g; o.fillRect(0, 0, W, H);
+  c.drawImage(off, 0, 0);
+  // warm/cool split grade, gentle
+  c.save(); c.globalCompositeOperation = 'soft-light'; c.globalAlpha = 0.5; g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#1B8AA0'); g.addColorStop(0.55, '#E0864A'); g.addColorStop(1, '#1B6A80'); c.fillStyle = g; c.fillRect(0, 0, W, H); c.restore();
+  // red heat on the blood burst
+  c.save(); c.globalCompositeOperation = 'screen'; g = c.createRadialGradient(EX + 40, EY, 10, EX + 40, EY, 300); g.addColorStop(0, 'rgba(255,50,30,0.45)'); g.addColorStop(1, 'rgba(255,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H); c.restore();
+  // speed streaks out of the kill
+  c.save(); c.globalCompositeOperation = 'screen'; c.translate(EX, EY);
+  for (let i = 0; i < 70; i++) { const a = i / 70 * TAU + Math.sin(i * 7.3) * 0.03, r0 = 300 + (i * 37 % 160), r1 = r0 + 300 + (i * 53 % 700); c.beginPath(); c.moveTo(Math.cos(a) * r0, Math.sin(a) * r0); c.lineTo(Math.cos(a) * r1, Math.sin(a) * r1); c.strokeStyle = `rgba(255,255,255,${0.04 + (i % 4) * 0.02})`; c.lineWidth = 2 + (i % 3) * 2; c.stroke(); }
+  c.restore();
+  // soft vignette for the type
+  g = c.createRadialGradient(EX, EY, 380, EX, EY, 1250); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.55)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+
+  // ---- headline, stacked over the ceiling
+  function word(s, x, y, size, fill, rot = -0.04, sx = 0.9) {
+    c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = 'italic ' + D(size); c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '-3px'; c.lineJoin = 'round';
+    c.fillStyle = 'rgba(0,0,0,0.6)'; c.fillText(s, 10, 14); c.lineWidth = size * 0.16; c.strokeStyle = '#000'; c.strokeText(s, 0, 0);
+    if (Array.isArray(fill)) { const g2 = c.createLinearGradient(0, -size / 2, 0, size / 2); fill.forEach((f, i) => g2.addColorStop(i / (fill.length - 1), f)); c.fillStyle = g2; } else c.fillStyle = fill; c.fillText(s, 0, 0); c.restore();
+  }
+  rr(375, 70, 330, 100, 20); c.fillStyle = '#F2A900'; c.fill(); c.lineWidth = 6; c.strokeStyle = '#000'; c.stroke(); c.font = D(76); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '2px'; c.fillText('PUBG', 540, 123);
+  word('NEVER SAW', 540, 300, 150, '#FFFFFF');
+  word('IT COMING!', 540, 450, 158, ['#FFF7B0', YEL, '#FF9A1A']);
+
+  // ---- KICK + TWITCH pill in the floor shadow
+  const sy = 1400, px = 60, pw = 960, ph = 190; rr(px, sy, pw, ph, ph / 2); c.fillStyle = 'rgba(8,9,12,0.88)'; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 30; c.fill(); c.shadowBlur = 0;
+  c.lineWidth = 6; g = c.createLinearGradient(px, 0, px + pw, 0); g.addColorStop(0, KICK); g.addColorStop(1, TWI); c.strokeStyle = g; c.stroke();
+  c.save(); rr(px + 40, sy + 30, 130, 130, 28); c.fillStyle = '#000'; c.fill(); c.lineWidth = 4; c.strokeStyle = KICK; c.stroke(); c.drawImage(kick, px + 62, sy + 45, 86, 100); c.restore();
+  c.save(); rr(px + 190, sy + 30, 130, 130, 28); c.fillStyle = TWI; c.fill(); c.drawImage(twitch, px + 214, sy + 43, 82, 104); c.restore();
+  c.font = G(800, 40); c.fillStyle = '#B4BAC2'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.letterSpacing = '4px'; c.fillText('LIVE ON KICK + TWITCH', px + 355, sy + 62);
+  c.font = D(78); c.fillStyle = '#FFFFFF'; c.letterSpacing = '0px'; c.fillText('Thee_Kal_El', px + 352, sy + 128);
+  document.title = 'done';
+})();
+</script></body></html>
