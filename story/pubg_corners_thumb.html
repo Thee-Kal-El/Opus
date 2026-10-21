@@ -6,7 +6,7 @@
 <script>
 // PUBG "ALWAYS WATCH YOUR CORNERS" — vertical cover/thumbnail, 1080x1920. The whole corridor kill (Real-ESRGAN x4 plate), no panel
 // or facecam, feathered into a blurred extension of itself; speed streaks toward the enemy, gentle teal/orange
-// grade, stacked headline up top, a 2 KILLS tag, and the KICK + TWITCH pill at the bottom.
+// grade, stacked headline up top, and the KICK + TWITCH pill at the bottom.
 (async () => {
   const c = document.getElementById('s').getContext('2d'), W = 1080, H = 1920, TAU = Math.PI * 2;
   const YEL = '#FFE500', KICK = '#53FC18', TWI = '#9146FF', INK = '#06070A';
@@ -44,10 +44,6 @@
   rr(375, 70, 330, 100, 20); c.fillStyle = '#F2A900'; c.fill(); c.lineWidth = 6; c.strokeStyle = '#000'; c.stroke(); c.font = D(76); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '2px'; c.fillText('PUBG', 540, 123);
   word('ALWAYS WATCH', 540, 300, 128, '#FFFFFF');
   word('YOUR CORNERS!', 540, 440, 140, ['#FFF7B0', YEL, '#FF9A1A']);
-
-  // ---- 2 KILLS tag pinned near the enemy
-  c.save(); c.translate(EX + 250, EY - 230); c.rotate(0.07); rr(-150, -56, 300, 112, 20); c.fillStyle = '#E3170F'; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 24; c.fill(); c.shadowBlur = 0; c.lineWidth = 6; c.strokeStyle = '#000'; c.stroke();
-  c.font = 'italic ' + D(64); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '0px'; c.fillText('2 KILLS', 0, 4); c.restore();
 
   // ---- KICK + TWITCH pill in the floor shadow
   const sy = 1440, px = 60, pw = 960, ph = 190; rr(px, sy, pw, ph, ph / 2); c.fillStyle = 'rgba(8,9,12,0.88)'; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 30; c.fill(); c.shadowBlur = 0;
