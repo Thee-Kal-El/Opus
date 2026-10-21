@@ -1,38 +1,37 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>PUBG I Saw That Thumbnail</title>
+<html lang="en"><head><meta charset="utf-8"><title>PUBG OOOO Thumbnail</title>
 <link rel="stylesheet" href="../fonts/fonts.css">
 <style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
 <body><canvas id="s" width="1080" height="1920"></canvas>
 <script>
-// PUBG "I SAW THAT" — vertical cover/thumbnail, 1080x1920, built from frames of the clip: the 8x scope at the moment of the hit
-// (blood puff on the crosshair) blown up as a giant lens, the laughing facecam reaction, the clip's own caption as a speech
-// bubble, and a KICK + TWITCH strip. All text sits above y≈1450 and left of the right-side app buttons.
+// PUBG "OOOO" — vertical cover/thumbnail, 1080x1920, built from frames of the clip: the 8x scope at the moment of the hit
+// (blood puff over the kneeling enemy) blown up as a giant lens under a giant “OOOO” quote, and a KICK + TWITCH strip. All text sits above y≈1450 and left of the right-side app buttons.
 (async () => {
   const c = document.getElementById('s').getContext('2d'), W = 1080, H = 1920, TAU = Math.PI * 2;
   const YEL = '#FFE500', KICK = '#53FC18', TWI = '#9146FF', RED = '#FF2A2A', INK = '#06070A';
   const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
   await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40))]);
   const img = (src) => new Promise((r) => { const i = new Image(); i.onload = () => r(i); i.src = src; });
-  const [scope, laugh, field, kick, twitch] = await Promise.all([img('../thumb/pubg_1.1.jpg'), img('../thumb/pubg_6.6.jpg'), img('../thumb/pubg_6.6.jpg'), img('kick_k.png'), img('twitch_glitch.png')]);
+  const [scope, field, kick, twitch] = await Promise.all([img('../thumb/s_1.00.jpg'), img('../thumb/pubg_6.6.jpg'), img('kick_k.png'), img('twitch_glitch.png')]);
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
-  function word(s, x, y, size, fill, rot = 0, align = 'center', sx = 0.9) {
-    c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = 'italic ' + D(size); c.textAlign = align; c.textBaseline = 'middle'; c.letterSpacing = '-3px'; c.lineJoin = 'round';
+  function word(s, x, y, size, fill, rot = 0, align = 'center', sx = 0.9, ital = true) {
+    c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = (ital ? 'italic ' : '') + D(size); c.textAlign = align; c.textBaseline = 'middle'; c.letterSpacing = '-3px'; c.lineJoin = 'round';
     c.fillStyle = 'rgba(0,0,0,0.65)'; c.fillText(s, 10, 14); c.lineWidth = size * 0.17; c.strokeStyle = '#000'; c.strokeText(s, 0, 0);
     if (Array.isArray(fill)) { const g = c.createLinearGradient(0, -size / 2, 0, size / 2); fill.forEach((f, i) => g.addColorStop(i / (fill.length - 1), f)); c.fillStyle = g; } else c.fillStyle = fill; c.fillText(s, 0, 0); c.restore();
   }
 
   // ---- background: the open field from the clip, blurred + graded dark, red heat behind the scope
   c.save(); c.filter = 'blur(10px) brightness(0.45) saturate(1.2)'; c.drawImage(field, 0, 560, 918, 1072, -60, -40, W + 120, H + 80); c.restore();
-  let g = c.createRadialGradient(540, 760, 120, 540, 760, 900); g.addColorStop(0, 'rgba(255,40,30,0.38)'); g.addColorStop(0.5, 'rgba(120,10,10,0.15)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  let g = c.createRadialGradient(540, 800, 120, 540, 800, 900); g.addColorStop(0, 'rgba(255,40,30,0.38)'); g.addColorStop(0.5, 'rgba(120,10,10,0.15)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
   g = c.createLinearGradient(0, 1400, 0, H); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.85)'); c.fillStyle = g; c.fillRect(0, 1400, W, 520);
   // speed lines out of the lens
-  c.save(); c.translate(540, 760); for (let i = 0; i < 46; i++) { const a = i / 46 * TAU + 0.03; c.beginPath(); c.moveTo(Math.cos(a) * 470, Math.sin(a) * 470); c.lineTo(Math.cos(a) * 1500, Math.sin(a) * 1500); c.strokeStyle = i % 2 ? 'rgba(255,229,0,0.10)' : 'rgba(255,255,255,0.05)'; c.lineWidth = 10 + (i % 3) * 6; c.stroke(); } c.restore();
+  c.save(); c.translate(540, 800); for (let i = 0; i < 46; i++) { const a = i / 46 * TAU + 0.03; c.beginPath(); c.moveTo(Math.cos(a) * 500, Math.sin(a) * 500); c.lineTo(Math.cos(a) * 1500, Math.sin(a) * 1500); c.strokeStyle = i % 2 ? 'rgba(255,229,0,0.10)' : 'rgba(255,255,255,0.05)'; c.lineWidth = 10 + (i % 3) * 6; c.stroke(); } c.restore();
 
   // ---- the scope: source circle centre (472,1066) r≈296 → drawn at (540,760) r=440, with a heavy black tube ring
-  const CX = 540, CY = 760, R = 440, k = R / 296;
+  const CX = 540, CY = 800, R = 470, k = R / 296;
   c.save(); c.shadowColor = 'rgba(255,40,30,0.9)'; c.shadowBlur = 70; c.beginPath(); c.arc(CX, CY, R + 34, 0, TAU); c.fillStyle = '#0A0A0A'; c.fill(); c.restore();
   c.save(); c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.clip();
-  c.filter = 'contrast(1.18) saturate(1.35) brightness(1.08)'; c.drawImage(scope, CX - 472 * k, CY - 1066 * k, 918 * k, 1632 * k); c.filter = 'none';
+  c.filter = 'contrast(1.18) saturate(1.35) brightness(1.08)'; c.drawImage(scope, CX - 466 * k, CY - 1064 * k, 918 * k, 1632 * k); c.filter = 'none';
   // lens vignette + glass sheen
   g = c.createRadialGradient(CX, CY, R * 0.6, CX, CY, R); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.6)'); c.fillStyle = g; c.fillRect(CX - R, CY - R, 2 * R, 2 * R);
   g = c.createLinearGradient(CX - R, CY - R, CX + R, CY + R); g.addColorStop(0, 'rgba(255,255,255,0.12)'); g.addColorStop(0.35, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(CX - R, CY - R, 2 * R, 2 * R);
@@ -40,29 +39,15 @@
   c.beginPath(); c.arc(CX, CY, R + 12, 0, TAU); c.lineWidth = 26; c.strokeStyle = '#151515'; c.stroke();
   c.beginPath(); c.arc(CX, CY, R + 30, 0, TAU); c.lineWidth = 6; c.strokeStyle = RED; c.stroke();
   // the hit: blood puff at source (450,960) → circle it + tag
-  const hx = CX + (450 - 472) * k, hy = CY + (960 - 1066) * k;
-  c.save(); c.shadowColor = RED; c.shadowBlur = 24; c.beginPath(); c.arc(hx, hy, 70, 0, TAU); c.lineWidth = 9; c.strokeStyle = RED; c.stroke(); c.restore();
+  const hx = CX + (480 - 466) * k, hy = CY + (1004 - 1064) * k;
+  c.save(); c.shadowColor = RED; c.shadowBlur = 24; c.beginPath(); c.arc(hx, hy, 105, 0, TAU); c.lineWidth = 10; c.strokeStyle = RED; c.stroke(); c.restore();
   // arrow from the headline into the hit
   c.save(); c.strokeStyle = YEL; c.fillStyle = YEL; c.lineWidth = 14; c.lineCap = 'round'; c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 12;
-  c.beginPath(); c.moveTo(860, 330); c.quadraticCurveTo(720, 400, hx + 66, hy - 40); c.stroke();
-  const ang = Math.atan2(hy - 40 - 400, hx + 66 - 720); c.translate(hx + 66, hy - 40); c.rotate(ang); c.beginPath(); c.moveTo(14, 0); c.lineTo(-38, -26); c.lineTo(-38, 26); c.closePath(); c.fill(); c.restore();
+  c.beginPath(); c.moveTo(930, 330); c.quadraticCurveTo(820, 520, hx + 98, hy - 50); c.stroke();
+  const ang = Math.atan2(hy - 50 - 520, hx + 98 - 820); c.translate(hx + 98, hy - 50); c.rotate(ang); c.beginPath(); c.moveTo(14, 0); c.lineTo(-38, -26); c.lineTo(-38, 26); c.closePath(); c.fill(); c.restore();
 
   // ---- headline
-  word('I SAW', 360, 215, 200, ['#FFFFFF', '#FFF4A8', YEL], -0.05);
-  word('THAT', 700, 395, 200, [YEL, '#FFB800'], -0.05);
-
-  // ---- facecam reaction card (laughing), bottom-left, Kick→Twitch gradient border
-  const fx = 50, fy = 975, fw = 520, fh = 330;
-  c.save(); c.translate(fx + fw / 2, fy + fh / 2); c.rotate(-0.035); c.translate(-fw / 2, -fh / 2);
-  c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 40; rr(-14, -14, fw + 28, fh + 28, 36); g = c.createLinearGradient(0, 0, fw, fh); g.addColorStop(0, KICK); g.addColorStop(1, TWI); c.fillStyle = g; c.fill(); c.shadowBlur = 0;
-  c.save(); rr(0, 0, fw, fh, 26); c.clip(); c.filter = 'contrast(1.1) saturate(1.15) brightness(1.08)'; c.drawImage(laugh, 175, 140, 560, 356, 0, 0, fw, fh); c.restore();
-  c.restore();
-  // speech bubble with the clip's own line
-  c.save(); c.translate(600, 1060); c.rotate(0.03);
-  rr(0, 0, 300, 170, 30); c.fillStyle = '#FFFFFF'; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 24; c.fill(); c.shadowBlur = 0;
-  c.beginPath(); c.moveTo(20, 120); c.lineTo(-40, 170); c.lineTo(60, 150); c.closePath(); c.fill();
-  c.font = 'italic ' + D(54); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '-1px'; c.fillText('“ONE BABY', 150, 58); c.fillStyle = '#D81B1B'; c.fillText('GOD”', 150, 116);
-  c.restore();
+  word('“OOOO”', 540, 240, 215, ['#FFFFFF', '#FFF4A8', YEL, '#FFB800'], -0.06, 'center', 1.12, false);
 
   // ---- KICK + TWITCH strip (left of the app buttons, above the caption zone)
   const sy = 1335; rr(50, sy, 840, 120, 60); c.fillStyle = 'rgba(8,9,12,0.88)'; c.fill(); c.lineWidth = 4; g = c.createLinearGradient(50, 0, 890, 0); g.addColorStop(0, KICK); g.addColorStop(1, TWI); c.strokeStyle = g; c.stroke();

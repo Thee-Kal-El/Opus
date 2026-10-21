@@ -20,22 +20,22 @@ e.taa_render_samples = 8; e.use_bloom = True; e.bloom_intensity = 0.04; e.bloom_
 e.use_motion_blur = False
 sc.view_settings.view_transform = 'Standard'; sc.view_settings.look = 'None'
 sc.render.fps = 24
-res = arg('--res', '1080x1920').split('x'); sc.render.resolution_x, sc.render.resolution_y = int(res[0]), int(res[1]); sc.render.resolution_percentage = 100
-sc.render.image_settings.file_format = 'PNG'; sc.render.image_settings.color_mode = 'RGB'
+res = arg('--res', '720x1280').split('x'); sc.render.resolution_x, sc.render.resolution_y = int(res[0]), int(res[1]); sc.render.resolution_percentage = 100
+sc.render.image_settings.file_format = 'PNG'; sc.render.image_settings.color_mode = 'RGBA'; sc.render.film_transparent = True   # sky is painted in the 2D pass
 sc.render.use_freestyle = True; sc.render.line_thickness_mode = 'ABSOLUTE'; sc.render.line_thickness = 2.2 * int(res[0]) / 1080
 vl = sc.view_layers[0]; fs = vl.freestyle_settings; ls = fs.linesets[0] if fs.linesets else fs.linesets.new('ink')
-ls.select_by_visibility = True; ls.select_silhouette = True; ls.select_border = True; ls.select_crease = True; ls.select_external_contour = True
-ls.linestyle.color = (0.09, 0.07, 0.16); ls.linestyle.thickness = 2.2 * int(res[0]) / 1080; fs.crease_angle = math.radians(120)
+ls.select_by_visibility = True; ls.visibility = 'VISIBLE'; ls.select_silhouette = True; ls.select_border = True; ls.select_crease = True; ls.select_external_contour = True
+if ls.linestyle is None: ls.linestyle = bpy.data.linestyles.new('ink')
+ls.linestyle.color = (0.09, 0.07, 0.16); ls.linestyle.thickness = 2.2 * int(res[0]) / 1080; fs.crease_angle = math.radians(120); fs.use_culling = True
 random.seed(77)
 
 # painted sky: gradient on the view direction's height (horizon gold → rose → violet → night blue)
 w = bpy.data.worlds.new('sky'); sc.world = w; w.use_nodes = True; nt = w.node_tree; bg = nt.nodes['Background']
 tc = nt.nodes.new('ShaderNodeTexCoord'); sp = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(tc.outputs['Generated'], sp.inputs[0])
 ramp = nt.nodes.new('ShaderNodeValToRGB'); nt.links.new(sp.outputs['Z'], ramp.inputs[0]); cr = ramp.color_ramp
-for pos, col in [(0.0, (0.95, 0.55, 0.32)), (0.47, (1.0, 0.72, 0.38)), (0.53, (1.0, 0.62, 0.45)), (0.62, (0.85, 0.45, 0.55)), (0.74, (0.42, 0.3, 0.6)), (0.9, (0.1, 0.1, 0.3)), (1.0, (0.04, 0.05, 0.16))]:
+for pos, col in [(0.0, (1.0, 0.5, 0.2)), (0.49, (1.0, 0.62, 0.22)), (0.52, (1.0, 0.5, 0.32)), (0.57, (0.95, 0.36, 0.42)), (0.64, (0.55, 0.26, 0.62)), (0.75, (0.16, 0.14, 0.45)), (1.0, (0.03, 0.04, 0.14))]:
     el = cr.elements.new(pos) if pos not in (0.0, 1.0) else (cr.elements[0] if pos == 0.0 else cr.elements[1]); el.position = pos; el.color = (*col, 1)
 nt.links.new(ramp.outputs['Color'], bg.inputs['Color']); bg.inputs['Strength'].default_value = 1.0
-w.light_settings.use_ambient_occlusion = False
 
 def toon(name, base, shade=None, hi=None, split=0.42, emit=1.0):
     """cel material: lit/shadow split by a constant ramp; shadow tinted toward violet like a painted anime background"""
@@ -57,16 +57,16 @@ def no_lines(o):  # keep ink off soft things (clouds get their own outline pass 
     o.data.materials[0]; return o
 
 # ---------- palette ----------
-WHITE = toon('white', (0.94, 0.92, 0.9), (0.55, 0.5, 0.72), (1.0, 0.97, 0.9))
+WHITE = toon('white', (1.0, 0.86, 0.72), (0.46, 0.38, 0.66), (1.0, 0.97, 0.88))
 RED = toon('red', (0.85, 0.2, 0.18), (0.42, 0.1, 0.22))
 STEEL = toon('steel', (0.38, 0.4, 0.48), (0.18, 0.17, 0.3))
 GANTRY = toon('gantry', (0.88, 0.42, 0.16), (0.42, 0.16, 0.18))
-CONCRETE = toon('concrete', (0.62, 0.58, 0.6), (0.36, 0.3, 0.45))
-GRASS = toon('ground', (0.42, 0.48, 0.38), (0.22, 0.22, 0.32))
+CONCRETE = toon('concrete', (0.78, 0.62, 0.55), (0.32, 0.24, 0.42))
+GRASS = toon('ground', (0.36, 0.3, 0.36), (0.16, 0.12, 0.26), (0.62, 0.42, 0.36))
 INK = flat('ink', (0.06, 0.05, 0.12))
-CLOUD = toon('cloud', (1.0, 0.86, 0.78), (0.72, 0.56, 0.74), (1.0, 0.97, 0.9), split=0.35)
+CLOUD = toon('cloud', (1.0, 0.72, 0.55), (0.55, 0.36, 0.68), (1.0, 0.93, 0.78), split=0.5)
 SMOKE = toon('smoke', (0.96, 0.94, 0.92), (0.64, 0.6, 0.76), (1.0, 1.0, 0.98), split=0.3)
-SUIT = toon('suit', (0.93, 0.93, 0.95), (0.5, 0.5, 0.68))
+SUIT = toon('suit', (1.0, 0.88, 0.76), (0.4, 0.34, 0.6), (1.0, 0.97, 0.9))
 VISOR = toon('visor', (0.95, 0.7, 0.25), (0.45, 0.2, 0.25), (1.0, 0.95, 0.75), split=0.3)
 FLAME = flat('flame', (1.0, 0.85, 0.45), 6); CORE = flat('core', (1.0, 1.0, 0.95), 10)
 FAR = flat('far', (0.55, 0.36, 0.55)); FAR2 = flat('far2', (0.72, 0.46, 0.55))
@@ -77,7 +77,8 @@ SUN_DIR = V((0.35, 1.0, -0.22)).normalized()     # low sun behind the rocket (ba
 if SHOT in ('reveal', 'hull', 'climb', 'ignite'): SUN_DIR = V((-0.75, 0.45, -0.45)).normalized()   # side light for form
 sun.rotation_euler = SUN_DIR.to_track_quat('-Z', 'Y').to_euler()
 # sun disc painted into the sky (far away, emissive)
-sd = sphere(-SUN_DIR * 3000 + V((0, 0, 60)), 70, flat('sundisc', (1.0, 0.95, 0.8), 3), segs=24, name='sun_disc')
+SUN_POS = V((SUN_DIR.x * -3000, SUN_DIR.y * -3000, 160)) if SHOT != 'crew' else V((-260, 2600, 260))
+# (the sun disc itself is painted in the 2D pass; SUN_POS is kept for reference)
 
 # ---------- ground, pad, distant hills ----------
 gp = box((0, 0, -0.5), (4000, 4000, 1), GRASS, name='ground')
@@ -103,6 +104,7 @@ for a in range(3): ship.append(cyl((2.2 * math.cos(a * 2.09), 2.2 * math.sin(a *
 t1 = text_mesh('MERIDIAN', (0, -5.56, Z0 + 60), 3.0, INK, font=SANS); t1.rotation_euler = (math.pi / 2, 0, 0); ship.append(t1)
 t2 = text_mesh('ARIADNE SYSTEMS', (0, -5.56, Z0 + 56.2), 0.95, RED, font=MONO); ship.append(t2)
 ship.append(text_mesh('EV-01', (0, -5.56, Z0 + 30), 2.0, INK, font=SANS))
+for o in (t1, t2): o.visible_shadow = False
 bpy.ops.object.empty_add(location=(0, 0, 0)); ship_root = bpy.context.object; ship_root.name = 'ship_root'
 for o in ship: o.parent = ship_root
 
@@ -123,7 +125,7 @@ for dx, dy in [(-45, -40), (45, -40), (-45, 40), (45, 40)]:
     cyl((dx, dy, 15), 0.4, 30, STEEL, verts=8, name='pole'); box((dx, dy, 30.5), (3, 1, 1.2), flat('lamp', (1.0, 0.95, 0.8), 2.5), name='lamp')
 
 # ---------- cel clouds ----------
-def cloud(center, size, n=14, mat=CLOUD, flatten=0.55, name='cloud'):
+def cloud(center, size, n=14, mat=CLOUD, flatten=1.6, name='cloud'):
     parts = []
     for i in range(n):
         off = V((random.gauss(0, size * 0.9), random.gauss(0, size * 0.35), abs(random.gauss(0, size * 0.35)) * flatten))
@@ -132,17 +134,20 @@ def cloud(center, size, n=14, mat=CLOUD, flatten=0.55, name='cloud'):
     return parts
 for k in range(16):
     a = -0.8 + k * 0.11 + random.uniform(-0.03, 0.03); R = random.uniform(700, 1100)
-    cloud((math.sin(a) * R, math.cos(a) * R, random.uniform(180, 420)), random.uniform(40, 80), n=12)
+    cloud((math.sin(a) * R, math.cos(a) * R, random.uniform(120, 300)), random.uniform(55, 95), n=22)
 
 # ---------- crew ----------
 def astronaut(pos, phase, scale=1.0):
     s = scale; parts = []; root_loc = V(pos)
     bpy.ops.object.empty_add(location=root_loc); root = bpy.context.object; root.name = 'astro'
     def add(o): o.parent = root; o.location -= root_loc; parts.append(o); return o
-    add(cyl(root_loc + V((0, 0, 1.2 * s)), 0.33 * s, 0.75 * s, SUIT, verts=16, name='torso'))
-    add(box(root_loc + V((0, 0.3 * s, 1.3 * s)), (0.55 * s, 0.28 * s, 0.6 * s), SUIT, name='pack'))
-    add(sphere(root_loc + V((0, 0, 1.86 * s)), 0.3 * s, SUIT, segs=24, name='helmet'))
-    v = add(sphere(root_loc + V((0, -0.12 * s, 1.88 * s)), 0.24 * s, VISOR, segs=24, name='visor')); v.scale = (1.0, 0.75, 0.8)
+    t = add(sphere(root_loc + V((0, 0, 1.22 * s)), 0.36 * s, SUIT, segs=24, name='torso')); t.scale = (1.0, 0.8, 1.25)
+    pk = add(sphere(root_loc + V((0, 0.3 * s, 1.32 * s)), 0.3 * s, SUIT, segs=20, name='pack')); pk.scale = (1.0, 0.55, 1.15)
+    add(cyl(root_loc + V((0, 0.47 * s, 1.36 * s)), 0.07 * s, 0.42 * s, RED, verts=12, name='tank'))
+    add(sphere(root_loc + V((0, 0, 1.9 * s)), 0.33 * s, SUIT, segs=28, name='helmet'))
+    add(cyl(root_loc + V((0, 0, 1.62 * s)), 0.24 * s, 0.1 * s, STEEL, verts=20, name='collar'))
+    for sx in (-1, 1): add(sphere(root_loc + V((sx * 0.36 * s, 0, 1.52 * s)), 0.13 * s, RED, segs=14, name='shoulder'))
+    v = add(sphere(root_loc + V((0, -0.14 * s, 1.9 * s)), 0.27 * s, VISOR, segs=24, name='visor')); v.scale = (1.0, 0.75, 0.8)
     add(box(root_loc + V((0, 0, 0.92 * s)), (0.5 * s, 0.4 * s, 0.12 * s), RED, name='belt'))
     legs = []
     for sx in (-1, 1):
@@ -179,8 +184,8 @@ elif SHOT == 'crew':   # low behind the six as they walk to the pad, sun flaring
     cam = camera((1.5, -104, 0.7), (0, 0, 40), lens=24)
     cam_path(cam, [(F0, (2.2, -104.5, 0.6), (0, -40, 22)), (F1, (0.6, -100.5, 1.1), (0, 0, 36))])
 elif SHOT == 'hull':   # rising up the hull past the stencils
-    cam = camera((7, -14, 20), (0, 0, 20), lens=35)
-    cam_path(cam, [(F0, (6, -15, 14), (0, 0, 22)), (F1, (4, -12.5, 78), (0, 0, 84))])
+    cam = camera((16, -30, 20), (0, 0, 20), lens=40)
+    cam_path(cam, [(F0, (18, -32, 16), (-2, 0, 30)), (F1, (12, -27, 84), (-2, 0, 96))])
 elif SHOT == 'ignite':  # wide low: engines light, cel smoke billows out of the trench, lift-off at frame 64
     IGN, LIFT = 18, 64
     for k, ob in enumerate([o for o in ship if o.name.startswith('bell')]):
@@ -221,6 +226,21 @@ elif SHOT == 'climb':  # tracking the climb from below, contrail of cel cloud pu
     for f in range(F0, F1 + 1, 6):
         z = zf(f); cam.location = (38 - f * 0.05, -68 + f * 0.05, 8 + z * 0.55); look_at(cam, (0, 0, z + 40)); key(cam, 'location', f); key(cam, 'rotation_euler', f)
     linear(cam)
+
+# ---------- outlines: Freestyle only for near hard surfaces; soft/far things get an inverted-hull outline (depth-correct) ----------
+OUTLINE = bpy.data.materials.new('outline'); OUTLINE.use_nodes = True; ont = OUTLINE.node_tree
+for n in list(ont.nodes): ont.nodes.remove(n)
+oe = ont.nodes.new('ShaderNodeEmission'); oe.inputs['Color'].default_value = (0.09, 0.07, 0.16, 1); oo = ont.nodes.new('ShaderNodeOutputMaterial'); ont.links.new(oe.outputs[0], oo.inputs[0])
+OUTLINE.use_backface_culling = True
+far = bpy.data.collections.new('far'); sc.collection.children.link(far)
+for o in list(bpy.data.objects):
+    if o.type == 'MESH' and o.name.split('.')[0] in ('cloud', 'smoke', 'trail', 'hill', 'skyline', 'ground'):
+        for col in o.users_collection: col.objects.unlink(o)
+        far.objects.link(o)
+        if o.name.split('.')[0] in ('cloud', 'smoke', 'trail'):
+            o.data.materials.append(OUTLINE); m = o.modifiers.new('ink', 'SOLIDIFY'); r = max(o.dimensions) / 2
+            m.thickness = -max(0.12, r * 0.035); m.use_flip_normals = True; m.material_offset = 1; m.use_rim = False
+ls.select_by_collection = True; ls.collection = far; ls.collection_negation = 'EXCLUSIVE'
 
 # ---------- render ----------
 out_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'out')
