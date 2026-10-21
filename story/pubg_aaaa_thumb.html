@@ -49,10 +49,10 @@
 
   // ---- the scream: cut-out sticker bottom-left, whole head in frame, flat cut sits on the bottom edge
   { const mw = 720, mh = mw * me.height / me.width, off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
-    o.save(); o.shadowColor = 'rgba(0,0,0,0.8)'; o.shadowBlur = 40; o.translate(-10, 1300); o.rotate(-0.03); o.drawImage(me, 0, 0, mw, mh); o.restore();
+    o.save(); o.shadowColor = 'rgba(0,0,0,0.8)'; o.shadowBlur = 40; o.translate(0, H - mh + 34); o.rotate(0); o.drawImage(me, 0, 0, mw, mh); o.restore();
     c.drawImage(off, 0, 0); }
   // "TOP 10" chip next to the scream (he placed top 10)
-  c.save(); c.translate(870, 1500); c.rotate(0.06); rr(-150, -64, 300, 128, 22); c.fillStyle = YEL; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 24; c.fill(); c.shadowBlur = 0; c.lineWidth = 7; c.strokeStyle = '#000'; c.stroke();
+  c.save(); c.translate(870, 1360); c.rotate(0.06); rr(-150, -64, 300, 128, 22); c.fillStyle = YEL; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 24; c.fill(); c.shadowBlur = 0; c.lineWidth = 7; c.strokeStyle = '#000'; c.stroke();
   c.font = 'italic ' + D(74); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('TOP 10', 0, 6); c.restore();
 
   // ---- KICK + TWITCH pill, top, under the PUBG tag
@@ -60,8 +60,8 @@
   c.lineWidth = 6; g = c.createLinearGradient(px, 0, px + pw, 0); g.addColorStop(0, KICK); g.addColorStop(1, TWI); c.strokeStyle = g; c.stroke();
   c.save(); rr(px + 40, sy + 30, 130, 130, 28); c.fillStyle = '#000'; c.fill(); c.lineWidth = 4; c.strokeStyle = KICK; c.stroke(); c.drawImage(kick, px + 62, sy + 45, 86, 100); c.restore();
   c.save(); rr(px + 190, sy + 30, 130, 130, 28); c.fillStyle = TWI; c.fill(); c.drawImage(twitch, px + 214, sy + 43, 82, 104); c.restore();
-  c.font = G(800, 40); c.fillStyle = '#B4BAC2'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.letterSpacing = '4px'; c.fillText('LIVE ON KICK + TWITCH', px + 355, sy + 62);
-  c.font = D(78); c.fillStyle = '#FFFFFF'; c.letterSpacing = '0px'; c.fillText('Thee_Kal_El', px + 352, sy + 128);
+  c.font = G(800, 40); c.fillStyle = '#B4BAC2'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '4px'; const tcx = (px + 335 + px + pw - 30) / 2; c.fillText('LIVE ON KICK + TWITCH', tcx, sy + 62);
+  c.font = D(78); c.fillStyle = '#FFFFFF'; c.letterSpacing = '0px'; c.fillText('Thee_Kal_El', tcx, sy + 128);
   // PUBG tag, centred and big
   rr(375, 60, 330, 110, 20); c.fillStyle = '#F2A900'; c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 20; c.fill(); c.shadowBlur = 0; c.lineWidth = 6; c.strokeStyle = '#000'; c.stroke();
   c.font = D(84); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '2px'; c.fillText('PUBG', 540, 118);
