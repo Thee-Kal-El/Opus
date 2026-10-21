@@ -1,6 +1,6 @@
 // Renders the transparent end-card overlay and composites it onto the end of a clip (holding the last frame for HOLD seconds),
 // mixing the card's SFX (endcard/sfx.mjs) in under the clip audio.
-//   node endcard/render.mjs <clip.mp4> <start-seconds> <out.mp4>  [--stills 0.5,1.5]
+//   node endcard/render.mjs <clip.mp4> <start-seconds> <out.mp4>  [--hold 2.0] [--stills 0.5,1.5]
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -9,7 +9,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 let chromium; try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require('/opt/node-tools/node_modules/playwright')); }
 const here = dirname(fileURLToPath(import.meta.url)), args = process.argv.slice(2);
-const [clip, start, out] = args, HOLD = 2.0, stills = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
+const [clip, start, out] = args, HOLD = args.includes('--hold') ? parseFloat(args[args.indexOf('--hold') + 1]) : 2.0, stills = args.includes('--stills') ? args[args.indexOf('--stills') + 1] : null;
 const dur = parseFloat(spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', clip]).stdout.toString());
 const browser = await chromium.launch({ args: ['--force-color-profile=srgb', '--allow-file-access-from-files'] });
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
