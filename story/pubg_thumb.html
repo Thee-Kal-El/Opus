@@ -42,8 +42,8 @@
   const hx = CX + (480 - 466) * k, hy = CY + (1004 - 1064) * k;
   // arrow from the headline into the hit
   c.save(); c.strokeStyle = YEL; c.fillStyle = YEL; c.lineWidth = 14; c.lineCap = 'round'; c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 12;
-  c.beginPath(); c.moveTo(985, 470); c.quadraticCurveTo(880, 640, hx + 72, hy - 18); c.stroke();
-  const ang = Math.atan2(hy - 18 - 640, hx + 72 - 880); c.translate(hx + 72, hy - 18); c.rotate(ang); c.beginPath(); c.moveTo(14, 0); c.lineTo(-38, -26); c.lineTo(-38, 26); c.closePath(); c.fill(); c.restore();
+  c.beginPath(); c.moveTo(985, 470); c.quadraticCurveTo(880, 640, hx + 98, hy - 50); c.stroke();
+  const ang = Math.atan2(hy - 50 - 640, hx + 98 - 880); c.translate(hx + 98, hy - 50); c.rotate(ang); c.beginPath(); c.moveTo(14, 0); c.lineTo(-38, -26); c.lineTo(-38, 26); c.closePath(); c.fill(); c.restore();
 
   // ---- headline
   word('“OOOO”', 540, 330, 215, ['#FFFFFF', '#FFF4A8', YEL, '#FFB800'], -0.06, 'center', 1.12, false);
