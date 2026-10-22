@@ -23,7 +23,7 @@ if (stills) {
   await browser.close(); process.exit(0);
 }
 const { DUR, FPS } = await page.evaluate(() => ({ DUR: window.FILM.DUR, FPS: window.FILM.FPS }));
-const wav = resolve(out, 'o77_trailer_v3_score.wav'), mp4 = resolve(out, 'o77_trailer_v3_30s_1080p60.mp4');
+const wav = resolve(out, 'o77_trailer_v3_score.wav'), mp4 = resolve(out, 'o77_trailer_v3_40s_1080p60.mp4');
 const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
   ...(existsSync(wav) ? ['-i', wav, '-c:a', 'aac', '-b:a', '320k', '-ar', '48000'] : []),
   '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPS), '-movflags', '+faststart', '-t', String(DUR), mp4], { stdio: ['pipe', 'inherit', 'inherit'] });
