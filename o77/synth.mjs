@@ -1,4 +1,4 @@
-// Score for the OPEN//77 30 s showcase — dark synthwave / cyberpunk (120 BPM, beat = 0.5 s), synthesized in code.
+// Score for the OPEN//77 30 s showcase — v2: dark, restrained cinematic pulse (no lead), cyberpunk (120 BPM, beat = 0.5 s), synthesized in code.
 // 0–2.5 cold open: drone + typing ticks, riser into "NOT ANYMORE" hit · 2.5 logo impact + drop · 6 server browser groove (UI ticks,
 // JOIN click 9.6, connect riser) · 12 four server-type slams on 12/13.25/14.5/15.75 · 17 half-time host section w/ keyclicks ·
 // 22 three step hits · 26.5 end-card impact, groove out, fade.
@@ -129,26 +129,25 @@ for (let i = 0; i < 29; i++) key(0.2 + i / 26 + (rnd() - 0.5) * 0.01, 0.6, 2600 
 riser(0.9, 0.85, 0.9); impact(1.75, 0.9); glitch(1.72, 0.8);
 riser(2.0, 0.5, 0.8); whoosh(2.15, 0.35, 1.0);
 // 2.5 logo — DROP
-impact(2.5, 1.3); shatter(2.5, 0.3); zap(2.5, 0.6);
-groove(2.5, 6.5, { cow: 0.5, hat: 0.85, drone: 1.0 });
+impact(2.5, 1.3); shatter(2.5, 0.3); 
+groove(2.5, 6.5, { noCow: true, hat: 0.45, rolls: false,  cow: 0.5, drone: 1.0 });
 // 6–12 server browser
-glitch(6, 0.6); groove(6.5, 12.5, { cow: 0.4, hat: 0.9, drone: 0.9, rolls: true });
+glitch(6, 0.6); groove(6.5, 12.5, { noCow: true, hat: 0.45, rolls: false,  cow: 0.4, drone: 0.9 });
 [6.3, 6.55, 6.85, 7.4, 7.95, 8.5, 9.05].forEach((t) => dtick(t, 0.7, 1500));
-[6.33, 6.41, 6.49, 6.57, 6.65, 6.73].forEach((t, i) => tick(t, 0.5, 1800 + i * 120));
-click(9.6, 1.2, 1300); lowPop(9.62, 0.8); riser(10.0, 1.6, 0.8); bell(11.6, R0 + 24, 0.9, 0); bell(11.62, R0 + 31, 0.6, 0.3);
+click(9.6, 1.2, 1300); lowPop(9.62, 0.8); riser(10.0, 1.6, 0.8); boom(11.6, 0.4);
 // 12–17 server types: one slam per card
-[12, 13.25, 14.5, 15.75].forEach((t, i) => { boom(t, 0.7); glitch(t, 0.5); whoosh(t - 0.3, 0.3, 0.7); zap(t + 0.05, 0.35, 2400 - i * 300, 160); });
-groove(12.5, 16.5, { cow: 0.55, hat: 1.0, drone: 1.0, rolls: true, fill: true });
+[12, 13.25, 14.5, 15.75].forEach((t, i) => { boom(t, 0.7); glitch(t, 0.5); whoosh(t - 0.3, 0.3, 0.7);  });
+groove(12.5, 16.5, { noCow: true, hat: 0.45, rolls: false,  cow: 0.55, drone: 1.0, fill: true });
 // 17–22 host your own: half-time, keyclicks under the code typing
-impact(17, 0.8); groove(16.5, 22.5, { half: true, cow: 0.3, hat: 0.7, drone: 1.1, noClap: false });
+impact(17, 0.8); groove(16.5, 22.5, { noCow: true, hat: 0.45, rolls: false,  half: true, cow: 0.3, drone: 1.1, noClap: false });
 for (let i = 0; i < 150; i++) { const tt = 17.5 + i / 55; if (tt < 20.6) key(tt + (rnd() - 0.5) * 0.008, 0.45, 2400 + rnd() * 1200); }
-pop(20.6, R0 + 19, 0.9); bell(20.65, R0 + 24, 0.7);
+dtick(20.6, 0.8, 900);
 // 22–26.5 get in: three step hits
 [22.25, 22.6, 22.95].forEach((t, i) => { lowPop(t, 0.9, 90 + i * 15); dtick(t, 0.8, 1200 + i * 200); });
-groove(22.5, 26.5, { cow: 0.5, hat: 0.9, drone: 1.0, rolls: true, fill: true }); riser(25.0, 1.5, 1.0);
+groove(22.5, 26.5, { noCow: true, hat: 0.45, rolls: false,  cow: 0.5, drone: 1.0, fill: true }); riser(25.0, 1.5, 1.0);
 // 26.5 end card
-impact(26.5, 1.3); zap(26.5, 0.6); groove(26.5, 28.5, { cow: 0.45, hat: 0.8, drone: 1.0 });
-boom(28.5, 0.6); drone(28.5, 1.5, [R0 - 24, R0 - 12, R0 - 5], 1.0, 0.01); bell(26.9, R0 + 24, 0.7); bell(27.3, R0 + 28, 0.5, 0.3);
+impact(26.5, 1.3);  groove(26.5, 28.5, { noCow: true, hat: 0.45, rolls: false,  cow: 0.45, drone: 1.0 });
+boom(28.5, 0.6); drone(28.5, 1.5, [R0 - 24, R0 - 12, R0 - 5], 1.0, 0.01); drone(26.5, 2.2, [R0 - 24, R0 - 17, R0 - 12], 1.1, 0.008);
 
 // ---------------- FX + master ----------------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }
