@@ -136,8 +136,8 @@
   const FEATS = [['YOUR OWN', 'DEDICATED SERVER', 'A persistent world you operate, on your hardware or a rented machine.'], ['YOUR RULES,', 'YOUR COMMUNITY', 'Whitelists, moderation, staff, identity.'], ['CUSTOM', 'GAMEPLAY', 'From a strict roleplay city to a racing league.']];
   async function sRack(t) { // 13–16
     const lt = t - 13; c.fillStyle = BG; c.fillRect(0, 0, W, H);
-    blurred(t, (tt) => { const k = io(prog(tt - 13, 0, 3)); c.save(); c.globalAlpha = 1; plate(IMG.rack, 60, 0, 1620, 1580, 860, 0, 1060, H, 1.0 + 0.12 * k, 0.1, 0); c.restore(); }, 1 / 60, 2);
-    const g = c.createLinearGradient(860, 0, 1180, 0); g.addColorStop(0, BG); g.addColorStop(1, rgba(BG, 0)); c.fillStyle = g; c.fillRect(860, 0, 320, H);
+    blurred(t, (tt) => { const k = io(prog(tt - 13, 0, 3)); c.save(); c.globalAlpha = 1; plate(IMG.rack, 0, 0, 1680, 1580, 960, 0, 960, H, 1.0 + 0.05 * k, -0.6, 0); c.restore(); }, 1 / 60, 2);
+    const g = c.createLinearGradient(960, 0, 1060, 0); g.addColorStop(0, BG); g.addColorStop(1, rgba(BG, 0)); c.fillStyle = g; c.fillRect(960, 0, 100, H);
     leak(t, 1500, 640, 600, CY, 0.12);
     FEATS.forEach(([a, b, d], i) => { const t0 = 13.15 + i * 0.75, y = 250 + i * 250; headline([a, b], 140, y, 58, CY, t, t0, 'left', 0.95, 0.07); body(d, 144, y + 90, prog(t, t0 + 0.3, t0 + 0.6), 'left', 26, TX2); });
   }
