@@ -160,14 +160,14 @@
     label('LUA 5.4', 140, 170, TX2, prog(lt, 0, 0.3), 'left', 20);
     leak(t, 1500, 200, 700, PK, 0.14);
   }
-  async function sSite(t) { // 22–25.5  the real server browser on a slanted screen, camera drifting down the list
+  async function sSite(t) { // 22–25.5  the real server browser on a square screen, camera drifting down the list
     const lt = t - 22, im = IMG.browser; c.fillStyle = BG; c.fillRect(0, 0, W, H);
     c.save(); c.filter = 'blur(20px) brightness(0.35)'; c.drawImage(im, -100, -100, W + 200, H + 200); c.restore();
     const k = o4(prog(lt, 0, 0.6)), dr = io(prog(lt, 0, 3.5));
     const sw = 1640, sh = sw * im.height / im.width, x = (W - sw) / 2 + (1 - k) * 300, y = 110 + (1 - k) * 80;
     c.save(); c.translate(W / 2, H / 2); const sc = 0.96 + 0.1 * dr; c.scale(sc, sc); c.translate(-W / 2, -H / 2 - dr * 60);
-    c.globalAlpha = k; skewRect(x, y, sw, sh); c.save(); c.clip(); c.drawImage(im, x - 60, y, sw + 120, sh); c.restore();
-    c.strokeStyle = YL; c.lineWidth = 3; skewRect(x - 10, y - 10, sw + 20, sh + 20); c.stroke();
+    c.globalAlpha = k; c.beginPath(); c.rect(x, y, sw, sh); c.save(); c.clip(); c.drawImage(im, x, y, sw, sh); c.restore();
+    c.strokeStyle = YL; c.lineWidth = 3; c.strokeRect(x - 10, y - 10, sw + 20, sh + 20);
     // highlight sweeping down the server rows (rows start ~27% down, ~8% apart)
     const row = Math.min(8, Math.floor(prog(lt, 0.8, 3.2) * 9)), ry = y + sh * (0.27 + row * 0.0805);
     c.fillStyle = rgba(YL, 0.10 * prog(lt, 0.8, 1.0)); c.fillRect(x + sw * 0.17, ry, sw * 0.8, sh * 0.08);
@@ -180,7 +180,7 @@
     const lt = t - 26; c.fillStyle = BG; c.fillRect(0, 0, W, H);
     // the site's nav logo, big: wipes on left→right behind a light sweep, then settles with a cyan glow
     const L = IMG.logo_nav, p = o4(prog(lt, 0, 0.9)), lw = 1300 * (0.97 + 0.03 * io(prog(lt, 0, 4))), lh = lw * L.height / L.width, lx = (W - lw) / 2, ly = 455 - lh / 2 + (1 - p) * 30;
-    c.save(); c.shadowColor = rgba(CY, 0.55); c.shadowBlur = 50 * p; c.beginPath(); c.rect(lx - 40, ly - 40, (lw + 80) * o2(prog(lt, 0, 0.7)), lh + 80); c.clip(); c.drawImage(L, lx, ly, lw, lh); c.restore();
+    c.save(); c.shadowColor = rgba(YL, 0.45); c.shadowBlur = 50 * p; c.beginPath(); c.rect(lx - 40, ly - 40, (lw + 80) * o2(prog(lt, 0, 0.7)), lh + 80); c.clip(); c.drawImage(L, lx, ly, lw, lh); c.restore();
     const sx = lx + (lw + 80) * o2(prog(lt, 0, 0.7)); if (lt < 0.8) { c.save(); c.globalCompositeOperation = 'screen'; const g = c.createLinearGradient(sx - 120, 0, sx + 20, 0); g.addColorStop(0, rgba('#FFFFFF', 0)); g.addColorStop(1, rgba('#FFFFFF', 0.35)); c.fillStyle = g; c.fillRect(sx - 120, ly + 10, 140, lh - 20); c.restore(); }
     const ly2 = ly, lh2 = lh;
     headline(['CYBERPUNK 2077 MULTIPLAYER.'], W / 2, 690, 50, TX, t, 26.6, 'center');
@@ -189,8 +189,8 @@
     cta('BUILD YOUR SERVER', W / 2 + 90, 820, 400, PK, '#fff', prog(lt, 1.25, 1.55), false);
     label('OPEN2077.NET', W / 2, 970, TX, prog(lt, 1.6, 2.0), 'center', 28);
     c.save(); c.globalAlpha = prog(lt, 2.0, 2.4) * 0.7; c.font = SANS(400, 16); c.textAlign = 'center'; c.fillStyle = TX2; c.fillText('Unofficial, independent community project. Not affiliated with, endorsed by, or sponsored by CD PROJEKT S.A. Requires a legal copy of Cyberpunk 2077.', W / 2, 1012); c.restore();
-    streak(W / 2, ly2 + lh2 * 0.55, 1100 * o2(prog(lt, 0, 0.8)), CY, 0.35 * (1 - prog(lt, 0.8, 2)));
-    leak(t, W * 0.2, ly2, 800, CY, 0.12); leak(t, W * 0.85, ly2, 800, PK, 0.1);
+    streak(W / 2, ly2 + lh2 * 0.55, 1100 * o2(prog(lt, 0, 0.8)), YL, 0.35 * (1 - prog(lt, 0.8, 2)));
+    leak(t, W * 0.2, ly2, 800, YL, 0.1); leak(t, W * 0.85, ly2, 800, PK, 0.1);
     const fo = prog(t, 29.4, 30); if (fo > 0) { c.fillStyle = `rgba(0,0,0,${fo})`; c.fillRect(0, 0, W, H); }
   }
 
