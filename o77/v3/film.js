@@ -3,7 +3,7 @@
 // parallelogram cards and striped CTAs, plus live footage of the site itself. Cinematic layer: eased camera moves with motion blur,
 // slanted brand-colour wipes, light leaks, anamorphic streaks, grain, letterbox.
 //  0 logo cold open · 2 PLAY CYBERPUNK TOGETHER · 4 community servers · 6 the three worlds · 10 CREATE YOUR OWN SERVER · 13 features ·
-//  16 SCRIPT YOUR NIGHT CITY · 19 Lua code · 22 the site · 26 end card. renderAt(t) is async (plates + footage frames) and pure in t.
+//  16 SCRIPT YOUR NIGHT CITY · 19 Lua code · 22 server browser · 26 end card. renderAt(t) is async (plates + footage frames) and pure in t.
 (() => {
   'use strict';
   const W = 1920, H = 1080, FPS = 60, DUR = 30, TAU = Math.PI * 2;
@@ -94,13 +94,15 @@
     body('Community servers turn Night City into multiplayer worlds.', 124, 760, prog(lt, 1.1, 1.5), 'left', 32);
     leak(t, 1500, 200, 900, PK, 0.18); streak(1350, 330, 520, YL, 0.35 * prog(lt, 0.2, 0.6));
   }
-  async function sWorlds(t) { // 4–6  V | Panam split, slanted panels
+  async function sWorlds(t) { // 4–6  V and Panam cut out, sliding in from both sides over a blurred Night City
     const lt = t - 4; c.fillStyle = BG; c.fillRect(0, 0, W, H);
-    const a = o4(prog(lt, 0, 0.5)), b = o4(prog(lt, 0.15, 0.65));
-    c.save(); skewRect(-200 + (1 - a) * -500, 0, 1240, H); c.clip(); plate(IMG.card2, 860, 40, 640, 660, -100, 0, 1180, H, 1.12 - 0.08 * io(prog(lt, 0, 2)), -0.3, -0.3); grade(0); c.restore();
-    c.save(); skewRect(980 + (1 - b) * 600, 0, 1240, H); c.clip(); plate(IMG.card3, 860, 40, 680, 660, 1000, 0, 920, H, 1.12 - 0.08 * io(prog(lt, 0, 2)), 0.4, -0.3); grade(1); c.restore();
-    c.save(); c.strokeStyle = YL; c.lineWidth = 3; c.beginPath(); c.moveTo(1040 + (1 - b) * 600 - SK * H, 0); c.lineTo(1040 + (1 - b) * 600 - 0, H); c.stroke(); c.restore();
-    const g = c.createLinearGradient(0, H * 0.5, 0, H); g.addColorStop(0, rgba(BG, 0)); g.addColorStop(1, rgba(BG, 0.92)); c.fillStyle = g; c.fillRect(0, H * 0.5, W, H * 0.5);
+    c.save(); c.filter = 'blur(14px) brightness(0.55) saturate(1.2)'; plate(IMG.card2, 760, 40, 800, 660, -60, -60, W + 120, H + 120, 1.05 + 0.05 * io(prog(lt, 0, 2)), 0, 0); c.restore();
+    grade(0); leak(t, W / 2, H * 0.4, 700, PK, 0.18);
+    const a = o4(prog(lt, 0, 0.6)), b = o4(prog(lt, 0.12, 0.72)), dr = io(prog(lt, 0, 2)) * 30;
+    const v = IMG.v_cut, pn = IMG.panam_cut, vh = H * 1.02, vw = vh * v.width / v.height, ph = H * 1.02, pw = ph * pn.width / pn.height;
+    c.save(); c.globalAlpha = a; c.drawImage(v, -120 - (1 - a) * 500 + dr, H - vh + 30, vw, vh); c.restore();
+    c.save(); c.globalAlpha = b; c.drawImage(pn, W - pw + 120 + (1 - b) * 500 - dr, H - ph + 30, pw, ph); c.restore();
+    const g = c.createLinearGradient(0, H * 0.55, 0, H); g.addColorStop(0, rgba(BG, 0)); g.addColorStop(1, rgba(BG, 0.95)); c.fillStyle = g; c.fillRect(0, H * 0.55, W, H * 0.45);
     headline(['EACH WITH ITS OWN RULES.'], W / 2, 880, 64, TX, t, 4.35, 'center');
     headline(['ITS OWN EXPERIENCE.'], W / 2, 958, 64, CY, t, 4.6, 'center');
   }
@@ -158,20 +160,21 @@
     label('LUA 5.4', 140, 170, TX2, prog(lt, 0, 0.3), 'left', 20);
     leak(t, 1500, 200, 700, PK, 0.14);
   }
-  async function sSite(t) { // 22–25.5  the real site, live, on three slanted screens
-    const lt = t - 22; c.fillStyle = BG; c.fillRect(0, 0, W, H);
-    const segs = [['a', -0.35], ['b', 0], ['c', 0.35]], fi = Math.min(89, Math.floor(lt / 3.5 * 90));
-    for (let i = 0; i < 3; i++) {
-      const [seg, off] = segs[i], im = await seqFrame(seg, fi + 1); if (!im) continue;
-      const k = o4(prog(lt, 0.1 + i * 0.12, 0.7 + i * 0.12)), sw = 1180, sh = 570, drift = io(prog(lt, 0, 3.5)) * 120;
-      const x = W / 2 - sw / 2 + off * 1500 + (1 - k) * (i - 1) * 400 - drift * (i - 1) * 0.6, y = H / 2 - sh / 2 + (i - 1) * 80 + (1 - k) * 200;
-      c.save(); c.globalAlpha = k * (i === 1 ? 1 : 0.55); c.translate(x + sw / 2, y + sh / 2); const s = i === 1 ? 1.0 + 0.06 * drift / 120 : 0.8; c.scale(s, s); c.translate(-sw / 2, -sh / 2);
-      skewRect(0, 0, sw, sh); c.save(); c.clip(); c.drawImage(im, 0, 0, im.width, im.height, -40, 0, sw + 80, (sw + 80) * im.height / im.width); c.restore();
-      c.strokeStyle = [YL, CY, PK][i]; c.lineWidth = 3; skewRect(0, 0, sw, sh); c.stroke(); c.restore();
-    }
-    label('OPEN2077.NET', W / 2, 90, TX2, prog(lt, 0.2, 0.5), 'center', 24);
+  async function sSite(t) { // 22–25.5  the real server browser on a slanted screen, camera drifting down the list
+    const lt = t - 22, im = IMG.browser; c.fillStyle = BG; c.fillRect(0, 0, W, H);
+    c.save(); c.filter = 'blur(20px) brightness(0.35)'; c.drawImage(im, -100, -100, W + 200, H + 200); c.restore();
+    const k = o4(prog(lt, 0, 0.6)), dr = io(prog(lt, 0, 3.5));
+    const sw = 1640, sh = sw * im.height / im.width, x = (W - sw) / 2 + (1 - k) * 300, y = 110 + (1 - k) * 80;
+    c.save(); c.translate(W / 2, H / 2); const sc = 0.96 + 0.1 * dr; c.scale(sc, sc); c.translate(-W / 2, -H / 2 - dr * 60);
+    c.globalAlpha = k; skewRect(x, y, sw, sh); c.save(); c.clip(); c.drawImage(im, x - 60, y, sw + 120, sh); c.restore();
+    c.strokeStyle = YL; c.lineWidth = 3; skewRect(x - 10, y - 10, sw + 20, sh + 20); c.stroke();
+    // highlight sweeping down the server rows (rows start ~27% down, ~8% apart)
+    const row = Math.min(8, Math.floor(prog(lt, 0.8, 3.2) * 9)), ry = y + sh * (0.27 + row * 0.0805);
+    c.fillStyle = rgba(YL, 0.10 * prog(lt, 0.8, 1.0)); c.fillRect(x + sw * 0.17, ry, sw * 0.8, sh * 0.08);
+    c.restore();
+    const g = c.createLinearGradient(0, H * 0.7, 0, H); g.addColorStop(0, rgba(BG, 0)); g.addColorStop(1, rgba(BG, 0.95)); c.fillStyle = g; c.fillRect(0, H * 0.7, W, H * 0.3);
     headline(['FIND A WORLD TO PLAY IN.'], W / 2, 990, 54, YL, t, 22.4, 'center');
-    leak(t, W / 2, H / 2, 900, CY, 0.08);
+    leak(t, W * 0.8, 200, 800, YL, 0.1);
   }
   async function sEnd(t) { // 26–30
     const lt = t - 26; c.fillStyle = BG; c.fillRect(0, 0, W, H);
@@ -207,7 +210,7 @@
   }
   const ready = (async () => {
     await document.fonts.ready; await Promise.all([document.fonts.load(WIDE(100)), document.fonts.load('500 20px "Archivo Wide"'), document.fonts.load(SANS(500, 20))]);
-    await Promise.all(NAMES.map(async (n) => { IMG[n] = await load(`../site/plates/${n}.jpg`); })); IMG.logo = await load('../site/plates/logo.png');
+    await Promise.all(NAMES.map(async (n) => { IMG[n] = await load(`../site/plates/${n}.jpg`); })); IMG.logo = await load('../site/plates/logo.png'); IMG.v_cut = await load('../site/plates/v_hi_cut.png'); IMG.panam_cut = await load('../site/plates/panam_hi_cut.png'); IMG.browser = await load('../site/plates/browser.jpg');
   })();
   window.FILM = { W, H, FPS, DUR, renderAt, ready };
   if (!/[?&]render\b/.test(location.search)) ready.then(() => { const t0 = performance.now(); const loop = async () => { await renderAt(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); }; loop(); });
