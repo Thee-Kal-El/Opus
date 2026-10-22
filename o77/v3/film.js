@@ -178,18 +178,19 @@
   }
   async function sEnd(t) { // 26–30
     const lt = t - 26; c.fillStyle = BG; c.fillRect(0, 0, W, H);
-    // the site's footer wordmark, gradient yellow→cyan→pink, rising
-    const p = o4(prog(lt, 0, 0.9)), lw = 1920 * (0.98 + 0.04 * io(prog(lt, 0, 4))), lh = 250 * lw / 1920, ly = 300 + (1 - p) * 120;
-    c.save(); c.globalAlpha = p; c.drawImage(IMG.logo, 0, 0, 1920, 250, (W - lw) / 2, ly, lw, lh);
-    const g = c.createLinearGradient(0, ly + lh * 0.75, 0, ly + lh); g.addColorStop(0, rgba(BG, 0)); g.addColorStop(1, BG); c.fillStyle = g; c.fillRect(0, ly + lh * 0.7, W, lh * 0.3 + 2); c.restore();
+    // the site's nav logo, big: wipes on left→right behind a light sweep, then settles with a cyan glow
+    const L = IMG.logo_nav, p = o4(prog(lt, 0, 0.9)), lw = 1300 * (0.97 + 0.03 * io(prog(lt, 0, 4))), lh = lw * L.height / L.width, lx = (W - lw) / 2, ly = 455 - lh / 2 + (1 - p) * 30;
+    c.save(); c.shadowColor = rgba(CY, 0.55); c.shadowBlur = 50 * p; c.beginPath(); c.rect(lx - 40, ly - 40, (lw + 80) * o2(prog(lt, 0, 0.7)), lh + 80); c.clip(); c.drawImage(L, lx, ly, lw, lh); c.restore();
+    const sx = lx + (lw + 80) * o2(prog(lt, 0, 0.7)); if (lt < 0.8) { c.save(); c.globalCompositeOperation = 'screen'; const g = c.createLinearGradient(sx - 120, 0, sx + 20, 0); g.addColorStop(0, rgba('#FFFFFF', 0)); g.addColorStop(1, rgba('#FFFFFF', 0.35)); c.fillStyle = g; c.fillRect(sx - 120, ly + 10, 140, lh - 20); c.restore(); }
+    const ly2 = ly, lh2 = lh;
     headline(['CYBERPUNK 2077 MULTIPLAYER.'], W / 2, 690, 50, TX, t, 26.6, 'center');
     headline(['FIND A WORLD TO PLAY IN, OR BUILD YOUR OWN.'], W / 2, 750, 34, TX2, t, 26.8, 'center');
     cta('DOWNLOAD LAUNCHER', W / 2 - 470, 820, 400, YL, BG, prog(lt, 1.1, 1.4), true);
     cta('BUILD YOUR SERVER', W / 2 + 90, 820, 400, PK, '#fff', prog(lt, 1.25, 1.55), false);
     label('OPEN2077.NET', W / 2, 970, TX, prog(lt, 1.6, 2.0), 'center', 28);
     c.save(); c.globalAlpha = prog(lt, 2.0, 2.4) * 0.7; c.font = SANS(400, 16); c.textAlign = 'center'; c.fillStyle = TX2; c.fillText('Unofficial, independent community project. Not affiliated with, endorsed by, or sponsored by CD PROJEKT S.A. Requires a legal copy of Cyberpunk 2077.', W / 2, 1012); c.restore();
-    streak(W / 2, ly + lh * 0.45, 1100 * o2(prog(lt, 0, 0.8)), CY, 0.35 * (1 - prog(lt, 0.8, 2)));
-    leak(t, W * 0.2, ly, 800, YL, 0.1); leak(t, W * 0.85, ly, 800, PK, 0.12);
+    streak(W / 2, ly2 + lh2 * 0.55, 1100 * o2(prog(lt, 0, 0.8)), CY, 0.35 * (1 - prog(lt, 0.8, 2)));
+    leak(t, W * 0.2, ly2, 800, CY, 0.12); leak(t, W * 0.85, ly2, 800, PK, 0.1);
     const fo = prog(t, 29.4, 30); if (fo > 0) { c.fillStyle = `rgba(0,0,0,${fo})`; c.fillRect(0, 0, W, H); }
   }
 
@@ -210,7 +211,7 @@
   }
   const ready = (async () => {
     await document.fonts.ready; await Promise.all([document.fonts.load(WIDE(100)), document.fonts.load('500 20px "Archivo Wide"'), document.fonts.load(SANS(500, 20))]);
-    await Promise.all(NAMES.map(async (n) => { IMG[n] = await load(`../site/plates/${n}.jpg`); })); IMG.logo = await load('../site/plates/logo.png'); IMG.v_cut = await load('../site/plates/v_hi_cut.png'); IMG.panam_cut = await load('../site/plates/panam_hi_cut.png'); IMG.browser = await load('../site/plates/browser.jpg');
+    await Promise.all(NAMES.map(async (n) => { IMG[n] = await load(`../site/plates/${n}.jpg`); })); IMG.logo = await load('../site/plates/logo.png'); IMG.v_cut = await load('../site/plates/v_hi_cut.png'); IMG.panam_cut = await load('../site/plates/panam_hi_cut.png'); IMG.browser = await load('../site/plates/browser.jpg'); IMG.logo_nav = await load('../site/plates/logo_nav.png');
   })();
   window.FILM = { W, H, FPS, DUR, renderAt, ready };
   if (!/[?&]render\b/.test(location.search)) ready.then(() => { const t0 = performance.now(); const loop = async () => { await renderAt(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); }; loop(); });
