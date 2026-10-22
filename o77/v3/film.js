@@ -6,7 +6,7 @@
 //  16 SCRIPT YOUR NIGHT CITY · 19 Lua code · 22 server browser · 26 end card. renderAt(t) is async (plates + footage frames) and pure in t.
 (() => {
   'use strict';
-  const W = 1920, H = 1080, FPS = 60, DUR = 30, TAU = Math.PI * 2;
+  const W = 1920, H = 1080, FPS = 60, DUR = 40, SPEED = 0.75, TAU = Math.PI * 2;   // 40 s of film = the 30 s story at 75% speed
   const cv = document.getElementById('c'), c = cv.getContext('2d');
   const BG = '#070A12', YL = '#FCEE09', CY = '#22D8F0', PK = '#FF1F5A', TX = '#EEF1F6', TX2 = '#9AA3B2';
   const WIDE = (s, w = 900) => `italic ${w} ${s}px "Archivo Wide"`, MONO = (w, s) => `${w} ${s}px "JetBrains Mono", monospace`, SANS = (w, s) => `${w} ${s}px "Inter Tight", sans-serif`;
@@ -136,10 +136,10 @@
   const FEATS = [['YOUR OWN', 'DEDICATED SERVER', 'A persistent world you operate, on your hardware or a rented machine.'], ['YOUR RULES,', 'YOUR COMMUNITY', 'Whitelists, moderation, staff, identity.'], ['CUSTOM', 'GAMEPLAY', 'From a strict roleplay city to a racing league.']];
   async function sRack(t) { // 13–16
     const lt = t - 13; c.fillStyle = BG; c.fillRect(0, 0, W, H);
-    blurred(t, (tt) => { const k = io(prog(tt - 13, 0, 3)); c.save(); c.globalAlpha = 1; plate(IMG.rack, 0, 0, 1680, 1580, 960, 0, 960, H, 1.0 + 0.05 * k, -0.6, 0); c.restore(); }, 1 / 60, 2);
-    const g = c.createLinearGradient(960, 0, 1060, 0); g.addColorStop(0, BG); g.addColorStop(1, rgba(BG, 0)); c.fillStyle = g; c.fillRect(960, 0, 100, H);
+    blurred(t, (tt) => { const k = io(prog(tt - 13, 0, 3)); c.save(); c.globalAlpha = 1; { const rh = 1000 * (1 + 0.03 * k), rw = rh * 1680 / 1580, rx = W - rw - 10 - 20 * k; c.drawImage(IMG.rack, rx, (H - rh) / 2, rw, rh); const fg = c.createLinearGradient(rx, 0, rx + 220, 0); fg.addColorStop(0, BG); fg.addColorStop(1, rgba(BG, 0)); c.fillStyle = fg; c.fillRect(rx - 2, 0, 222, H); }   /* whole rack, uncropped */ c.restore(); }, 1 / 60, 2);
+    /* no fade over the rack */
     leak(t, 1500, 640, 600, CY, 0.12);
-    FEATS.forEach(([a, b, d], i) => { const t0 = 13.15 + i * 0.75, y = 250 + i * 250; headline([a, b], 140, y, 58, CY, t, t0, 'left', 0.95, 0.07); body(d, 144, y + 90, prog(t, t0 + 0.3, t0 + 0.6), 'left', 26, TX2); });
+    FEATS.forEach(([a, b, d], i) => { const t0 = 13.15 + i * 0.75, y = 250 + i * 250; headline([a, b], 110, y, 48, CY, t, t0, 'left', 0.95, 0.07); body(d, 114, y + 76, prog(t, t0 + 0.3, t0 + 0.6), 'left', 22, TX2); });
   }
   async function sScript(t) { // 16–19  Johnny + SCRIPT YOUR NIGHT CITY
     const lt = t - 16;
@@ -197,7 +197,8 @@
   }
 
   let GRAIN = null;
-  async function renderAt(t) {
+  async function renderAt(tReal) {
+    const t = tReal * SPEED;
     c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1; c.globalCompositeOperation = 'source-over'; c.filter = 'none'; c.letterSpacing = '0px';
     if (t < 2) await sLogo(t); else if (t < 4) await sPlay(t); else if (t < 6) await sWorlds(t); else if (t < 9.75) await sCards(t);
     else if (t < 10) { c.fillStyle = '#000'; c.fillRect(0, 0, W, H); }

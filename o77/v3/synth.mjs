@@ -1,4 +1,5 @@
-// Score for the OPEN//77 30 s trailer v3 — cyberpunk dark phonk: cowbell lead, sliding 808s, hat rolls, dark drone; trailer hits on every cut (120 BPM, beat = 0.5 s), synthesized in code.
+// Score for the OPEN//77 trailer v3 (40 s cut) — deep dark trap/phonk modelled on the user's "Game Loop" reference: ~130 BPM, C phrygian,
+// long distorted 808, half-time drums, bell riff; trailer hits and silences on the film's cuts (120 BPM, beat = 0.5 s), synthesized in code.
 // 0–2.5 cold open: drone + typing ticks, riser into "NOT ANYMORE" hit · 2.5 logo impact + drop · 6 server browser groove (UI ticks,
 // JOIN click 9.6, connect riser) · 12 four server-type slams on 12/13.25/14.5/15.75 · 17 half-time host section w/ keyclicks ·
 // 22 three step hits · 26.5 end-card impact, groove out, fade.
@@ -7,7 +8,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SR = 48000, DUR = 30, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
+const SR = 48000, S = 1, DUR = 40, N = SR * DUR, TAU = Math.PI * 2, BT = 0.5;
 const L = new Float32Array(N), Rr = new Float32Array(N), revL = new Float32Array(N), revR = new Float32Array(N), dlyL = new Float32Array(N), dlyR = new Float32Array(N);
 let seed = 2077;
 const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
@@ -122,19 +123,52 @@ function dtick(t0, g = 1, f = 1400) { let lp = 0; for (let n = 0; n < 0.05 * SR;
 function impact(t0, g = 1) { boom(t0, 0.9 * g); air(t0 - 0.9, 1.0, 0.7 * g); let lp = 0; for (let n = 0; n < 2.5 * SR; n++) { const t = n / SR; lp += 0.01 * (noise() - lp); const v = lp * Math.exp(-t * 1.6) * g * 1.2; put(at(t0) + n, v, v, 0.6); } }
 function swell(t0, dur, chord, g = 1) { drone(t0, dur, chord, g, 0.02); }
 
-// ---------------- arrangement (trailer cuts: 2 · 4 · 6 · 9.75 silence · 10 DROP · 13 · 16 · 19 · 22 · 25.5 silence · 26 end) ----------------
-drone(0, 2.1, [R0 - 24, R0 - 12, R0 - 5], 1.1, 0.008); riser(0.2, 1.8, 1.0); dtick(0.2, 0.8, 1100); dtick(0.62, 0.8, 1300);
-impact(2, 1.2); groove(2, 9.5, { cow: 0.7, hat: 1.0, rolls: true, b808: 1.2, drone: 1.0 });
-[4, 6].forEach((t) => { boom(t, 0.6); whoosh(t - 0.3, 0.3, 0.8); });
-[7.25, 8.5].forEach((t) => { whoosh(t - 0.25, 0.25, 0.7); dtick(t, 0.8, 1200); });
-riser(8.2, 1.55, 1.3); for (let k = 0; k < 8; k++) clap(9.25 + k * 0.06, 0.1 + k * 0.08);
-// 9.75–10 silence, then the DROP
-impact(10, 1.6); shatter(10, 0.35); groove(10, 21.5, { cow: 0.7, hat: 1.0, rolls: true, b808: 1.2, drone: 1.1, fill: true });
-[13, 16, 19].forEach((t) => { boom(t, 0.75); whoosh(t - 0.3, 0.3, 0.8); });
-[13.15, 13.9, 14.65].forEach((t) => dtick(t, 0.7, 1300)); [19.1, 19.9, 20.7].forEach((t) => dtick(t, 0.7, 1500));
-riser(20.5, 1.5, 1.0); impact(22, 1.1); groove(22, 25.0, { cow: 0.7, hat: 1.0, rolls: true, b808: 1.2, drone: 1.0 }); riser(23.6, 1.9, 1.3);
-// 25.5–26 silence, end card
-impact(26, 1.5); groove(26, 28.5, { cow: 0.6, hat: 0.9, rolls: true, b808: 1.2, drone: 1.0 }); drone(26, 3.6, [R0 - 24, R0 - 17, R0 - 12], 1.2, 0.008); boom(27.1, 0.5); boom(28.2, 0.45);
+// ---------------- deep score (after "Game Loop": ~130 BPM, C phrygian, long distorted 808 under everything) ----------------
+const Q = 60 / 130;                       // one beat
+const C = 36;                             // C2 = 65.4 Hz, the reference's bass centre
+// sustained, saturated 808: sine + octave, gentle decay, optional glide; a clean sub layer underneath keeps it deep
+function deep808(t0, dur, m, g = 1, to = null) {
+  let ph = 0; const f0 = mtof(m), f1 = to != null ? mtof(to) : f0;
+  for (let n = 0; n < (dur + 0.08) * SR; n++) {
+    const t = n / SR, k = to != null ? Math.min(1, Math.max(0, (t - dur * 0.6) / (dur * 0.3))) : 0;
+    const f = (f0 + (f1 - f0) * k * k * (3 - 2 * k)) * (1 + 1.2 * Math.exp(-t * 60)); ph += TAU * f / SR;
+    const env = Math.min(1, t / 0.004) * (t < dur ? 0.55 + 0.45 * Math.exp(-t * 2.2) : (0.55 + 0.45 * Math.exp(-dur * 2.2)) * Math.exp(-(t - dur) * 40));
+    const dist = Math.tanh((Math.sin(ph) + 0.35 * Math.sin(ph * 2)) * 2.6) * 0.6, sub = Math.sin(ph) * 0.55;
+    const v = (dist + sub) * env * g * 0.38; put(at(t0) + n, v, v);
+  }
+}
+function pluck(t0, m, g = 1, p = 0, len = 1.2) { const f = mtof(m), [a, b] = pan(p); let lp = 0; for (let n = 0; n < len * SR; n++) { const t = n / SR, x = (Math.sin(TAU * f * t) + 0.5 * Math.sin(TAU * 2 * f * t + Math.sin(TAU * f * t)) * Math.exp(-t * 6)); lp += 0.25 * (x - lp); const v = lp * Math.exp(-t * 3.2) * Math.min(1, t * 400) * g * 0.08; put(at(t0) + n, v * a, v * b, 0.5, 0.35); } }
+// riff: C phrygian (C Db Eb F G Ab Bb), dark bell motif over two bars
+const RIFF = [[0, 12], [0.75, 15], [1.5, 13], [2, 12], [2.75, 8], [3.5, 7], [4, 12], [4.75, 15], [5.5, 17], [6, 15], [6.5, 13], [7, 12]];
+const BASS = [[0, 0, 1.4], [1.5, 0, 0.45], [2.5, 1, 1.3, 0], [4, 0, 1.4], [5.5, -4, 0.9], [6.5, -5, 1.3, 0]];   // [beat, semis, len(beats), glideTo]
+function bar2(t0, o = {}, end = 1e9) {        // two bars of the deep beat starting at t0; nothing sounds past `end`
+  const ok = (b) => t0 + b * Q < end - 0.05;
+  if (!o.noDrums) {
+    for (const kb of [0, 2.5, 4, 6.5, 7.25]) if (ok(kb)) kick(t0 + kb * Q, 1.1);
+    for (const cb of [2, 6]) if (ok(cb)) clap(t0 + cb * Q, 0.95);
+    for (let s = 0; s < 16; s++) if (ok(s / 2)) hat(t0 + s * Q / 2, s % 2 ? 0.06 : 0.1, false, 0.2);
+    if (o.rolls && ok(7.9)) for (let r = 0; r < 6; r++) hat(t0 + 7 * Q + r * Q / 6, 0.05 + r * 0.012, false, -0.2);
+  }
+  for (const [b, sm, len, to] of BASS) { const st = t0 + b * Q, d = Math.min(len * Q, end - st - 0.06); if (d > 0.08) deep808(st, d, C + sm, o.bass ?? 1, to != null && d === len * Q ? C + to : null); }
+  if (o.riff) RIFF.forEach(([b, m], i) => { if (ok(b)) bell(t0 + b * Q, 60 + m, o.riff, i % 2 ? 0.35 : -0.35, Math.min(1.3, end - t0 - b * Q)); });
+  drone(t0, Math.min(8 * Q, end - t0), [C, C + 7, C + 12, C + 15], o.drone ?? 0.6, 0.012);
+}
+function run(t0, t1, o) { for (let t = t0; t < t1 - 0.3; t += 8 * Q) bar2(t, o, t1); }
+
+// film cuts (real seconds, 40 s cut): 2.67 · 5.33 · 8 · 9.67 · 11.33 · 13 silence · 13.33 DROP · 17.33 · 21.33 · 25.33 · 29.33 · 34 silence · 34.67 end
+// 0–2.67  intro: plucked phrygian arp + air, riser
+for (let i = 0; i < 12; i++) pluck(0.15 + i * Q / 2, 60 + [0, 3, 7, 1, 0, 3, 8, 7, 0, 3, 7, 12][i], 1, (i % 2) * 0.6 - 0.3);
+drone(0, 2.8, [C, C + 7, C + 12], 0.9, 0.008); riser(0.8, 1.85, 1.0); air(1.5, 1.2, 0.8);
+// 2.67–13  first section: deep 808 + drums + bell riff
+impact(2.67, 1.2); run(2.67, 13.0, { riff: 0.55, rolls: true });
+[5.33, 8].forEach((t) => { boom(t, 0.6); whoosh(t - 0.3, 0.3, 0.8); }); [9.67, 11.33].forEach((t) => whoosh(t - 0.25, 0.25, 0.6));
+riser(11.0, 1.9, 1.3);
+// 13–13.33 silence, 13.33 DROP: heavier 808, riff up front
+impact(13.33, 1.7); shatter(13.33, 0.35); run(13.33, 34.0, { riff: 0.7, rolls: true, bass: 1.15, drone: 0.7 });
+[17.33, 21.33, 25.33].forEach((t) => { boom(t, 0.8); whoosh(t - 0.3, 0.3, 0.8); });
+riser(27.4, 1.9, 1.0); impact(29.33, 1.1); riser(32.0, 2.0, 1.3);
+// 34–34.67 silence, end card: last drop with the riff, then ring out
+impact(34.67, 1.6); run(34.67, 38.35, { riff: 0.7, bass: 1.1 }); deep808(38.36, 1.4, C, 1.0, C - 12); bell(38.4, 72, 0.7, 0, 1.6);
 // ---------------- FX + master ----------------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }
 function reverb(mix) {
@@ -142,7 +176,7 @@ function reverb(mix) {
   const run = (inp, sp) => { const o = new Float32Array(N); for (const c0 of combs) { const c = Math.round((c0 + sp) * SR / 44100 * 1.7), buf = new Float32Array(c); let p = 0, lp = 0; for (let n = 0; n < N; n++) { const y = buf[p]; lp = y * 0.55 + lp * 0.45; buf[p] = inp[n] + lp * 0.85; p = (p + 1) % c; o[n] += y / combs.length; } } for (const a0 of aps) { const a = Math.round((a0 + sp) * SR / 44100), buf = new Float32Array(a); let p = 0; for (let n = 0; n < N; n++) { const b = buf[p], x = o[n]; buf[p] = x + b * 0.5; o[n] = -x + b; p = (p + 1) % a; } } return o; };
   const oL = run(revL, 0), oR = run(revR, 23); for (let n = 0; n < N; n++) { L[n] += oL[n] * mix; Rr[n] += oR[n] * mix; }
 }
-delay(BT * 0.75, 0.35, 0.4); reverb(0.28);
+delay(Q * 0.75, 0.35, 0.4); reverb(0.28);
 let lpL = 0, lpR = 0, hL = 0, hR = 0, pL = 0, pR = 0, peak = 0;
 for (let n = 0; n < N; n++) {
   const t = n / SR, lofi = t < 2.5 ? 0.2 + 0.8 * Math.pow(t / 2.5, 2) : 1;

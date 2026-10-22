@@ -1,5 +1,5 @@
 // Renders the OPEN//77 trailer v3 frame-by-frame in headless Chromium and muxes its score.
-//   node o77/v3/synth.mjs && node o77/v3/render.mjs   -> out/o77_trailer_v3_30s_1080p60.mp4
+//   node o77/v3/synth.mjs && node o77/v3/render.mjs   -> out/o77_trailer_v3_40s_1080p60.mp4
 //   node o77/v3/render.mjs --stills 1,5   -> out/o77v3_stills/o77_t_<sec>.png
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
