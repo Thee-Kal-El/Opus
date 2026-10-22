@@ -1,4 +1,4 @@
-// Score for the OPEN//77 30 s showcase — v3 trailer cut (120 BPM, beat = 0.5 s), synthesized in code.
+// Score for the OPEN//77 30 s trailer v3 — cyberpunk dark phonk: cowbell lead, sliding 808s, hat rolls, dark drone; trailer hits on every cut (120 BPM, beat = 0.5 s), synthesized in code.
 // 0–2.5 cold open: drone + typing ticks, riser into "NOT ANYMORE" hit · 2.5 logo impact + drop · 6 server browser groove (UI ticks,
 // JOIN click 9.6, connect riser) · 12 four server-type slams on 12/13.25/14.5/15.75 · 17 half-time host section w/ keyclicks ·
 // 22 three step hits · 26.5 end-card impact, groove out, fade.
@@ -124,17 +124,17 @@ function swell(t0, dur, chord, g = 1) { drone(t0, dur, chord, g, 0.02); }
 
 // ---------------- arrangement (trailer cuts: 2 · 4 · 6 · 9.75 silence · 10 DROP · 13 · 16 · 19 · 22 · 25.5 silence · 26 end) ----------------
 drone(0, 2.1, [R0 - 24, R0 - 12, R0 - 5], 1.1, 0.008); riser(0.2, 1.8, 1.0); dtick(0.2, 0.8, 1100); dtick(0.62, 0.8, 1300);
-impact(2, 1.2); groove(2, 9.5, { noCow: true, hat: 0.5, drone: 1.0 });
+impact(2, 1.2); groove(2, 9.5, { cow: 0.7, hat: 1.0, rolls: true, b808: 1.2, drone: 1.0 });
 [4, 6].forEach((t) => { boom(t, 0.6); whoosh(t - 0.3, 0.3, 0.8); });
 [7.25, 8.5].forEach((t) => { whoosh(t - 0.25, 0.25, 0.7); dtick(t, 0.8, 1200); });
 riser(8.2, 1.55, 1.3); for (let k = 0; k < 8; k++) clap(9.25 + k * 0.06, 0.1 + k * 0.08);
 // 9.75–10 silence, then the DROP
-impact(10, 1.6); shatter(10, 0.35); groove(10, 21.5, { noCow: true, hat: 0.55, drone: 1.1, fill: true });
+impact(10, 1.6); shatter(10, 0.35); groove(10, 21.5, { cow: 0.7, hat: 1.0, rolls: true, b808: 1.2, drone: 1.1, fill: true });
 [13, 16, 19].forEach((t) => { boom(t, 0.75); whoosh(t - 0.3, 0.3, 0.8); });
 [13.15, 13.9, 14.65].forEach((t) => dtick(t, 0.7, 1300)); [19.1, 19.9, 20.7].forEach((t) => dtick(t, 0.7, 1500));
-riser(20.5, 1.5, 1.0); impact(22, 1.1); groove(22, 25.0, { noCow: true, hat: 0.5, drone: 1.0 }); riser(23.6, 1.9, 1.3);
+riser(20.5, 1.5, 1.0); impact(22, 1.1); groove(22, 25.0, { cow: 0.7, hat: 1.0, rolls: true, b808: 1.2, drone: 1.0 }); riser(23.6, 1.9, 1.3);
 // 25.5–26 silence, end card
-impact(26, 1.5); drone(26, 3.6, [R0 - 24, R0 - 17, R0 - 12], 1.2, 0.008); boom(27.1, 0.5); boom(28.2, 0.45);
+impact(26, 1.5); groove(26, 28.5, { cow: 0.6, hat: 0.9, rolls: true, b808: 1.2, drone: 1.0 }); drone(26, 3.6, [R0 - 24, R0 - 17, R0 - 12], 1.2, 0.008); boom(27.1, 0.5); boom(28.2, 0.45);
 // ---------------- FX + master ----------------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }
 function reverb(mix) {

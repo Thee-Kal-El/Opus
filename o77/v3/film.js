@@ -122,7 +122,9 @@
   }
   async function sServer(t) { // 10–13  DROP: robot + CREATE YOUR OWN SERVER
     const lt = t - 10;
-    blurred(t, (tt) => { const k = io(prog(tt - 10, 0, 3)); c.fillStyle = BG; c.fillRect(0, 0, W, H); plate(IMG.robot, 0, 90, 2000, 1640, 0, 0, W, H, 1.25 - 0.13 * o4(prog(tt - 10, 0, 0.6)) - 0.05 * k, -0.6 + 0.2 * k, -0.1); }, 1 / 45, lt < 0.6 ? 5 : 2);
+    blurred(t, (tt) => { const k = io(prog(tt - 10, 0, 3)); c.fillStyle = BG; c.fillRect(0, 0, W, H); { const z = 1.18 - 0.1 * o4(prog(tt - 10, 0, 0.6)) - 0.04 * k, sc = H * z / 1642, x0 = 560 + 40 * k - 1300 * sc, y0 = 300 - 240 * sc, ex = x0 + 1720 * sc;
+      c.drawImage(IMG.robot, 0, 90, 1720, 1642, x0, y0, 1720 * sc, 1642 * sc);   /* source skips the site nav (top) and its 'YO' text (right) */
+      const eg = c.createLinearGradient(ex - 320, 0, ex, 0); eg.addColorStop(0, rgba(BG, 0)); eg.addColorStop(1, BG); c.fillStyle = eg; c.fillRect(ex - 320, 0, 320, H); c.fillStyle = BG; c.fillRect(ex, 0, W, H); }   /* keep his face (plate 1300,330) at screen ~(560,300) */ }, 1 / 45, lt < 0.6 ? 5 : 2);
     grade(0); shade('right', 0.92);
     headline(['CREATE', 'YOUR OWN', 'SERVER'], W - 120, 400, 138, CY, t, 10.08, 'right', 0.88, 0.1);
     body('A dedicated server that stays online for your community —', W - 124, 760, prog(lt, 0.7, 1.1), 'right', 30);
