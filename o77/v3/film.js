@@ -136,7 +136,8 @@
   const FEATS = [['YOUR OWN', 'DEDICATED SERVER', 'A persistent world you operate, on your hardware or a rented machine.'], ['YOUR RULES,', 'YOUR COMMUNITY', 'Whitelists, moderation, staff, identity.'], ['CUSTOM', 'GAMEPLAY', 'From a strict roleplay city to a racing league.']];
   async function sRack(t) { // 13–16
     const lt = t - 13; c.fillStyle = BG; c.fillRect(0, 0, W, H);
-    blurred(t, (tt) => { const k = io(prog(tt - 13, 0, 3)); c.save(); c.globalAlpha = 1; { const rh = 1000 * (1 + 0.03 * k), rw = rh * 1680 / 1580, rx = W - rw - 10 - 20 * k; c.drawImage(IMG.rack, rx, (H - rh) / 2, rw, rh); const fg = c.createLinearGradient(rx, 0, rx + 220, 0); fg.addColorStop(0, BG); fg.addColorStop(1, rgba(BG, 0)); c.fillStyle = fg; c.fillRect(rx - 2, 0, 222, H); }   /* whole rack, uncropped */ c.restore(); }, 1 / 60, 2);
+    blurred(t, (tt) => { const k = io(prog(tt - 13, 0, 3)); c.save(); c.globalAlpha = 1; { const rw = 1010 * (1 + 0.03 * k), rh = rw * 1400 / 2320, rx = 1890 - rw - 15 * k, ry = (H - rh) / 2; c.drawImage(IMG.rack_full, rx, ry, rw, rh);   /* the whole rack, uncropped, in the right half */
+      const F = 70; [[rx, ry, F, rh, rx, 0, rx + F, 0], [rx + rw - F, ry, F, rh, rx + rw, 0, rx + rw - F, 0], [rx, ry, rw, F, 0, ry, 0, ry + F], [rx, ry + rh - F, rw, F, 0, ry + rh, 0, ry + rh - F]].forEach(([x, y, w, h, x0, y0, x1, y1]) => { const e = c.createLinearGradient(x0, y0, x1, y1); e.addColorStop(0, BG); e.addColorStop(1, rgba(BG, 0)); c.fillStyle = e; c.fillRect(x, y, w, h); }); }   /* whole rack, uncropped */ c.restore(); }, 1 / 60, 2);
     /* no fade over the rack */
     leak(t, 1500, 640, 600, CY, 0.12);
     FEATS.forEach(([a, b, d], i) => { const t0 = 13.15 + i * 0.75, y = 250 + i * 250; headline([a, b], 110, y, 48, CY, t, t0, 'left', 0.95, 0.07); body(d, 114, y + 76, prog(t, t0 + 0.3, t0 + 0.6), 'left', 22, TX2); });
@@ -214,7 +215,7 @@
   }
   const ready = (async () => {
     await document.fonts.ready; await Promise.all([document.fonts.load(WIDE(100)), document.fonts.load('500 20px "Archivo Wide"'), document.fonts.load(SANS(500, 20))]);
-    await Promise.all(NAMES.map(async (n) => { IMG[n] = await load(`../site/plates/${n}.jpg`); })); IMG.logo = await load('../site/plates/logo.png'); IMG.v_cut = await load('../site/plates/v_hi_cut.png'); IMG.panam_cut = await load('../site/plates/panam_hi_cut.png'); IMG.browser = await load('../site/plates/browser.jpg'); IMG.logo_nav = await load('../site/plates/logo_nav.png');
+    await Promise.all(NAMES.map(async (n) => { IMG[n] = await load(`../site/plates/${n}.jpg`); })); IMG.logo = await load('../site/plates/logo.png'); IMG.v_cut = await load('../site/plates/v_hi_cut.png'); IMG.panam_cut = await load('../site/plates/panam_hi_cut.png'); IMG.browser = await load('../site/plates/browser.jpg'); IMG.logo_nav = await load('../site/plates/logo_nav.png'); IMG.rack_full = await load('../site/plates/rack_full.jpg');
   })();
   window.FILM = { W, H, FPS, DUR, renderAt, ready };
   if (!/[?&]render\b/.test(location.search)) ready.then(() => { const t0 = performance.now(); const loop = async () => { await renderAt(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); }; loop(); });
