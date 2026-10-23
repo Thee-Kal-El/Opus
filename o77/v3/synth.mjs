@@ -1,5 +1,5 @@
-// Score for the OPEN//77 trailer v3 (40 s cut) — deep dark trap/phonk modelled on the user's "Game Loop" reference: ~130 BPM, C phrygian,
-// long distorted 808, half-time drums, bell riff; trailer hits and silences on the film's cuts (120 BPM, beat = 0.5 s), synthesized in code.
+// Score for the OPEN//77 trailer v3 (40 s cut) — cyberpunk: half-time trap → industrial reese drop → breakbeat switch-up → final drop.
+// ~130 BPM, C phrygian, 808 + reese bass, sidechained saw arps, industrial snares, glitch stutters, metal hits; no bells. (120 BPM, beat = 0.5 s), synthesized in code.
 // 0–2.5 cold open: drone + typing ticks, riser into "NOT ANYMORE" hit · 2.5 logo impact + drop · 6 server browser groove (UI ticks,
 // JOIN click 9.6, connect riser) · 12 four server-type slams on 12/13.25/14.5/15.75 · 17 half-time host section w/ keyclicks ·
 // 22 three step hits · 26.5 end-card impact, groove out, fade.
@@ -123,52 +123,77 @@ function dtick(t0, g = 1, f = 1400) { let lp = 0; for (let n = 0; n < 0.05 * SR;
 function impact(t0, g = 1) { boom(t0, 0.9 * g); air(t0 - 0.9, 1.0, 0.7 * g); let lp = 0; for (let n = 0; n < 2.5 * SR; n++) { const t = n / SR; lp += 0.01 * (noise() - lp); const v = lp * Math.exp(-t * 1.6) * g * 1.2; put(at(t0) + n, v, v, 0.6); } }
 function swell(t0, dur, chord, g = 1) { drone(t0, dur, chord, g, 0.02); }
 
-// ---------------- deep score (after "Game Loop": ~130 BPM, C phrygian, long distorted 808 under everything) ----------------
-const Q = 60 / 130;                       // one beat
-const C = 36;                             // C2 = 65.4 Hz, the reference's bass centre
-// sustained, saturated 808: sine + octave, gentle decay, optional glide; a clean sub layer underneath keeps it deep
+// ---------------- cyberpunk score (no bells): ~130 BPM, C phrygian ----------------
+// 808 + reese bass, sidechained saw arp, industrial snare, glitch stutters, metal hits, sub drops; every section changes pattern.
+const Q = 60 / 130, C = 36;
+const SC = [];                                            // sidechain: kick times → duck arp/pads
+const side = (t) => { let g = 1; for (const k of SC) { const d = t - k; if (d >= 0 && d < 0.35) g = Math.min(g, 0.25 + 0.75 * (d / 0.35) ** 0.6); } return g; };
+function K(t, g = 1.1) { kick(t, g); SC.push(t); }
 function deep808(t0, dur, m, g = 1, to = null) {
   let ph = 0; const f0 = mtof(m), f1 = to != null ? mtof(to) : f0;
-  for (let n = 0; n < (dur + 0.08) * SR; n++) {
-    const t = n / SR, k = to != null ? Math.min(1, Math.max(0, (t - dur * 0.6) / (dur * 0.3))) : 0;
+  for (let n = 0; n < (dur + 0.08) * SR; n++) { const t = n / SR, k = to != null ? Math.min(1, Math.max(0, (t - dur * 0.6) / (dur * 0.3))) : 0;
     const f = (f0 + (f1 - f0) * k * k * (3 - 2 * k)) * (1 + 1.2 * Math.exp(-t * 60)); ph += TAU * f / SR;
     const env = Math.min(1, t / 0.004) * (t < dur ? 0.55 + 0.45 * Math.exp(-t * 2.2) : (0.55 + 0.45 * Math.exp(-dur * 2.2)) * Math.exp(-(t - dur) * 40));
-    const dist = Math.tanh((Math.sin(ph) + 0.35 * Math.sin(ph * 2)) * 2.6) * 0.6, sub = Math.sin(ph) * 0.55;
-    const v = (dist + sub) * env * g * 0.38; put(at(t0) + n, v, v);
-  }
-}
-function pluck(t0, m, g = 1, p = 0, len = 1.2) { const f = mtof(m), [a, b] = pan(p); let lp = 0; for (let n = 0; n < len * SR; n++) { const t = n / SR, x = (Math.sin(TAU * f * t) + 0.5 * Math.sin(TAU * 2 * f * t + Math.sin(TAU * f * t)) * Math.exp(-t * 6)); lp += 0.25 * (x - lp); const v = lp * Math.exp(-t * 3.2) * Math.min(1, t * 400) * g * 0.08; put(at(t0) + n, v * a, v * b, 0.5, 0.35); } }
-// riff: C phrygian (C Db Eb F G Ab Bb), dark bell motif over two bars
-const RIFF = [[0, 12], [0.75, 15], [1.5, 13], [2, 12], [2.75, 8], [3.5, 7], [4, 12], [4.75, 15], [5.5, 17], [6, 15], [6.5, 13], [7, 12]];
-const BASS = [[0, 0, 1.4], [1.5, 0, 0.45], [2.5, 1, 1.3, 0], [4, 0, 1.4], [5.5, -4, 0.9], [6.5, -5, 1.3, 0]];   // [beat, semis, len(beats), glideTo]
-function bar2(t0, o = {}, end = 1e9) {        // two bars of the deep beat starting at t0; nothing sounds past `end`
-  const ok = (b) => t0 + b * Q < end - 0.05;
-  if (!o.noDrums) {
-    for (const kb of [0, 2.5, 4, 6.5, 7.25]) if (ok(kb)) kick(t0 + kb * Q, 1.1);
-    for (const cb of [2, 6]) if (ok(cb)) clap(t0 + cb * Q, 0.95);
-    for (let s = 0; s < 16; s++) if (ok(s / 2)) hat(t0 + s * Q / 2, s % 2 ? 0.06 : 0.1, false, 0.2);
-    if (o.rolls && ok(7.9)) for (let r = 0; r < 6; r++) hat(t0 + 7 * Q + r * Q / 6, 0.05 + r * 0.012, false, -0.2);
-  }
-  for (const [b, sm, len, to] of BASS) { const st = t0 + b * Q, d = Math.min(len * Q, end - st - 0.06); if (d > 0.08) deep808(st, d, C + sm, o.bass ?? 1, to != null && d === len * Q ? C + to : null); }
-  if (o.riff) RIFF.forEach(([b, m], i) => { if (ok(b)) bell(t0 + b * Q, 60 + m, o.riff, i % 2 ? 0.35 : -0.35, Math.min(1.3, end - t0 - b * Q)); });
-  drone(t0, Math.min(8 * Q, end - t0), [C, C + 7, C + 12, C + 15], o.drone ?? 0.6, 0.012);
-}
-function run(t0, t1, o) { for (let t = t0; t < t1 - 0.3; t += 8 * Q) bar2(t, o, t1); }
+    const v = (Math.tanh((Math.sin(ph) + 0.35 * Math.sin(ph * 2)) * 2.6) * 0.6 + Math.sin(ph) * 0.55) * env * g * 0.36; put(at(t0) + n, v, v); } }
+// reese: two detuned saws + sub, moving low-pass, hard saturation
+function reese(t0, dur, m, g = 1) { const f = mtof(m); let p1 = 0, p2 = 0.3, ps = 0, lp = 0, lp2 = 0;
+  for (let n = 0; n < dur * SR; n++) { const t = n / SR; p1 = (p1 + f * 1.009 / SR) % 1; p2 = (p2 + f * 0.991 / SR) % 1; ps += TAU * f / SR;
+    const cut = 0.02 + 0.05 * (0.5 + 0.5 * Math.sin(TAU * 0.6 * (t0 + t))); const x = (2 * p1 - 1) + (2 * p2 - 1); lp += cut * (x - lp); lp2 += cut * (lp - lp2);
+    const env = Math.min(1, t / 0.01) * Math.min(1, (dur - t) / 0.04); const v = (Math.tanh(lp2 * 3) * 0.5 + Math.sin(ps) * 0.5) * env * g * 0.3; put(at(t0) + n, v * 0.95, v, 0.05); } }
+// 16th saw arp with a filter that opens over the section, ducked by the kick
+function arp(t0, t1, notes, g = 1, open0 = 0.04, open1 = 0.3) { for (let i = 0, t = t0; t < t1 - 0.01; i++, t += Q / 4) { const m = notes[i % notes.length], f = mtof(m), cut = open0 + (open1 - open0) * (t - t0) / (t1 - t0), [a, b] = pan(i % 2 ? 0.45 : -0.45); let ph = 0, ph2 = 0.5, lp = 0;
+    for (let n = 0; n < Q / 4 * 0.9 * SR; n++) { const tt = n / SR; ph = (ph + f / SR) % 1; ph2 = (ph2 + f * 1.006 / SR) % 1; lp += cut * ((2 * ph - 1) + (2 * ph2 - 1) - lp); const v = lp * Math.exp(-tt * 14) * g * 0.07 * side(t + tt); put(at(t) + n, v * a, v * b, 0.25, 0.3); } } }
+// industrial snare: noise + low body + bitcrush
+function isnare(t0, g = 1) { let ph = 0; for (let n = 0; n < 0.3 * SR; n++) { const t = n / SR; ph += TAU * (180 + 60 * Math.exp(-t * 30)) / SR; const nz = noise(); const crush = Math.round(nz * 6) / 6;
+    const v = (crush * Math.exp(-t * 14) * 0.8 + Math.sin(ph) * Math.exp(-t * 22) * 0.6) * g * 0.32; put(at(t0) + n, v, v, 0.3); } }
+// metal hit: inharmonic FM clang
+function metal(t0, g = 1, f = 220) { for (let n = 0; n < 1.2 * SR; n++) { const t = n / SR, m = Math.sin(TAU * f * 2.71 * t) * 4 * Math.exp(-t * 4), v = Math.sin(TAU * f * t + m) * Math.exp(-t * 5) * g * 0.12; put(at(t0) + n, v, v * 0.9, 0.5); } }
+// glitch stutter: repeating short noisy slices accelerating into the next hit
+function stutter(t0, dur, g = 1) { let k = 0; for (let t = t0; t < t0 + dur; k++) { const step = Q / 4 * Math.pow(0.82, k); const f = 80 + (k % 4) * 40; for (let n = 0; n < step * 0.6 * SR; n++) { const tt = n / SR, v = (Math.sign(Math.sin(TAU * f * tt)) * 0.5 + noise() * 0.5) * g * 0.12 * (1 - tt / (step * 0.6)); put(at(t) + n, v, v, 0.1); } t += Math.max(0.03, step); } }
+function subdrop(t0, g = 1) { let ph = 0; for (let n = 0; n < 1.6 * SR; n++) { const t = n / SR; ph += TAU * (90 * Math.exp(-t * 1.8) + 28) / SR; const v = Math.sin(ph) * Math.exp(-t * 1.4) * g * 0.6; put(at(t0) + n, v, v); } }
 
-// film cuts (real seconds, 40 s cut): 2.67 · 5.33 · 8 · 9.67 · 11.33 · 13 silence · 13.33 DROP · 17.33 · 21.33 · 25.33 · 29.33 · 34 silence · 34.67 end
-// 0–2.67  intro: plucked phrygian arp + air, riser
-for (let i = 0; i < 12; i++) pluck(0.15 + i * Q / 2, 60 + [0, 3, 7, 1, 0, 3, 8, 7, 0, 3, 7, 12][i], 1, (i % 2) * 0.6 - 0.3);
-drone(0, 2.8, [C, C + 7, C + 12], 0.9, 0.008); riser(0.8, 1.85, 1.0); air(1.5, 1.2, 0.8);
-// 2.67–13  first section: deep 808 + drums + bell riff
-impact(2.67, 1.2); run(2.67, 13.0, { riff: 0.55, rolls: true });
-[5.33, 8].forEach((t) => { boom(t, 0.6); whoosh(t - 0.3, 0.3, 0.8); }); [9.67, 11.33].forEach((t) => whoosh(t - 0.25, 0.25, 0.6));
-riser(11.0, 1.9, 1.3);
-// 13–13.33 silence, 13.33 DROP: heavier 808, riff up front
-impact(13.33, 1.7); shatter(13.33, 0.35); run(13.33, 34.0, { riff: 0.7, rolls: true, bass: 1.15, drone: 0.7 });
-[17.33, 21.33, 25.33].forEach((t) => { boom(t, 0.8); whoosh(t - 0.3, 0.3, 0.8); });
-riser(27.4, 1.9, 1.0); impact(29.33, 1.1); riser(32.0, 2.0, 1.3);
-// 34–34.67 silence, end card: last drop with the riff, then ring out
-impact(34.67, 1.6); run(34.67, 38.35, { riff: 0.7, bass: 1.1 }); deep808(38.36, 1.4, C, 1.0, C - 12); bell(38.4, 72, 0.7, 0, 1.6);
+const ARPA = [48, 51, 55, 60, 55, 51, 49, 51], ARPB = [48, 55, 60, 63, 61, 60, 56, 55], ARPC = [60, 63, 67, 72, 70, 67, 63, 61];
+// patterns: one bar = 4 beats
+function barA(t0, end) {   // half-time trap: kick + 808, snare on 3
+  const ok = (b) => t0 + b * Q < end - 0.04;
+  [0, 1.75, 2.5].forEach((b) => ok(b) && K(t0 + b * Q)); ok(2) && isnare(t0 + 2 * Q, 0.9);
+  for (let s = 0; s < 8; s++) ok(s / 2) && hat(t0 + s * Q / 2, s % 2 ? 0.06 : 0.1, false, 0.2);
+  const d = Math.min(1.6 * Q, end - t0 - 0.06); if (d > 0.1) deep808(t0, d, C, 1); const d2 = Math.min(1.4 * Q, end - t0 - 2.5 * Q - 0.06); if (d2 > 0.1) deep808(t0 + 2.5 * Q, d2, C + 1, 0.95, C);
+}
+function barB(t0, end, alt) {   // drive: four-on-the-floor-ish industrial, reese bass
+  const ok = (b) => t0 + b * Q < end - 0.04;
+  [0, 1, 2, 3].forEach((b) => ok(b) && K(t0 + b * Q, 1.0)); [1, 3].forEach((b) => ok(b) && isnare(t0 + b * Q, 0.85));
+  for (let s = 0; s < 16; s++) ok(s / 4) && hat(t0 + s * Q / 4, s % 4 === 2 ? 0.11 : 0.045, s % 8 === 6, 0.25);
+  const d = Math.min(4 * Q, end - t0) - 0.05; if (d > 0.1) reese(t0, d, alt ? C - 4 : C, 1);
+}
+function barC(t0, end, k) {   // breakbeat-ish switch-up with 808 slides and stutter on bar ends
+  const ok = (b) => t0 + b * Q < end - 0.04;
+  [0, 0.75, 2.25, 3].forEach((b) => ok(b) && K(t0 + b * Q, 1.05)); [1, 2.5].forEach((b) => ok(b) && isnare(t0 + b * Q, 0.9));
+  for (let s = 0; s < 8; s++) ok(s / 2) && hat(t0 + s * Q / 2, 0.08, s === 7, -0.2);
+  const d = Math.min(3 * Q, end - t0 - 0.06); if (d > 0.1) deep808(t0, d, C + (k % 2 ? 3 : 0), 1.05, C + (k % 2 ? 0 : -2));
+  if (k % 2 && ok(3.4)) stutter(t0 + 3.4 * Q, 0.55 * Q, 0.8);
+}
+const bars = (t0, t1, fn) => { for (let t = t0, k = 0; t < t1 - 0.25; t += 4 * Q, k++) fn(t, t1, k); };
+
+// cuts (40 s film): 2.67 · 5.33 · 8 · 9.67 · 11.33 · 13 silence · 13.33 DROP · 17.33 · 21.33 · 25.33 · 29.33 · 34 silence · 34.67 end
+// 0–2.67 intro: filtered arp + reese swell + riser, glitch into the hit
+arp(0, 2.6, ARPA, 0.8, 0.02, 0.12); reese(0.3, 2.3, C, 0.6); riser(0.7, 1.95, 1.2); stutter(2.2, 0.45, 0.7);
+// 2.67–13  A: half-time trap + 808, arp creeping in
+impact(2.67, 1.2); subdrop(2.67, 0.9); bars(2.67, 13.0, (t, e) => barA(t, e)); arp(5.33, 12.9, ARPA, 0.7, 0.03, 0.22);
+[5.33, 8, 9.67, 11.33].forEach((t, i) => { metal(t, 0.8, 180 + i * 30); whoosh(t - 0.28, 0.28, 0.7); });
+riser(11.2, 1.75, 1.3); stutter(12.5, 0.48, 0.9);
+// 13 silence → 13.33 DROP B: driving industrial + reese, full arp
+impact(13.33, 1.7); subdrop(13.33, 1.1); shatter(13.33, 0.35);
+bars(13.33, 21.33, (t, e, k) => barB(t, e, k % 2)); arp(13.33, 21.3, ARPB, 0.95, 0.12, 0.35);
+[17.33].forEach((t) => { metal(t, 0.9, 150); whoosh(t - 0.3, 0.3, 0.8); }); stutter(20.9, 0.42, 0.9);
+// 21.33–29.33  C: switch-up breakbeat + sliding 808, higher arp
+impact(21.33, 1.2); bars(21.33, 29.33, barC); arp(21.33, 29.3, ARPC, 0.75, 0.08, 0.3); metal(25.33, 0.9, 260); whoosh(25.03, 0.3, 0.8);
+// 29.33–34  B again, then build: snare roll + riser + stutter, cut to silence
+impact(29.33, 1.1); bars(29.33, 32.0, (t, e, k) => barB(t, e, k % 2)); arp(29.33, 33.95, ARPB, 0.95, 0.2, 0.45);
+for (let i = 0; i < 16; i++) isnare(32.0 + i * (2 / 16) * Math.pow(0.97, i), 0.3 + i * 0.04); riser(32.0, 2.0, 1.4); stutter(33.5, 0.45, 1.0);
+// 34 silence → 34.67 END: last drop, then sub + metal ring-out
+impact(34.67, 1.7); subdrop(34.67, 1.1); bars(34.67, 38.3, (t, e, k) => barB(t, e, k % 2)); arp(34.67, 38.2, ARPB, 0.9, 0.35, 0.15);
+deep808(38.36, 1.4, C, 1.0, C - 12); metal(38.36, 1.0, 130);
 // ---------------- FX + master ----------------
 function delay(time, fb, mix) { const d = Math.round(time * SR), bL = new Float32Array(N), bR = new Float32Array(N); for (let n = 0; n < N; n++) { bL[n] = dlyL[n] + (n >= d ? bR[n - d] * fb : 0); bR[n] = n >= d ? bL[n - d] * fb : 0; } for (let n = 0; n < N; n++) { L[n] += (bL[n] - dlyL[n]) * mix; Rr[n] += bR[n] * mix; } }
 function reverb(mix) {
@@ -191,4 +216,4 @@ pcm.writeUInt32LE(SR, 24); pcm.writeUInt32LE(SR * 4, 28); pcm.writeUInt16LE(4, 3
 for (let n = 0; n < N; n++) { pcm.writeInt16LE(Math.round(Math.max(-1, Math.min(1, L[n] * g)) * 32767), 44 + n * 4); pcm.writeInt16LE(Math.round(Math.max(-1, Math.min(1, Rr[n] * g)) * 32767), 46 + n * 4); }
 const out = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'out'); mkdirSync(out, { recursive: true });
 writeFileSync(resolve(out, 'o77_trailer_v3_score.wav'), pcm);
-console.log(`wrote out/o77_trailer_v3_score.wav  ${DUR}s, 120 BPM, ${KICKS.length} kicks`);
+console.log(`wrote out/o77_trailer_v3_score.wav  ${DUR}s, 130 BPM, ${KICKS.length} kicks`);
