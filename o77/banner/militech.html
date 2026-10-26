@@ -61,21 +61,18 @@ async function draw() {
   await document.fonts.load('900 100px "Archivo Wide"'); await document.fonts.load('700 20px "JetBrains Mono"');
   ground();
   if (!SQ) {
-    // big cropped emblem watermark on the right
-    c.save(); c.globalAlpha = 0.09; emblem(W * 0.6, -H * 0.15, H * 1.45); c.restore();
-    poly([[0, 0], [760 * S, 0], [680 * S, H], [0, H]], 'rgba(8,10,7,0.82)');
-    c.strokeStyle = 'rgba(243,223,0,0.35)'; c.lineWidth = 2 * S; c.beginPath(); c.moveTo(760 * S, 0); c.lineTo(680 * S, H); c.stroke();
+    // centred layout: the launcher/site card crops the sides, so everything important sits in the middle
+    c.save(); c.globalAlpha = 0.07; emblem(W / 2 - H * 0.75, -H * 0.2, H * 1.5); c.restore();
+    const vg = c.createLinearGradient(0, 0, W, 0); vg.addColorStop(0, 'rgba(8,10,7,0.2)'); vg.addColorStop(0.5, 'rgba(8,10,7,0.75)'); vg.addColorStop(1, 'rgba(8,10,7,0.2)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
     hazard(0, 0, W, 10 * S); hazard(0, H - 10 * S, W, 10 * S);
-    const X = 60 * S;
-    MONO(700, 15 * S); c.fillStyle = AMBER; c.fillText('// NIGHT CITY DIVISION', X, 86 * S);
-    // lockup: emblem + wordmark, like the official horizontal logo
-    const eh = emblem(X, 112 * S, 128 * S);
-    wordmark('MILITECH', X + 152 * S, 112 * S + eh * 0.86, 78 * S);
-    c.fillStyle = AMBER; c.fillRect(X, 262 * S, 560 * S, 6 * S);
-    WORD(800, 22 * S, 'expanded'); c.fillStyle = KHAKI; c.fillText('ARMED  ·  ARMORED  ·  AUTHORIZED', X, 306 * S);
-    MONO(600, 14 * S); c.fillStyle = 'rgba(236,232,220,0.7)'; c.fillText('OPEN//77 COMMUNITY SERVER   //   CLEARANCE: CIVILIAN', X, 346 * S);
-    MONO(600, 12 * S); c.fillStyle = 'rgba(169,167,126,0.8)'; c.textAlign = 'right';
-    c.fillText('MT-77 / SEC-OPS', W - 40 * S, 52 * S); c.fillText('LAT 37.77 N  ·  LON 122.41 W', W - 40 * S, H - 32 * S); c.textAlign = 'left';
+    MONO(700, 14 * S); c.textAlign = 'center'; c.fillStyle = AMBER; c.fillText('// NIGHT CITY DIVISION //', W / 2, 50 * S); c.textAlign = 'left';
+    // lockup: emblem + wordmark, centred as one unit
+    const ew = 110 * S, eh = ew * 630 / 720, ws = 70 * S;
+    WORD(800, ws, 'ultra-expanded'); const tw = c.measureText('MILITECH').width, gap = 24 * S, total = ew + gap + tw, lx = (W - total) / 2, ly = 70 * S;
+    emblem(lx, ly, ew); wordmark('MILITECH', lx + ew + gap, ly + eh * 0.86, ws);
+    c.fillStyle = AMBER; c.fillRect(W / 2 - total / 2, ly + eh + 22 * S, total, 5 * S);
+    WORD(800, 20 * S, 'expanded'); c.textAlign = 'center'; c.fillStyle = KHAKI; c.fillText('ARMED  ·  ARMORED  ·  AUTHORIZED', W / 2, ly + eh + 66 * S);
+    MONO(600, 13 * S); c.fillStyle = 'rgba(236,232,220,0.7)'; c.fillText('OPEN//77 COMMUNITY SERVER', W / 2, ly + eh + 100 * S); c.textAlign = 'left';
     brackets(22 * S, 40 * S, AMBER, 3 * S);
   } else {
     hazard(0, 0, W, 12 * S); hazard(0, H - 12 * S, W, 12 * S);
