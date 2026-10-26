@@ -54,19 +54,11 @@ function scan() { c.save(); c.globalAlpha = 0.07; c.fillStyle = '#000'; for (let
   const v = c.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.75); v.addColorStop(0, 'transparent'); v.addColorStop(1, 'rgba(0,0,0,0.7)'); c.fillStyle = v; c.fillRect(0, 0, W, H);
   const img = c.getImageData(0, 0, W, H), d = img.data; for (let i = 0; i < d.length; i += 4) { const n = (rnd() - 0.5) * (SQ ? 4 : 14); d[i] += n; d[i + 1] += n; d[i + 2] += n; } c.putImageData(img, 0, 0); }
 
-function glitchText(txt, x, y, font, col, size, stretch = 'ultra-expanded', slices = 0) {
+function logoText(txt, x, y, font, col, size, stretch = 'ultra-expanded', slices = 0) {
   c.font = font; c.fontStretch = stretch; c.textBaseline = 'alphabetic';
-  // chromatic offsets
-  c.save(); c.globalCompositeOperation = 'screen';
-  c.fillStyle = CY; c.globalAlpha = 0.85; c.fillText(txt, x - size * 0.045, y);
-  c.fillStyle = PK; c.fillText(txt, x + size * 0.045, y + size * 0.012); c.restore();
-  // glow + main
-  c.save(); c.shadowColor = col; c.shadowBlur = size * 0.35; c.fillStyle = col; c.fillText(txt, x, y); c.restore();
+  // crisp: no chromatic offsets, no glow, no slice glitch
   c.fillStyle = col; c.fillText(txt, x, y);
-  // horizontal slice displacement
   const m = c.measureText(txt);
-  for (let i = 0; i < slices; i++) { const sy = y - size * (0.1 + rnd() * 0.65), sh = size * (0.03 + rnd() * 0.07), dx = (rnd() - 0.5) * size * 0.12;
-    const sx = Math.max(0, x - 10), sw = Math.min(W - sx, m.width + 40); const part = c.getImageData(sx, sy, sw, sh); c.putImageData(part, sx + dx, sy); }
   return m.width;
 }
 function skewBox(x, y, w, h, col, sk = 0.35) { c.beginPath(); c.moveTo(x + h * sk, y); c.lineTo(x + w + h * sk, y); c.lineTo(x + w, y + h); c.lineTo(x, y + h); c.closePath(); c.fillStyle = col; c.fill(); }
@@ -91,8 +83,8 @@ async function draw() {
   if (!SQ) {
     const X = 110 * S;
     c.font = '500 ' + 20 * S + 'px "JetBrains Mono"'; c.fillStyle = CY; c.fillText('// OPEN//77 COMMUNITY SERVER  ·  NIGHT CITY', X, 150 * S);
-    glitchText("THEE_KAL_EL'S", X, 250 * S, WIDE(900, 86 * S), '#FFFFFF', 86 * S, 'expanded', 1);
-    const ww = glitchText('WORLD', X - 6 * S, 440 * S, WIDE(900, 210 * S), YL, 210 * S, 'ultra-expanded', 3);
+    logoText("THEE_KAL_EL'S", X, 250 * S, WIDE(900, 86 * S), '#FFFFFF', 86 * S, 'expanded', 1);
+    const ww = logoText('WORLD', X - 6 * S, 440 * S, WIDE(900, 210 * S), YL, 210 * S, 'ultra-expanded', 3);
     skewBox(X, 472 * S, ww * 0.62, 12 * S, YL); skewBox(X + ww * 0.62 + 18 * S, 472 * S, ww * 0.18, 12 * S, PK);
     // stripes like the site's CTA blocks
     for (let i = 0; i < 4; i++) skewBox(X + ww * 0.8 + 40 * S + i * 22 * S, 466 * S, 10 * S, 24 * S, YL, 0.6);
@@ -104,7 +96,7 @@ async function draw() {
     const s = W / 512;
     c.fillStyle = 'rgba(7,10,18,0.55)'; c.fillRect(0, 0, W, H);
     c.textAlign = 'center';
-    glitchText('KE', W / 2 + 4 * s, 292 * s, WIDE(900, 196 * s), YL, 196 * s, 'ultra-expanded', 0);
+    logoText('KE', W / 2 + 4 * s, 292 * s, WIDE(900, 196 * s), YL, 196 * s, 'ultra-expanded', 0);
     c.textAlign = 'left';
     // "//" slash marks like OPEN//77
     c.save(); c.shadowColor = PK; c.shadowBlur = 16 * s; c.fillStyle = PK; for (let k = 0; k < 2; k++) skewBox(60 * s + k * 26 * s, 64 * s, 12 * s, 40 * s, PK, 0.7); c.restore();
