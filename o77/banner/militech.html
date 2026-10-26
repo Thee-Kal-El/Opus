@@ -8,7 +8,7 @@
 //   militech.html?w=1200&h=400  (banner)   ·   militech.html?w=256&h=256  (icon)
 const Q = new URLSearchParams(location.search), W = +(Q.get('w') || 1200), H = +(Q.get('h') || 400);
 const cv = document.getElementById('c'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
-const STEEL = '#0C0F0E', OLIVE = '#2B3326', KHAKI = '#B9AE8A', AMBER = '#F2A007', RED = '#D8261C', WHITE = '#ECE8DC';
+const STEEL = '#0B0D09', OLIVE = '#2F3A22', KHAKI = '#A9A77E', AMBER = '#F3DF00', RED = '#D8261C', WHITE = '#ECE8DC';   // AMBER = Militech yellow
 let seed = 1977; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
 const SQ = W / H < 1.6, S = SQ ? W / 512 : W / 1200;
 const WORD = (w, s, st = 'expanded') => { c.font = `${w} ${s}px "Archivo Wide"`; c.fontStretch = st; };
@@ -19,16 +19,29 @@ function hexMesh(alpha) { const r = 14 * S, h = r * Math.sqrt(3); c.save(); c.gl
   for (let y = -h, row = 0; y < H + h; y += h / 2, row++) for (let x = (row % 2) * r * 1.5 - r * 3; x < W + r * 3; x += r * 3) { c.beginPath(); for (let k = 0; k < 6; k++) { const a = Math.PI / 3 * k; c.lineTo(x + r * Math.cos(a), y + r * Math.sin(a)); } c.closePath(); c.stroke(); } c.restore(); }
 function hazard(x, y, w, h, n) { c.save(); c.beginPath(); c.rect(x, y, w, h); c.clip(); c.fillStyle = AMBER; c.fillRect(x, y, w, h); c.fillStyle = STEEL; const st = h * 1.1;
   for (let i = -2; i < w / st + 2; i++) poly([[x + i * st * 2, y + h], [x + i * st * 2 + st, y + h], [x + i * st * 2 + st * 2, y], [x + i * st * 2 + st, y]], STEEL); c.restore(); }
-// emblem: shield with an angular M chevron (original mark in the Militech spirit)
-function emblem(cx, cy, s) {
-  const sh = [[-1, -1.1], [1, -1.1], [1, 0.35], [0, 1.15], [-1, 0.35]].map(([x, y]) => [cx + x * s, cy + y * s]);
-  poly(sh, AMBER);
-  const inner = [[-0.84, -0.95], [0.84, -0.95], [0.84, 0.27], [0, 0.95], [-0.84, 0.27]].map(([x, y]) => [cx + x * s, cy + y * s]);
-  poly(inner, STEEL);
-  // M chevron
-  const m = [[-0.6, 0.45], [-0.6, -0.68], [-0.32, -0.68], [0, -0.18], [0.32, -0.68], [0.6, -0.68], [0.6, 0.45], [0.36, 0.45], [0.36, -0.22], [0, 0.3], [-0.36, -0.22], [-0.36, 0.45]].map(([x, y]) => [cx + x * s, cy + y * s]);
-  poly(m, WHITE);
-  poly([[-0.6, 0.58], [0.6, 0.58], [0, 0.86]].map(([x, y]) => [cx + x * s, cy + y * s]), RED);
+// the Militech emblem: yellow block with three black cut-outs (two side wedges + the inverted centre triangle) forming the V
+function emblem(x, y, w) {        // x,y = top-left, w = width (aspect 720:630)
+  const h = w * 630 / 720, P = (pts) => pts.map(([u, v]) => [x + u * w, y + v * h]);
+  poly(P([[0, 0], [1, 0], [1, 1], [0, 1]]), AMBER);
+  poly(P([[0.136, 0.198], [0.136, 0.835], [0.378, 0.835]]), STEEL);
+  poly(P([[0.868, 0.198], [0.868, 0.835], [0.628, 0.835]]), STEEL);
+  poly(P([[0.299, 0.159], [0.706, 0.159], [0.5, 0.706]]), STEEL);
+  return h;
+}
+// MILITECH wordmark: heavy squared letters with an inline cut (yellow edge · black groove · yellow core)
+function wordmark(txt, x, y, size, align = 'left') {
+  WORD(800, size, 'ultra-expanded'); c.textAlign = align; c.lineJoin = 'miter';
+  c.fillStyle = AMBER; c.fillText(txt, x, y);
+  const m = c.measureText(txt), x0 = align === 'center' ? x - m.width / 2 : x;
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+  o.font = c.font; o.fontStretch = 'ultra-expanded'; o.textAlign = align; o.lineJoin = 'miter';
+  const edge = size * 0.07, gap = size * 0.045;
+  o.fillStyle = AMBER; o.fillText(txt, x, y);
+  o.globalCompositeOperation = 'source-atop';
+  o.strokeStyle = STEEL; o.lineWidth = 2 * (edge + gap); o.strokeText(txt, x, y);
+  o.strokeStyle = AMBER; o.lineWidth = 2 * edge; o.strokeText(txt, x, y);
+  c.drawImage(off, 0, 0); c.textAlign = 'left';
+  return m.width;
 }
 function brackets(m, l, col, lw) { c.strokeStyle = col; c.lineWidth = lw; [[m, m, 1, 1], [W - m, m, -1, 1], [m, H - m, 1, -1], [W - m, H - m, -1, -1]].forEach(([x, y, sx, sy]) => { c.beginPath(); c.moveTo(x, y + sy * l); c.lineTo(x, y); c.lineTo(x + sx * l, y); c.stroke(); }); }
 function ground() {
@@ -48,26 +61,26 @@ async function draw() {
   await document.fonts.load('900 100px "Archivo Wide"'); await document.fonts.load('700 20px "JetBrains Mono"');
   ground();
   if (!SQ) {
-    // angled steel panel on the left
-    poly([[0, 0], [700 * S, 0], [620 * S, H], [0, H]], 'rgba(8,10,9,0.78)');
-    c.strokeStyle = 'rgba(185,174,138,0.35)'; c.lineWidth = 2 * S; c.beginPath(); c.moveTo(700 * S, 0); c.lineTo(620 * S, H); c.stroke();
+    // big cropped emblem watermark on the right
+    c.save(); c.globalAlpha = 0.09; emblem(W * 0.6, -H * 0.15, H * 1.45); c.restore();
+    poly([[0, 0], [760 * S, 0], [680 * S, H], [0, H]], 'rgba(8,10,7,0.82)');
+    c.strokeStyle = 'rgba(243,223,0,0.35)'; c.lineWidth = 2 * S; c.beginPath(); c.moveTo(760 * S, 0); c.lineTo(680 * S, H); c.stroke();
     hazard(0, 0, W, 10 * S); hazard(0, H - 10 * S, W, 10 * S);
     const X = 60 * S;
-    MONO(700, 15 * S); c.fillStyle = AMBER; c.fillText('// MILITECH  ·  NIGHT CITY DIVISION', X, 92 * S);
-    WORD(900, 104 * S, 'ultra-expanded'); c.fillStyle = WHITE; c.fillText('MILITECH', X - 4 * S, 196 * S);
-    const mw = c.measureText('MILITECH').width;
-    c.fillStyle = AMBER; c.fillRect(X, 216 * S, mw * 0.7, 8 * S); c.fillStyle = RED; c.fillRect(X + mw * 0.7 + 10 * S, 216 * S, mw * 0.12, 8 * S);
-    WORD(800, 24 * S, 'expanded'); c.fillStyle = KHAKI; c.fillText('ARMED  ·  ARMORED  ·  AUTHORIZED', X, 266 * S);
-    MONO(600, 14 * S); c.fillStyle = 'rgba(236,232,220,0.7)'; c.fillText('OPEN//77 COMMUNITY SERVER   //   CLEARANCE: CIVILIAN', X, 330 * S);
-    // emblem + HUD on the right
-    emblem(W * 0.8, H * 0.47, 112 * S);
-    MONO(600, 12 * S); c.fillStyle = 'rgba(185,174,138,0.75)'; c.textAlign = 'right';
+    MONO(700, 15 * S); c.fillStyle = AMBER; c.fillText('// NIGHT CITY DIVISION', X, 86 * S);
+    // lockup: emblem + wordmark, like the official horizontal logo
+    const eh = emblem(X, 112 * S, 128 * S);
+    wordmark('MILITECH', X + 152 * S, 112 * S + eh * 0.86, 78 * S);
+    c.fillStyle = AMBER; c.fillRect(X, 262 * S, 560 * S, 6 * S);
+    WORD(800, 22 * S, 'expanded'); c.fillStyle = KHAKI; c.fillText('ARMED  ·  ARMORED  ·  AUTHORIZED', X, 306 * S);
+    MONO(600, 14 * S); c.fillStyle = 'rgba(236,232,220,0.7)'; c.fillText('OPEN//77 COMMUNITY SERVER   //   CLEARANCE: CIVILIAN', X, 346 * S);
+    MONO(600, 12 * S); c.fillStyle = 'rgba(169,167,126,0.8)'; c.textAlign = 'right';
     c.fillText('MT-77 / SEC-OPS', W - 40 * S, 52 * S); c.fillText('LAT 37.77 N  ·  LON 122.41 W', W - 40 * S, H - 32 * S); c.textAlign = 'left';
     brackets(22 * S, 40 * S, AMBER, 3 * S);
   } else {
     hazard(0, 0, W, 12 * S); hazard(0, H - 12 * S, W, 12 * S);
-    emblem(W / 2, 215 * S, 140 * S);
-    WORD(900, 62 * S, 'ultra-expanded'); c.textAlign = 'center'; c.fillStyle = WHITE; c.fillText('MILITECH', W / 2, 438 * S); c.textAlign = 'left';
+    const ew = 300 * S; emblem((W - ew) / 2, 70 * S, ew);
+    wordmark('MILITECH', W / 2, 440 * S, 62 * S, 'center');
   }
   finish(); document.title = 'done';
 }
