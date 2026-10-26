@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Thee_Kal_El's World (v1, glitch logo)</title>
+<link rel="stylesheet" href="../../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="c"></canvas>
+<script>
+// Server banner for "Thee_Kal_El's World" on OPEN//77 — original neon Night City skyline + logo, in the site's palette/type.
+//   banner.html?w=1920&h=640  (wide)   ·   banner.html?w=512&h=512  (square server icon)
+const Q = new URLSearchParams(location.search), W = +(Q.get('w') || 1920), H = +(Q.get('h') || 640);
+const cv = document.getElementById('c'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+const BG = '#070A12', YL = '#FCEE09', CY = '#22D8F0', PK = '#FF1F5A';
+let seed = 77; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+const S = Math.min(W, H * 3) / 1920;              // layout scale
+const SQ = W / H < 1.6;                           // square/icon layout
+const WIDE = (w, s) => `italic ${w} ${s}px "Archivo Wide"`;
+
+function sky() {
+  const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#05060E'); g.addColorStop(0.55, '#140A24'); g.addColorStop(0.8, '#2A0C2E'); g.addColorStop(1, '#090611');
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  // big city glows
+  [[0.72, 0.78, PK, 0.55], [0.25, 0.85, CY, 0.32], [0.5, 0.95, '#7A2BFF', 0.35]].forEach(([x, y, col, a]) => {
+    const r = c.createRadialGradient(W * x, H * y, 0, W * x, H * y, Math.max(W, H) * 0.55); r.addColorStop(0, col); r.addColorStop(1, 'transparent');
+    c.globalAlpha = a; c.fillStyle = r; c.fillRect(0, 0, W, H); c.globalAlpha = 1; });
+}
+function layer(baseY, minH, maxH, wMin, wMax, col, winA, haze, rim) {
+  let x = -20 * S;
+  while (x < W + 40) {
+    const bw = (wMin + rnd() * (wMax - wMin)) * S * (SQ ? 1.6 : 1), bh = (minH + rnd() * (maxH - minH)) * H, top = baseY * H - bh;
+    const g = c.createLinearGradient(x, 0, x + bw, 0); g.addColorStop(0, col[0]); g.addColorStop(1, col[1]);
+    c.fillStyle = g; c.fillRect(x, top, bw, H - top);
+    if (rnd() < 0.35) { c.fillRect(x + bw * 0.4, top - bh * 0.12, Math.max(2, bw * 0.06), bh * 0.12); c.save(); c.fillStyle = PK; c.shadowColor = PK; c.shadowBlur = 10 * S; c.fillRect(x + bw * 0.4, top - bh * 0.12 - 3 * S, Math.max(2, bw * 0.06), 3 * S); c.restore(); }
+    // rim light on the edge facing the city glow
+    if (rim) { c.save(); c.globalAlpha = 0.55; c.fillStyle = rim; c.fillRect(x + bw - 2 * S, top, 2 * S, H - top); c.globalAlpha = 0.35; c.fillRect(x, top, bw, 2 * S); c.restore(); }
+    // windows in lit floors
+    const cw = Math.max(2, 4 * S), ch = Math.max(2, 3 * S);
+    for (let wy = top + 8 * S; wy < H; wy += ch * 3) { const floorLit = rnd() < 0.35; const tint = rnd(); for (let wx = x + 4 * S; wx < x + bw - cw; wx += cw * 2.4) {
+      if (rnd() < (floorLit ? winA * 6 : winA)) { c.fillStyle = tint < 0.55 ? 'rgba(255,196,130,0.7)' : tint < 0.8 ? 'rgba(34,216,240,0.7)' : 'rgba(255,31,90,0.7)'; c.fillRect(wx, wy, cw, ch); } } }
+    if (rnd() < 0.2 && bh > 0.25 * H) { const sc = [CY, PK, YL][Math.floor(rnd() * 3)], sx = x + (rnd() < 0.5 ? 2 : bw - 10 * S), sy = top + bh * (0.1 + rnd() * 0.3), sh = bh * (0.15 + rnd() * 0.2);
+      c.save(); c.shadowColor = sc; c.shadowBlur = 22 * S; c.fillStyle = sc; c.fillRect(sx, sy, 7 * S, sh); c.restore(); }
+    if (rnd() < 0.1 && bh > 0.3 * H) { const sc = [CY, PK][Math.floor(rnd() * 2)], bx = x + bw * 0.1, by = top + bh * 0.15, bwid = bw * 0.8, bht = bwid * 0.5;
+      c.save(); c.shadowColor = sc; c.shadowBlur = 40 * S; c.globalAlpha = 0.45; c.fillStyle = sc; c.fillRect(bx, by, bwid, bht); c.globalAlpha = 0.95; c.strokeStyle = sc; c.lineWidth = 2 * S; c.strokeRect(bx, by, bwid, bht);
+      c.globalAlpha = 0.6; c.fillStyle = '#fff'; for (let k = 0; k < 3; k++) c.fillRect(bx + bwid * 0.12, by + bht * (0.25 + k * 0.2), bwid * (0.3 + rnd() * 0.45), bht * 0.07); c.restore(); }
+    x += bw + rnd() * 6 * S;
+  }
+  if (haze) { const g = c.createLinearGradient(0, baseY * H - 0.45 * H, 0, baseY * H + 0.1 * H); g.addColorStop(0, 'transparent'); g.addColorStop(1, haze); c.fillStyle = g; c.fillRect(0, 0, W, H); }
+}
+function beams() { c.save(); c.globalCompositeOperation = 'screen';
+  [[0.62, CY, -0.18], [0.83, PK, 0.12], [0.93, CY, -0.05]].forEach(([fx, col, ang]) => { const x = W * fx, y = H * 0.75; c.save(); c.translate(x, y); c.rotate(ang);
+    const g = c.createLinearGradient(0, 0, 0, -H * 1.2); g.addColorStop(0, col); g.addColorStop(1, 'transparent'); c.globalAlpha = 0.18; c.fillStyle = g; c.beginPath(); c.moveTo(-6 * S, 0); c.lineTo(6 * S, 0); c.lineTo(60 * S, -H * 1.2); c.lineTo(-60 * S, -H * 1.2); c.fill(); c.restore(); });
+  c.restore(); }
+function rain() { c.save(); c.globalAlpha = 0.16; c.strokeStyle = '#9FD8FF'; c.lineWidth = Math.max(1, S);
+  for (let i = 0; i < 260 * (W * H) / (1920 * 640); i++) { const x = rnd() * W, y = rnd() * H, l = (20 + rnd() * 40) * S; c.beginPath(); c.moveTo(x, y); c.lineTo(x - l * 0.25, y + l); c.stroke(); } c.restore(); }
+function scan() { c.save(); c.globalAlpha = 0.07; c.fillStyle = '#000'; for (let y = 0; y < H; y += 3) c.fillRect(0, y, W, 1); c.restore();
+  const v = c.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.75); v.addColorStop(0, 'transparent'); v.addColorStop(1, 'rgba(0,0,0,0.7)'); c.fillStyle = v; c.fillRect(0, 0, W, H);
+  const img = c.getImageData(0, 0, W, H), d = img.data; for (let i = 0; i < d.length; i += 4) { const n = (rnd() - 0.5) * (SQ ? 4 : 14); d[i] += n; d[i + 1] += n; d[i + 2] += n; } c.putImageData(img, 0, 0); }
+
+function glitchText(txt, x, y, font, col, size, stretch = 'ultra-expanded', slices = 0) {
+  c.font = font; c.fontStretch = stretch; c.textBaseline = 'alphabetic';
+  // chromatic offsets
+  c.save(); c.globalCompositeOperation = 'screen';
+  c.fillStyle = CY; c.globalAlpha = 0.85; c.fillText(txt, x - size * 0.045, y);
+  c.fillStyle = PK; c.fillText(txt, x + size * 0.045, y + size * 0.012); c.restore();
+  // glow + main
+  c.save(); c.shadowColor = col; c.shadowBlur = size * 0.35; c.fillStyle = col; c.fillText(txt, x, y); c.restore();
+  c.fillStyle = col; c.fillText(txt, x, y);
+  // horizontal slice displacement
+  const m = c.measureText(txt);
+  for (let i = 0; i < slices; i++) { const sy = y - size * (0.1 + rnd() * 0.65), sh = size * (0.03 + rnd() * 0.07), dx = (rnd() - 0.5) * size * 0.12;
+    const sx = Math.max(0, x - 10), sw = Math.min(W - sx, m.width + 40); const part = c.getImageData(sx, sy, sw, sh); c.putImageData(part, sx + dx, sy); }
+  return m.width;
+}
+function skewBox(x, y, w, h, col, sk = 0.35) { c.beginPath(); c.moveTo(x + h * sk, y); c.lineTo(x + w + h * sk, y); c.lineTo(x + w, y + h); c.lineTo(x, y + h); c.closePath(); c.fillStyle = col; c.fill(); }
+function brackets(m, l, col) { c.strokeStyle = col; c.lineWidth = 3 * S; [[m, m, 1, 1], [W - m, m, -1, 1], [m, H - m, 1, -1], [W - m, H - m, -1, -1]].forEach(([x, y, sx, sy]) => { c.beginPath(); c.moveTo(x, y + sy * l); c.lineTo(x, y); c.lineTo(x + sx * l, y); c.stroke(); }); }
+
+async function draw() {
+  await document.fonts.load('italic 900 100px "Archivo Wide"'); await document.fonts.load('400 20px "JetBrains Mono"');
+  sky();
+  beams();
+  layer(0.6, 0.2, 0.5, 30, 70, ['#2A1638', '#1A1030'], 0.04, 'rgba(255,60,120,0.28)', null);
+  layer(0.8, 0.22, 0.6, 50, 110, ['#140C24', '#0E0A1C'], 0.06, 'rgba(120,40,200,0.22)', 'rgba(255,31,90,0.8)');
+  layer(1.0, 0.2, 0.7, 70, 160, ['#07060E', '#0B0816'], 0.07, null, 'rgba(34,216,240,0.7)');
+  // wet street glow at the bottom
+  { const g = c.createLinearGradient(0, H * 0.85, 0, H); g.addColorStop(0, 'transparent'); g.addColorStop(1, 'rgba(255,31,90,0.25)'); c.fillStyle = g; c.fillRect(0, 0, W, H); }
+  rain();
+  // darken behind the logo
+  const lg = SQ ? c.createLinearGradient(0, 0, 0, H) : c.createLinearGradient(0, 0, W, 0);
+  if (SQ) { lg.addColorStop(0, 'rgba(7,10,18,0.15)'); lg.addColorStop(0.5, 'rgba(7,10,18,0.65)'); lg.addColorStop(1, 'rgba(7,10,18,0.2)'); }
+  else { lg.addColorStop(0, 'rgba(7,10,18,0.82)'); lg.addColorStop(0.55, 'rgba(7,10,18,0.45)'); lg.addColorStop(1, 'rgba(7,10,18,0)'); }
+  c.fillStyle = lg; c.fillRect(0, 0, W, H);
+
+  if (!SQ) {
+    const X = 110 * S;
+    c.font = '500 ' + 20 * S + 'px "JetBrains Mono"'; c.fillStyle = CY; c.fillText('// OPEN//77 COMMUNITY SERVER  ·  NIGHT CITY', X, 150 * S);
+    glitchText("THEE_KAL_EL'S", X, 250 * S, WIDE(900, 86 * S), '#FFFFFF', 86 * S, 'expanded', 1);
+    const ww = glitchText('WORLD', X - 6 * S, 440 * S, WIDE(900, 210 * S), YL, 210 * S, 'ultra-expanded', 3);
+    skewBox(X, 472 * S, ww * 0.62, 12 * S, YL); skewBox(X + ww * 0.62 + 18 * S, 472 * S, ww * 0.18, 12 * S, PK);
+    // stripes like the site's CTA blocks
+    for (let i = 0; i < 4; i++) skewBox(X + ww * 0.8 + 40 * S + i * 22 * S, 466 * S, 10 * S, 24 * S, YL, 0.6);
+    c.font = '600 ' + 22 * S + 'px "JetBrains Mono"'; c.fillStyle = 'rgba(255,255,255,0.75)'; c.fillText('JACK IN  //  SERVER ONLINE', X, 560 * S);
+    c.save(); c.shadowColor = '#3DFF8B'; c.shadowBlur = 12 * S; c.fillStyle = '#3DFF8B'; c.beginPath(); c.arc(X + c.measureText('JACK IN  //  SERVER ONLINE').width + 24 * S, 552 * S, 7 * S, 0, 7); c.fill(); c.restore();
+    brackets(28 * S, 60 * S, YL);
+  } else {
+    // server icon: one bold monogram that still reads at 64 px on the launcher card
+    const s = W / 512;
+    c.fillStyle = 'rgba(7,10,18,0.55)'; c.fillRect(0, 0, W, H);
+    c.textAlign = 'center';
+    glitchText('KE', W / 2 + 4 * s, 292 * s, WIDE(900, 196 * s), YL, 196 * s, 'ultra-expanded', 0);
+    c.textAlign = 'left';
+    // "//" slash marks like OPEN//77
+    c.save(); c.shadowColor = PK; c.shadowBlur = 16 * s; c.fillStyle = PK; for (let k = 0; k < 2; k++) skewBox(60 * s + k * 26 * s, 64 * s, 12 * s, 40 * s, PK, 0.7); c.restore();
+    // WORLD tag: black on a skewed yellow plate
+    skewBox(96 * s, 340 * s, 300 * s, 70 * s, YL, 0.3);
+    c.font = WIDE(900, 50 * s); c.fontStretch = 'ultra-expanded'; c.textAlign = 'center'; c.fillStyle = '#070A12'; c.fillText('WORLD', W / 2 + 10 * s, 393 * s);
+    c.font = '700 ' + 20 * s + 'px "JetBrains Mono"'; c.fillStyle = CY; c.fillText('OPEN//77', W / 2, 456 * s); c.textAlign = 'left';
+    brackets(22 * s, 56 * s, YL);
+  }
+  scan();
+  document.title = 'done';
+}
+draw();
+</script></body></html>
