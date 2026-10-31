@@ -5,18 +5,34 @@ import {AbsoluteFill, Img, interpolate, Sequence, spring, staticFile, useCurrent
 import {MONO, SANS, SERIF, WIDE} from '../fonts';
 import {KalAvatar} from '../character/KalAvatar';
 import {Pop, SPRINGS, TypeOn, Wipe} from '../kit/motion';
+import {P2Connect, P2Download, P2Game, P2LoadIn, P2Scan, P2Servers, P2Title} from './Part2Props';
 
 const PAPER = '#F3EFE6', INK = '#1B1B1F', ACCENT = '#C2502E', MUTED = '#9A958A', YL = '#F3DF00';
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
 type Word = {w: string; at: number; accent?: boolean; br?: boolean};
-const BEATS: {from: number; to: number; tag: string; words: Word[]}[] = [
+const BEATS: {from: number; to: number; tag: string; words: Word[]; count?: string}[] = [
   {from: 0, to: 4.3, tag: '01 · the setup', words: [{w: 'I', at: 0.25}, {w: 'built', at: 0.4}, {w: 'my', at: 0.58}, {w: 'own', at: 0.75, accent: true}, {w: 'Cyberpunk', at: 1.05, br: true}, {w: 'server,', at: 1.45}]},
   {from: 4.3, to: 9.0, tag: '02 · the trick', words: [{w: 'and', at: 4.5}, {w: 'Claude', at: 4.7, accent: true}, {w: 'made', at: 5.05, br: true}, {w: 'the', at: 5.25}, {w: 'banner.', at: 5.45, accent: true}]},
   {from: 9.0, to: 14.2, tag: '03 · the result', words: [{w: 'In', at: 9.2}, {w: '10', at: 9.35, accent: true}, {w: 'minutes', at: 9.55, accent: true}, {w: 'my', at: 9.9, br: true}, {w: 'Cyberpunk', at: 10.05}, {w: 'Game', at: 10.4, br: true}, {w: 'Server', at: 10.55}, {w: 'was', at: 10.85}, {w: 'up', at: 11.05, accent: true, br: true}, {w: 'and', at: 11.2, accent: true}, {w: 'running!', at: 11.35, accent: true}]},
   {from: 14.2, to: 18.7, tag: '04 · your turn', words: [{w: 'Try', at: 14.4}, {w: 'it', at: 14.55}, {w: 'out', at: 14.7}, {w: 'today!', at: 14.95, accent: true}]},
 ];
-const TALK: [number, number][] = [[0.2, 2.1], [4.45, 6.2], [9.15, 11.9], [14.35, 15.6]];
+// Part 2 (18.7–33.7 s): "*word*" = accent, "|" = line break; words land 0.13 s apart
+const words = (from: number, text: string): Word[] => {
+  const out: Word[] = []; let i = 0;
+  text.split('|').forEach((line, li) => line.trim().split(/\s+/).forEach((w, wi) => {
+    const accent = w.startsWith('*'); out.push({w: w.replace(/\*/g, ''), at: from + 0.15 + i++ * 0.13, accent, br: li > 0 && wi === 0});
+  }));
+  return out;
+};
+const P2_START = 18.7, P2_TITLE = 1.5, P2_STEP = 2.25;
+const P2_STEPS = ['Own a *licensed* | copy of | Cyberpunk 2077', 'Download | *OPEN//77* | at open2077.net', 'Open it. It *finds* | & *verifies* | your game', 'Pick your server… | *MINE!*', 'Hit *CONNECT* | & grab any *mods*', 'Load in & | enjoy *MILITECH!*'];
+const P2_PROPS = [P2Game, P2Download, P2Scan, P2Servers, P2Connect, P2LoadIn];
+const stepFrom = (i: number) => P2_START + P2_TITLE + i * P2_STEP;
+BEATS.push({from: P2_START, to: P2_START + P2_TITLE, tag: 'part 2 · how to join', count: 'PART 2', words: words(P2_START, 'Part *2:* | how to *join* | my server')});
+P2_STEPS.forEach((txt, i) => BEATS.push({from: stepFrom(i), to: stepFrom(i) + P2_STEP, tag: `part 2 · step ${i + 1}`, count: `STEP ${i + 1}/6`, words: words(stepFrom(i), txt)}));
+export const REEL_SECONDS = stepFrom(6);
+const TALK: [number, number][] = [[0.2, 2.1], [4.45, 6.2], [9.15, 11.9], [14.35, 15.6], [18.8, 19.9], ...[0, 1, 2, 3, 4, 5].map((i): [number, number] => [20.3 + i * 2.25, 21.4 + i * 2.25])];
 
 const useT = () => useCurrentFrame() / useVideoConfig().fps;
 const sp = (t: number, at: number, fps: number, cfg: keyof typeof SPRINGS = 'snappy') => spring({frame: Math.round((t - at) * fps), fps, config: SPRINGS[cfg]});
@@ -118,10 +134,10 @@ export const ExplainerReel: React.FC = () => {
   const talking = TALK.some(([a, b]) => t >= a && t <= b);
   const mouth = talking ? 0.25 + 0.75 * Math.abs(Math.sin(t * 13.5)) * (0.6 + 0.4 * Math.abs(Math.sin(t * 5.1))) : 0;
   const bt = t % 3.2, blink = bt > 3.05 ? Math.sin(((bt - 3.05) / 0.15) * Math.PI) : 0;
-  const ARM: [number, number][] = [[1.3, 14], [3.6, 172], [7.0, 26], [8.5, 172], [9.4, 6], [12.6, 172], [14.6, 18]];
+  const ARM: [number, number][] = [[1.3, 14], [3.6, 172], [7.0, 26], [8.5, 172], [9.4, 6], [12.6, 172], [14.6, 18], [17.6, 172], [27.1, 10], [28.6, 172], [31.6, 16]];
   let arm = 172, prev = 172;
   for (const [at, to] of ARM) { arm += (to - prev) * sp(t, at, fps, 'bouncy'); prev = to; }
-  const brow = 0.9 * sp(t, 6.75, fps, 'bouncy') * (1 - sp(t, 8.2, fps, 'smooth')) + 0.5 * sp(t, 9.3, fps, 'bouncy') * (1 - sp(t, 12.4, fps, 'smooth')) + 0.8 * sp(t, 16.2, fps, 'bouncy');
+  const brow = 0.9 * sp(t, 6.75, fps, 'bouncy') * (1 - sp(t, 8.2, fps, 'smooth')) + 0.5 * sp(t, 9.3, fps, 'bouncy') * (1 - sp(t, 12.4, fps, 'smooth')) + 0.8 * sp(t, 16.2, fps, 'bouncy') * (1 - sp(t, 18.2, fps, 'smooth')) + 0.8 * sp(t, 27.2, fps, 'bouncy') * (1 - sp(t, 28.8, fps, 'smooth')) + 0.7 * sp(t, 32.0, fps, 'bouncy');
   const tilt = Math.sin(t * 1.7) * 2.5 + (talking ? Math.sin(t * 4.2) * 1.5 : 0);
   const bob = Math.sin(t * 2.2) * 6;
   const enter = sp(t, 0, fps, 'heavy');
@@ -135,7 +151,7 @@ export const ExplainerReel: React.FC = () => {
       </AbsoluteFill>
       {/* header */}
       <div style={{position: 'absolute', top: 92, left: 84, right: 84, display: 'flex', justifyContent: 'space-between', ...MONO, fontSize: 22, color: MUTED, letterSpacing: '0.08em', textTransform: 'none', fontWeight: 500}}>
-        <span style={{opacity: tagOp}}>// {beat.tag}</span><span>OPEN//77 · {BEATS.indexOf(beat) + 1}/4</span>
+        <span style={{opacity: tagOp}}>// {beat.tag}</span><span>{beat.count ?? `OPEN//77 · ${BEATS.indexOf(beat) + 1}/4`}</span>
       </div>
       {/* caption */}
       <div style={{position: 'absolute', top: 190, left: 84}}><Caption words={beat.words} /></div>
@@ -144,12 +160,14 @@ export const ExplainerReel: React.FC = () => {
       <Sequence from={Math.round(4.3 * fps)} durationInFrames={Math.round(4.7 * fps)}><PropSlot len={4.7}><Terminal /></PropSlot></Sequence>
       <Sequence from={Math.round(9.0 * fps)} durationInFrames={Math.round(5.2 * fps)}><AbsoluteFill style={{left: 84}}><PropSlot len={5.2} top={700}><div style={{alignSelf: 'flex-start'}}><Checklist /></div></PropSlot></AbsoluteFill></Sequence>
       <Sequence from={Math.round(14.2 * fps)} durationInFrames={Math.round(4.5 * fps)}><PropSlot len={4.8} top={440}><ConnectClick /></PropSlot></Sequence>
+      <Sequence from={Math.round(P2_START * fps)} durationInFrames={Math.round(P2_TITLE * fps)}><PropSlot len={P2_TITLE} top={640}><P2Title /></PropSlot></Sequence>
+      {P2_PROPS.map((Prop, i) => <Sequence key={i} from={Math.round(stepFrom(i) * fps)} durationInFrames={Math.round(P2_STEP * fps)}><PropSlot len={P2_STEP} top={600}><Prop /></PropSlot></Sequence>)}
       {/* host, peeking up from the bottom right */}
       <div style={{position: 'absolute', right: -10, bottom: -40, transform: `translateY(${(1 - enter) * 500 + bob}px)`}}>
         <KalAvatar width={760} pose={{mouth, blink, brow, arm, tilt}} />
       </div>
       {/* end tag */}
-      <div style={{position: 'absolute', left: 84, bottom: 130, ...MONO, fontSize: 26, color: INK, letterSpacing: '0.06em', textTransform: 'none', opacity: interpolate(t, [16.6, 16.9], [0, 1], clamp)}}>follow for part 2 →</div>
+      <div style={{position: 'absolute', left: 84, bottom: 130, ...MONO, fontSize: 26, color: INK, letterSpacing: '0.06em', textTransform: 'none', opacity: interpolate(t, [16.6, 16.9, 18.4, 18.7], [0, 1, 1, 0], clamp)}}>follow for part 2 →</div>
     </AbsoluteFill>
   );
 };
