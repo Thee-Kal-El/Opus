@@ -6,6 +6,7 @@ const FACES: [string, string, FontFaceDescriptors][] = [
   ['Archivo Wide', 'ArchivoWdth-normal.woff2', {style: 'normal', weight: '100 900', stretch: '62% 125%'}],
   ['JetBrains Mono', 'JetBrainsMono.woff2', {weight: '100 800'}],
   ['Geist', 'Geist.woff2', {weight: '100 900'}],
+  ['Instrument Serif', 'InstrumentSerif-italic.woff2', {style: 'italic', weight: '400'}],
 ];
 
 let started = false;
@@ -21,3 +22,5 @@ export const loadFonts = () => {
 // Wide heavy italic headline type (the OPEN//77 / thumbnail look)
 export const WIDE: React.CSSProperties = {fontFamily: 'Archivo Wide', fontStyle: 'italic', fontWeight: 900, fontStretch: '125%', textTransform: 'uppercase'};
 export const MONO: React.CSSProperties = {fontFamily: 'JetBrains Mono', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase'};
+export const SANS: React.CSSProperties = {fontFamily: 'Geist', fontWeight: 600, letterSpacing: '-0.02em'};
+export const SERIF: React.CSSProperties = {fontFamily: 'Instrument Serif', fontStyle: 'italic', fontWeight: 400, letterSpacing: '-0.01em'};
