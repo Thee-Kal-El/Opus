@@ -30,9 +30,12 @@ export const KalAvatar: React.FC<{pose: AvatarPose; width?: number; style?: Reac
         <rect x={-25} y={-232} width={50} height={160} rx={24} fill={SKIN} />
         <rect x={-28} y={-222} width={56} height={18} rx={6} fill="#8A5A3B" />
         <circle cx={0} cy={-213} r={11} fill="#E9E1D2" stroke="#6E452C" strokeWidth={3} />
-        <circle cx={0} cy={-250} r={33} fill={SKIN} />
-        <rect x={-9} y={-326} width={19} height={70} rx={9.5} fill={SKIN} />
-        <path d="M-28 -246 q14 10 30 2" stroke={SKIN_D} strokeWidth={4} fill="none" strokeLinecap="round" />
+        {/* open hand: palm, four fingers, thumb (a friendly raised hand, not a single finger) */}
+        <rect x={-31} y={-284} width={62} height={66} rx={22} fill={SKIN} />
+        {[[-27, -322, 13, 48, -7], [-12, -334, 13, 58, -2], [3, -332, 13, 56, 2], [17, -318, 12, 44, 8]].map(([x, y, w, h, r], i) => (
+          <rect key={i} x={x} y={y} width={w} height={h} rx={w / 2} fill={SKIN} transform={`rotate(${r} ${x + w / 2} ${y + h})`} />
+        ))}
+        <rect x={-40} y={-268} width={17} height={46} rx={8.5} fill={SKIN} transform="rotate(-30 -31.5 -224)" />
       </g>
       {/* torso + tee */}
       <path d="M86 780 L106 548 Q118 470 214 450 L386 450 Q482 470 494 548 L514 780 Z" fill={TEE} />
