@@ -1,5 +1,5 @@
 // Thee_Kal_El cartoon host: an original flat-vector character drawn from his photo
-// (tall swept-up quiff with faded sides, rectangular glasses, mustache + goatee, black tee with a light-blue QR print, wood watch).
+// (backwards gray snapback, rectangular glasses, mustache + goatee, black tee with a light-blue QR print, wood watch).
 // Animatable: talking mouth, blinks, brows, pointing arm, head tilt.
 import React from 'react';
 import QR from './qr.json';   // https://youtube.com/@thee_kal_el (29×29, ECC M)
@@ -60,11 +60,17 @@ export const KalAvatar: React.FC<{pose: AvatarPose; width?: number; style?: Reac
         <ellipse cx={418} cy={276} rx={19} ry={30} fill={SKIN_D} />
         <ellipse cx={300} cy={262} rx={120} ry={140} fill={SKIN} />
         {/* sideburns */}
-        <path d="M184 226 L200 226 L198 292 Q186 280 184 262 Z M416 226 L400 226 L402 292 Q414 280 416 262 Z" fill="#4A3F38" />
-        {/* hair: tall quiff swept up and over to one side, short faded sides */}
-        <path d="M190 254 C180 182 198 122 250 100 C292 80 352 66 402 84 C436 98 440 152 430 202 Q426 230 416 256 Q410 206 384 182 Q334 158 282 170 Q236 182 214 212 Q200 234 196 262 Z" fill={HAIR} />
-        <path d="M366 78 Q384 54 398 46 Q394 66 392 82 Z M398 86 Q418 70 430 66 Q424 86 414 100 Z M334 70 Q344 52 356 46 Q356 62 352 72 Z" fill={HAIR} />
-        <path d="M222 200 Q248 136 316 100 M258 176 Q296 124 370 98 M304 166 Q350 128 410 120 M238 150 Q254 120 286 104" stroke="#463a31" strokeWidth={4.5} fill="none" strokeLinecap="round" />
+        <path d="M184 226 L200 226 L198 292 Q186 280 184 262 Z M416 226 L400 226 L402 292 Q414 280 416 262 Z" fill={HAIR} />
+        {/* backwards gray snapback: tall crown, dark outline, panel seams, button, band, snap strap */}
+        <path d="M172 240 Q164 92 300 80 Q436 92 428 240 Q300 208 172 240 Z" fill={CAP} stroke="#2A2D32" strokeWidth={6} strokeLinejoin="round" />
+        <path d="M300 82 Q296 150 300 214 M232 104 Q248 160 252 222 M368 104 Q352 160 348 222" stroke="#6E7279" strokeWidth={4.5} fill="none" strokeLinecap="round" />
+        <path d="M204 128 Q300 96 396 128" stroke="#B4B8BE" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.7} />
+        <circle cx={300} cy={84} r={11} fill="#6E7279" stroke="#2A2D32" strokeWidth={4} />
+        <path d="M176 234 Q300 198 424 234" stroke="#24272C" strokeWidth={28} fill="none" strokeLinecap="round" />
+        {/* snapback opening with a peek of hair + the strap */}
+        <path d="M252 222 Q252 176 300 172 Q348 176 348 222 Z" fill={HAIR} stroke="#2A2D32" strokeWidth={5} />
+        <rect x={254} y={204} width={92} height={18} rx={6} fill="#15171B" />
+        {[268, 284, 300, 316, 332].map((x) => <circle key={x} cx={x} cy={213} r={3.2} fill="#5C6067" />)}
         {/* brows */}
         <path d={`M232 ${by + 4} Q260 ${by - 8} 288 ${by + 2}`} stroke={HAIR} strokeWidth={9} fill="none" strokeLinecap="round" />
         <path d={`M312 ${by + 2} Q340 ${by - 8} 368 ${by + 4}`} stroke={HAIR} strokeWidth={9} fill="none" strokeLinecap="round" />
