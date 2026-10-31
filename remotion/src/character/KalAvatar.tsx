@@ -1,5 +1,5 @@
 // Thee_Kal_El cartoon host: an original flat-vector character drawn from his photo
-// (backwards gray snapback, rectangular glasses, mustache + goatee, black tee with a light-blue QR print, wood watch).
+// (tall swept-up quiff with faded sides, rectangular glasses, mustache + goatee, black tee with a light-blue QR print, wood watch).
 // Animatable: talking mouth, blinks, brows, pointing arm, head tilt.
 import React from 'react';
 import QR from './qr.json';   // https://youtube.com/@thee_kal_el (29×29, ECC M)
@@ -52,13 +52,11 @@ export const KalAvatar: React.FC<{pose: AvatarPose; width?: number; style?: Reac
         <ellipse cx={418} cy={276} rx={19} ry={30} fill={SKIN_D} />
         <ellipse cx={300} cy={262} rx={120} ry={140} fill={SKIN} />
         {/* sideburns */}
-        <path d="M184 230 L198 230 L196 292 Q186 280 184 262 Z M416 230 L402 230 L404 292 Q414 280 416 262 Z" fill={HAIR} />
-        {/* backwards snapback */}
-        <path d="M176 236 Q172 104 300 96 Q428 104 424 236 Q300 206 176 236 Z" fill={CAP} />
-        <path d="M206 140 Q300 108 394 140" stroke="#7B7F85" strokeWidth={6} fill="none" />
-        <path d="M180 232 Q300 200 420 232" stroke={CAP_D} strokeWidth={24} fill="none" strokeLinecap="round" />
-        <rect x={262} y={186} width={76} height={30} rx={12} fill="#24272D" />
-        <path d="M270 210 Q300 196 330 210" stroke={HAIR} strokeWidth={10} fill="none" strokeLinecap="round" />
+        <path d="M184 226 L200 226 L198 292 Q186 280 184 262 Z M416 226 L400 226 L402 292 Q414 280 416 262 Z" fill="#4A3F38" />
+        {/* hair: tall quiff swept up and over to one side, short faded sides */}
+        <path d="M190 254 C180 182 198 122 250 100 C292 80 352 66 402 84 C436 98 440 152 430 202 Q426 230 416 256 Q410 206 384 182 Q334 158 282 170 Q236 182 214 212 Q200 234 196 262 Z" fill={HAIR} />
+        <path d="M366 78 Q384 54 398 46 Q394 66 392 82 Z M398 86 Q418 70 430 66 Q424 86 414 100 Z M334 70 Q344 52 356 46 Q356 62 352 72 Z" fill={HAIR} />
+        <path d="M222 200 Q248 136 316 100 M258 176 Q296 124 370 98 M304 166 Q350 128 410 120 M238 150 Q254 120 286 104" stroke="#463a31" strokeWidth={4.5} fill="none" strokeLinecap="round" />
         {/* brows */}
         <path d={`M232 ${by + 4} Q260 ${by - 8} 288 ${by + 2}`} stroke={HAIR} strokeWidth={9} fill="none" strokeLinecap="round" />
         <path d={`M312 ${by + 2} Q340 ${by - 8} 368 ${by + 4}`} stroke={HAIR} strokeWidth={9} fill="none" strokeLinecap="round" />
