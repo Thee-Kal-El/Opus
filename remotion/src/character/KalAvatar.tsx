@@ -25,8 +25,9 @@ export const KalAvatar: React.FC<{pose: AvatarPose; width?: number; style?: Reac
   return (
     <svg viewBox="0 0 600 760" width={width} style={{overflow: 'visible', ...style}}>
       {/* pointing arm (behind the torso when resting) */}
-      <g transform={`translate(452 500) rotate(${arm})`}>
-        <rect x={-36} y={-96} width={72} height={110} rx={30} fill={TEE} />
+      <g transform={`translate(446 508) rotate(${arm})`}>
+        <rect x={-37} y={-100} width={74} height={150} rx={20} fill={TEE} />
+        <path d="M-36 -96 L36 -96" stroke="#0A0B0D" strokeWidth={4} />
         <rect x={-25} y={-232} width={50} height={160} rx={24} fill={SKIN} />
         <rect x={-28} y={-222} width={56} height={18} rx={6} fill="#8A5A3B" />
         <circle cx={0} cy={-213} r={11} fill="#E9E1D2" stroke="#6E452C" strokeWidth={3} />
@@ -35,12 +36,19 @@ export const KalAvatar: React.FC<{pose: AvatarPose; width?: number; style?: Reac
         {[[-27, -322, 13, 48, -7], [-12, -334, 13, 58, -2], [3, -332, 13, 56, 2], [17, -318, 12, 44, 8]].map(([x, y, w, h, r], i) => (
           <rect key={i} x={x} y={y} width={w} height={h} rx={w / 2} fill={SKIN} transform={`rotate(${r} ${x + w / 2} ${y + h})`} />
         ))}
-        <rect x={-40} y={-268} width={17} height={46} rx={8.5} fill={SKIN} transform="rotate(-30 -31.5 -224)" />
+        <rect x={23} y={-268} width={17} height={46} rx={8.5} fill={SKIN} transform="rotate(30 31.5 -224)" />
       </g>
-      {/* torso + tee */}
-      <path d="M86 780 L106 548 Q118 470 214 450 L386 450 Q482 470 494 548 L514 780 Z" fill={TEE} />
-      <rect x={258} y={392} width={84} height={80} rx={20} fill={SKIN_D} />
-      <path d="M244 452 Q300 500 356 452" fill={SKIN_D} />
+      {/* resting arm (drawn behind the shirt so the sleeve tucks into the shoulder) */}
+      <g transform="translate(176 520) rotate(16)">
+        <rect x={-25} y={70} width={50} height={210} rx={24} fill={SKIN} />
+        <rect x={-38} y={-60} width={76} height={150} rx={20} fill={TEE} />
+        <path d="M-37 86 L37 86" stroke="#0A0B0D" strokeWidth={4} />
+      </g>
+      {/* neck */}
+      <rect x={266} y={392} width={68} height={76} rx={18} fill={SKIN_D} />
+      {/* torso + tee: rounded shoulders, crew collar */}
+      <path d="M120 790 L122 604 Q124 512 194 484 Q232 468 258 456 Q300 476 342 456 Q368 468 406 484 Q476 512 478 604 L480 790 Z" fill={TEE} />
+      <path d="M254 456 Q300 494 346 456" stroke="#0A0B0D" strokeWidth={14} fill="none" strokeLinecap="round" />
       {/* shirt print: a real, scannable QR code for youtube.com/@thee_kal_el */}
       <rect x={213} y={514} width={174} height={174} rx={4} fill={PRINT} />
       <path d={QR_PATH} fill={TEE} />
