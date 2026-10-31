@@ -26,7 +26,7 @@ Spring presets: `snappy`, `bouncy`, `smooth`, `heavy`, `slam`.
 - `LogoSting`: 4 s THEE_KAL_EL bumper (1920×1080)
 - `KickTwitchCard`: 6 s vertical "WATCH LIVE ON KICK & TWITCH!" end card (1080×1920)
 - `KitShowcase`: every building block looping on one sheet
-- `ExplainerReel`: 33.7 s vertical (Part 1 0–18.7 s, Part 2 "how to join" 18.7–33.7 s; props in `src/scenes/Part2Props.tsx`) character explainer — Kal's cartoon host (`src/character/KalAvatar.tsx`: talking mouth, blinks, brows, pointing arm, head tilt), word-by-word captions with italic-serif accents, animated props
+- `ExplainerReel`: 50 s vertical (Part 1 0–27.7 s, Part 2 "how to join" 27.7–50 s; each beat animates at normal speed then holds; props in `src/scenes/Part2Props.tsx`) character explainer — Kal's cartoon host (`src/character/KalAvatar.tsx`: talking mouth, blinks, brows, pointing arm, head tilt), word-by-word captions with italic-serif accents, animated props
 
 ## Use
 ```bash

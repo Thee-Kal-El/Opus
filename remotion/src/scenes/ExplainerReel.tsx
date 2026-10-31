@@ -1,7 +1,7 @@
 // Character explainer reel (1080×1920): Kal's cartoon host + word-by-word captions with italic-serif accents + animated props.
 // Story: "I built my own Cyberpunk server, and Claude made the banner. In 10 minutes my Cyberpunk Game Server was up and running! Try it out today!"
 import React from 'react';
-import {AbsoluteFill, Img, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Freeze, Img, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {MONO, SANS, SERIF, WIDE} from '../fonts';
 import {KalAvatar} from '../character/KalAvatar';
 import {Pop, SPRINGS, TypeOn, Wipe} from '../kit/motion';
@@ -31,7 +31,22 @@ const P2_PROPS = [P2Game, P2Download, P2Scan, P2Servers, P2Connect, P2LoadIn];
 const stepFrom = (i: number) => P2_START + P2_TITLE + i * P2_STEP;
 BEATS.push({from: P2_START, to: P2_START + P2_TITLE, tag: 'part 2 · how to join', count: 'PART 2', words: words(P2_START, 'Part *2:* | how to *join* | my server')});
 P2_STEPS.forEach((txt, i) => BEATS.push({from: stepFrom(i), to: stepFrom(i) + P2_STEP, tag: `part 2 · step ${i + 1}`, count: `STEP ${i + 1}/6`, words: words(stepFrom(i), txt)}));
-export const REEL_SECONDS = stepFrom(6);
+
+// ── pacing: the story above runs 33.7 s; the reel plays it over 50 s ──
+// Each beat plays its animations at normal speed, then HOLDS once everything has settled (so there's time to read),
+// and only plays its last TAIL seconds (the exit) at the end of the stretched beat. The final beat is lengthened instead.
+export const REEL_SECONDS = 50;
+const K = REEL_SECONDS / stepFrom(6), TAIL = 0.35;
+BEATS[BEATS.length - 1].to = BEATS[BEATS.length - 1].from + P2_STEP * K;
+const LAST_LEN = P2_STEP * K;
+const SEGS = (() => { let acc = 0; return BEATS.map((b, i) => { const R = i === BEATS.length - 1 ? b.to - b.from : (b.to - b.from) * K; const seg = {r0: acc, r1: acc + R, b}; acc += R; return seg; }); })();
+const storyAt = (t: number) => {
+  const seg = SEGS.find((x) => t < x.r1) ?? SEGS[SEGS.length - 1];
+  const local = t - seg.r0, D = seg.b.to - seg.b.from, R = seg.r1 - seg.r0;
+  if (Math.abs(R - D) < 1e-6) return seg.b.from + Math.min(local, D - 0.001);
+  const hold = D - TAIL;
+  return seg.b.from + (local < hold ? local : local < R - TAIL ? hold : hold + (local - (R - TAIL)));
+};
 const TALK: [number, number][] = [[0.2, 2.1], [4.45, 6.2], [9.15, 11.9], [14.35, 15.6], [18.8, 19.9], ...[0, 1, 2, 3, 4, 5].map((i): [number, number] => [20.3 + i * 2.25, 21.4 + i * 2.25])];
 
 const useT = () => useCurrentFrame() / useVideoConfig().fps;
@@ -127,28 +142,13 @@ const PropSlot: React.FC<{len: number; top?: number; children: React.ReactNode}>
   return <AbsoluteFill style={{alignItems: 'center', top, opacity: 1 - out, transform: `translateY(${(1 - s) * 260 + out * -60}px) scale(${0.85 + 0.15 * s})`}}>{children}</AbsoluteFill>;
 };
 
-export const ExplainerReel: React.FC = () => {
+// everything except the host, driven by (warped) story time
+const Story: React.FC = () => {
   const t = useT(), {fps} = useVideoConfig();
   const beat = BEATS.find((b) => t >= b.from && t < b.to) ?? BEATS[BEATS.length - 1];
-  // host animation
-  const talking = TALK.some(([a, b]) => t >= a && t <= b);
-  const mouth = talking ? 0.25 + 0.75 * Math.abs(Math.sin(t * 13.5)) * (0.6 + 0.4 * Math.abs(Math.sin(t * 5.1))) : 0;
-  const bt = t % 3.2, blink = bt > 3.05 ? Math.sin(((bt - 3.05) / 0.15) * Math.PI) : 0;
-  const ARM: [number, number][] = [[1.3, 14], [3.6, 172], [7.0, 26], [8.5, 172], [9.4, 6], [12.6, 172], [14.6, 18], [17.6, 172], [27.1, 10], [28.6, 172], [31.6, 16]];
-  let arm = 172, prev = 172;
-  for (const [at, to] of ARM) { arm += (to - prev) * sp(t, at, fps, 'bouncy'); prev = to; }
-  const brow = 0.9 * sp(t, 6.75, fps, 'bouncy') * (1 - sp(t, 8.2, fps, 'smooth')) + 0.5 * sp(t, 9.3, fps, 'bouncy') * (1 - sp(t, 12.4, fps, 'smooth')) + 0.8 * sp(t, 16.2, fps, 'bouncy') * (1 - sp(t, 18.2, fps, 'smooth')) + 0.8 * sp(t, 27.2, fps, 'bouncy') * (1 - sp(t, 28.8, fps, 'smooth')) + 0.7 * sp(t, 32.0, fps, 'bouncy');
-  const tilt = Math.sin(t * 1.7) * 2.5 + (talking ? Math.sin(t * 4.2) * 1.5 : 0);
-  const bob = Math.sin(t * 2.2) * 6;
-  const enter = sp(t, 0, fps, 'heavy');
   const tagOp = interpolate(t, [beat.from, beat.from + 0.25], [0, 1], clamp);
-
   return (
-    <AbsoluteFill style={{background: PAPER}}>
-      {/* paper grain */}
-      <AbsoluteFill style={{opacity: 0.09}}>
-        <svg width="100%" height="100%"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" /></filter><rect width="100%" height="100%" filter="url(#g)" /></svg>
-      </AbsoluteFill>
+    <AbsoluteFill>
       {/* header */}
       <div style={{position: 'absolute', top: 92, left: 84, right: 84, display: 'flex', justifyContent: 'space-between', ...MONO, fontSize: 22, color: MUTED, letterSpacing: '0.08em', textTransform: 'none', fontWeight: 500}}>
         <span style={{opacity: tagOp}}>// {beat.tag}</span><span>{beat.count ?? `OPEN//77 · ${BEATS.indexOf(beat) + 1}/4`}</span>
@@ -161,7 +161,33 @@ export const ExplainerReel: React.FC = () => {
       <Sequence from={Math.round(9.0 * fps)} durationInFrames={Math.round(5.2 * fps)}><AbsoluteFill style={{left: 84}}><PropSlot len={5.2} top={700}><div style={{alignSelf: 'flex-start'}}><Checklist /></div></PropSlot></AbsoluteFill></Sequence>
       <Sequence from={Math.round(14.2 * fps)} durationInFrames={Math.round(4.5 * fps)}><PropSlot len={4.8} top={440}><ConnectClick /></PropSlot></Sequence>
       <Sequence from={Math.round(P2_START * fps)} durationInFrames={Math.round(P2_TITLE * fps)}><PropSlot len={P2_TITLE} top={640}><P2Title /></PropSlot></Sequence>
-      {P2_PROPS.map((Prop, i) => <Sequence key={i} from={Math.round(stepFrom(i) * fps)} durationInFrames={Math.round(P2_STEP * fps)}><PropSlot len={P2_STEP} top={600}><Prop /></PropSlot></Sequence>)}
+      {P2_PROPS.map((Prop, i) => { const len = i === 5 ? LAST_LEN + 1 : P2_STEP; return <Sequence key={i} from={Math.round(stepFrom(i) * fps)} durationInFrames={Math.round(len * fps)}><PropSlot len={len} top={600}><Prop /></PropSlot></Sequence>; })}
+    </AbsoluteFill>
+  );
+};
+
+export const ExplainerReel: React.FC = () => {
+  const real = useT(), {fps} = useVideoConfig();
+  const t = storyAt(real);                        // choreography follows story time; idle motion follows real time
+  // host animation
+  const talking = TALK.some(([a, b]) => t >= a && t <= b) && t - storyAt(Math.max(0, real - 0.1)) > 0.01;
+  const mouth = talking ? 0.25 + 0.75 * Math.abs(Math.sin(real * 13.5)) * (0.6 + 0.4 * Math.abs(Math.sin(real * 5.1))) : 0;
+  const bt = real % 3.2, blink = bt > 3.05 ? Math.sin(((bt - 3.05) / 0.15) * Math.PI) : 0;
+  const ARM: [number, number][] = [[1.3, 14], [3.6, 172], [7.0, 26], [8.5, 172], [9.4, 6], [12.6, 172], [14.6, 18], [17.6, 172], [27.1, 10], [28.6, 172], [31.6, 16]];
+  let arm = 172, prev = 172;
+  for (const [at, to] of ARM) { arm += (to - prev) * sp(t, at, fps, 'bouncy'); prev = to; }
+  const brow = 0.9 * sp(t, 6.75, fps, 'bouncy') * (1 - sp(t, 8.2, fps, 'smooth')) + 0.5 * sp(t, 9.3, fps, 'bouncy') * (1 - sp(t, 12.4, fps, 'smooth')) + 0.8 * sp(t, 16.2, fps, 'bouncy') * (1 - sp(t, 18.2, fps, 'smooth')) + 0.8 * sp(t, 27.2, fps, 'bouncy') * (1 - sp(t, 28.8, fps, 'smooth')) + 0.7 * sp(t, 32.0, fps, 'bouncy');
+  const tilt = Math.sin(real * 1.7) * 2.5 + (talking ? Math.sin(real * 4.2) * 1.5 : 0);
+  const bob = Math.sin(real * 2.2) * 6;
+  const enter = sp(real, 0, fps, 'heavy');
+
+  return (
+    <AbsoluteFill style={{background: PAPER}}>
+      {/* paper grain */}
+      <AbsoluteFill style={{opacity: 0.09}}>
+        <svg width="100%" height="100%"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" /></filter><rect width="100%" height="100%" filter="url(#g)" /></svg>
+      </AbsoluteFill>
+      <Freeze frame={Math.round(t * fps)}><Story /></Freeze>
       {/* host, peeking up from the bottom right */}
       <div style={{position: 'absolute', right: -10, bottom: -40, transform: `translateY(${(1 - enter) * 500 + bob}px)`}}>
         <KalAvatar width={760} pose={{mouth, blink, brow, arm, tilt}} />

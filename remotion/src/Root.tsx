@@ -13,7 +13,7 @@ export const Root: React.FC = () => {
       <Composition id="KickTwitchCard" component={KickTwitchCard} width={1080} height={1920} fps={60} durationInFrames={360} />
       <Composition id="LogoSting" component={LogoSting} width={1920} height={1080} fps={60} durationInFrames={240} />
       <Composition id="KitShowcase" component={KitShowcase} width={1920} height={1080} fps={60} durationInFrames={480} />
-      <Composition id="ExplainerReel" component={ExplainerReel} width={1080} height={1920} fps={30} durationInFrames={Math.round(REEL_SECONDS * 30)} />
+      <Composition id="ExplainerReel" component={ExplainerReel} width={1080} height={1920} fps={30} durationInFrames={REEL_SECONDS * 30} />
     </>
   );
 };
