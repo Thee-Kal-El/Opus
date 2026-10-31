@@ -90,7 +90,7 @@ const PropSlot: React.FC<{len: number; children: React.ReactNode}> = ({len, chil
   const t = useT(), {fps} = useVideoConfig();
   const s = sp(t, 0.15, fps, 'heavy');
   const out = interpolate(t, [len - 0.28, len], [0, 1], clamp);
-  return <AbsoluteFill style={{alignItems: 'center', top: 640, opacity: 1 - out, transform: `translateY(${(1 - s) * 260 + out * -60}px) scale(${0.85 + 0.15 * s})`}}>{children}</AbsoluteFill>;
+  return <AbsoluteFill style={{alignItems: 'center', top: 540, opacity: 1 - out, transform: `translateY(${(1 - s) * 260 + out * -60}px) scale(${0.85 + 0.15 * s})`}}>{children}</AbsoluteFill>;
 };
 
 export const ExplainerReel: React.FC = () => {
@@ -126,8 +126,8 @@ export const ExplainerReel: React.FC = () => {
       <Sequence from={Math.round(4.3 * fps)} durationInFrames={Math.round(4.7 * fps)}><PropSlot len={4.7}><Terminal /></PropSlot></Sequence>
       <Sequence from={Math.round(9.0 * fps)} durationInFrames={Math.round(5.0 * fps)}><AbsoluteFill style={{left: 84}}><PropSlot len={5.2}><div style={{alignSelf: 'flex-start'}}><Checklist /></div></PropSlot></AbsoluteFill></Sequence>
       {/* host, peeking up from the bottom right */}
-      <div style={{position: 'absolute', right: -10, bottom: -330, transform: `translateY(${(1 - enter) * 500 + bob}px)`}}>
-        <KalAvatar width={820} pose={{mouth, blink, brow, arm, tilt}} />
+      <div style={{position: 'absolute', right: -10, bottom: -40, transform: `translateY(${(1 - enter) * 500 + bob}px)`}}>
+        <KalAvatar width={760} pose={{mouth, blink, brow, arm, tilt}} />
       </div>
       {/* end tag */}
       <div style={{position: 'absolute', left: 84, bottom: 130, ...MONO, fontSize: 26, color: INK, letterSpacing: '0.06em', textTransform: 'none', opacity: interpolate(t, [12.2, 12.5], [0, 1], clamp)}}>follow for part 2 →</div>

@@ -1,9 +1,14 @@
 // Thee_Kal_El cartoon host: an original flat-vector character drawn from his photo
-// (backwards gray snapback, rectangular glasses, mustache + goatee, black tee with a light-blue QR print, wood watch, forearm tattoo).
+// (backwards gray snapback, rectangular glasses, mustache + goatee, black tee with a light-blue QR print, wood watch).
 // Animatable: talking mouth, blinks, brows, pointing arm, head tilt.
 import React from 'react';
+import QR from './qr.json';   // https://youtube.com/@thee_kal_el (29×29, ECC M)
 
 const SKIN = '#E3A884', SKIN_D = '#C98A66', HAIR = '#2A1D15', CAP = '#8D9197', CAP_D = '#3A3E45', TEE = '#16171B', PRINT = '#A4DCEA', FRAME = '#1C1E23';
+
+// QR modules as one path: 29 modules + 2-module quiet zone each side, inside the 174 px print
+const QS = 174 / (QR.length + 4);
+const QR_PATH = (QR as string[]).flatMap((row, y) => [...row].map((c, x) => (c === '1' ? `M${213 + (x + 2) * QS} ${514 + (y + 2) * QS}h${QS + 0.3}v${QS + 0.3}h${-QS - 0.3}z` : ''))).join('');
 
 export type AvatarPose = {
   mouth: number;    // 0 closed smile … 1 wide open
@@ -23,8 +28,6 @@ export const KalAvatar: React.FC<{pose: AvatarPose; width?: number; style?: Reac
       <g transform={`translate(452 500) rotate(${arm})`}>
         <rect x={-36} y={-96} width={72} height={110} rx={30} fill={TEE} />
         <rect x={-25} y={-232} width={50} height={160} rx={24} fill={SKIN} />
-        {/* forearm tattoo */}
-        <path d="M-14 -180 q10 -8 20 0 t18 -6 M-16 -160 q12 6 24 -2 t14 4 M-12 -140 q8 -10 18 -2" stroke="#3B4F7A" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.75} />
         <rect x={-28} y={-222} width={56} height={18} rx={6} fill="#8A5A3B" />
         <circle cx={0} cy={-213} r={11} fill="#E9E1D2" stroke="#6E452C" strokeWidth={3} />
         <circle cx={0} cy={-250} r={33} fill={SKIN} />
@@ -35,10 +38,9 @@ export const KalAvatar: React.FC<{pose: AvatarPose; width?: number; style?: Reac
       <path d="M86 780 L106 548 Q118 470 214 450 L386 450 Q482 470 494 548 L514 780 Z" fill={TEE} />
       <rect x={258} y={392} width={84} height={80} rx={20} fill={SKIN_D} />
       <path d="M244 452 Q300 500 356 452" fill={SKIN_D} />
-      {/* QR-style print */}
-      <rect x={204} y={526} width={192} height={150} rx={6} fill={PRINT} />
-      {[[216, 538, 44, 44], [340, 538, 44, 44], [216, 620, 44, 44]].map(([x, y, w, h], i) => <g key={i}><rect x={x} y={y} width={w} height={h} fill="none" stroke={TEE} strokeWidth={7} /><rect x={x + 13} y={y + 13} width={18} height={18} fill={TEE} /></g>)}
-      {[[276, 546, 16, 16], [300, 560, 22, 10], [276, 590, 30, 12], [318, 600, 14, 26], [286, 626, 20, 14], [340, 600, 18, 12], [350, 630, 26, 14], [304, 648, 14, 18], [276, 652, 16, 12], [366, 652, 16, 16]].map(([x, y, w, h], i) => <rect key={i} x={x} y={y} width={w} height={h} fill={TEE} />)}
+      {/* shirt print: a real, scannable QR code for youtube.com/@thee_kal_el */}
+      <rect x={213} y={514} width={174} height={174} rx={4} fill={PRINT} />
+      <path d={QR_PATH} fill={TEE} />
       {/* mic clip */}
       <rect x={282} y={474} width={36} height={44} rx={8} fill="#0B0B0D" />
       {/* head */}
