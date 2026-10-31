@@ -1,5 +1,5 @@
 // Character explainer reel (1080×1920): Kal's cartoon host + word-by-word captions with italic-serif accents + animated props.
-// Story: "I built my own Cyberpunk server, and Claude made the banner. In ten minutes."
+// Story: "I built my own Cyberpunk server, and Claude made the banner. In 10 minutes my Cyberpunk Game Server was up and running! Try it out today!"
 import React from 'react';
 import {AbsoluteFill, Img, interpolate, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {MONO, SANS, SERIF, WIDE} from '../fonts';
@@ -13,9 +13,10 @@ type Word = {w: string; at: number; accent?: boolean; br?: boolean};
 const BEATS: {from: number; to: number; tag: string; words: Word[]}[] = [
   {from: 0, to: 4.3, tag: '01 · the setup', words: [{w: 'I', at: 0.25}, {w: 'built', at: 0.4}, {w: 'my', at: 0.58}, {w: 'own', at: 0.75, accent: true}, {w: 'Cyberpunk', at: 1.05, br: true}, {w: 'server,', at: 1.45}]},
   {from: 4.3, to: 9.0, tag: '02 · the trick', words: [{w: 'and', at: 4.5}, {w: 'Claude', at: 4.7, accent: true}, {w: 'made', at: 5.05, br: true}, {w: 'the', at: 5.25}, {w: 'banner.', at: 5.45, accent: true}]},
-  {from: 9.0, to: 14.0, tag: '03 · the result', words: [{w: 'In', at: 9.2}, {w: 'ten', at: 9.4, accent: true}, {w: 'minutes.', at: 9.65, accent: true}]},
+  {from: 9.0, to: 14.2, tag: '03 · the result', words: [{w: 'In', at: 9.2}, {w: '10', at: 9.35, accent: true}, {w: 'minutes', at: 9.55, accent: true}, {w: 'my', at: 9.9, br: true}, {w: 'Cyberpunk', at: 10.05}, {w: 'Game', at: 10.4, br: true}, {w: 'Server', at: 10.55}, {w: 'was', at: 10.85}, {w: 'up', at: 11.05, accent: true, br: true}, {w: 'and', at: 11.2, accent: true}, {w: 'running!', at: 11.35, accent: true}]},
+  {from: 14.2, to: 18.7, tag: '04 · your turn', words: [{w: 'Try', at: 14.4}, {w: 'it', at: 14.55}, {w: 'out', at: 14.7}, {w: 'today!', at: 14.95, accent: true}]},
 ];
-const TALK: [number, number][] = [[0.2, 2.1], [4.45, 6.2], [9.15, 10.6], [12.2, 13.3]];
+const TALK: [number, number][] = [[0.2, 2.1], [4.45, 6.2], [9.15, 11.9], [14.35, 15.6]];
 
 const useT = () => useCurrentFrame() / useVideoConfig().fps;
 const sp = (t: number, at: number, fps: number, cfg: keyof typeof SPRINGS = 'snappy') => spring({frame: Math.round((t - at) * fps), fps, config: SPRINGS[cfg]});
@@ -72,9 +73,8 @@ const Checklist: React.FC = () => {
   const items = ['banner · 1200×400', 'icon · 256×256', 'under the 378 KiB limit'];
   return (
     <div style={{display: 'flex', flexDirection: 'column', gap: 26, alignItems: 'flex-start'}}>
-      <Pop delay={10.0 - 9.0} spin={-10}><Img src={staticFile('militech_icon_256.png')} style={{width: 220, height: 220, borderRadius: 26, boxShadow: '0 30px 60px rgba(40,30,10,0.25)'}} /></Pop>
       {items.map((it, i) => (
-        <Pop key={it} delay={10.5 - 9.0 + i * 0.35} cfg="snappy" style={{transformOrigin: 'left center'}}>
+        <Pop key={it} delay={11.7 - 9.0 + i * 0.35} cfg="snappy" style={{transformOrigin: 'left center'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: 20, background: '#fff', borderRadius: 18, padding: '18px 28px', boxShadow: '0 12px 30px rgba(40,30,10,0.12)'}}>
             <div style={{width: 46, height: 46, borderRadius: 23, background: ACCENT, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', ...SANS, fontSize: 30}}>✓</div>
             <div style={{...SANS, fontSize: 40, color: INK, fontWeight: 500}}>{it}</div>
@@ -85,12 +85,30 @@ const Checklist: React.FC = () => {
   );
 };
 
+// beat 4 prop: server card + cursor that clicks CONNECT, then a ripple and "open2077.net"
+const ConnectClick: React.FC = () => {
+  const t = useT(), {fps} = useVideoConfig();
+  const m = sp(t, 1.0, fps, 'smooth');                       // cursor travel
+  const press = interpolate(t, [1.75, 1.85, 2.0], [1, 0.9, 1], clamp);
+  const ring = interpolate(t, [1.85, 2.5], [0, 1], clamp);
+  return (
+    <div style={{position: 'relative'}}>
+      <ServerCard />
+      <div style={{position: 'absolute', right: 30, bottom: 32, width: 190, height: 70, borderRadius: 8, border: `6px solid ${YL}`, opacity: ring > 0 && ring < 1 ? 1 - ring : 0, transform: `scale(${1 + ring * 0.5}) skewX(-12deg)`}} />
+      <svg width={64} height={64} viewBox="0 0 24 24" style={{position: 'absolute', left: interpolate(m, [0, 1], [120, 610]), top: interpolate(m, [0, 1], [520, 330]), transform: `scale(${press})`, filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.35))'}}>
+        <path d="M4 2 L4 19 L8.5 15 L11.5 22 L14.5 20.8 L11.6 14 L18 14 Z" fill="#fff" stroke="#111" strokeWidth={1.4} strokeLinejoin="round" />
+      </svg>
+      <div style={{...MONO, fontSize: 34, color: INK, textAlign: 'center', marginTop: 44, letterSpacing: '0.06em', textTransform: 'none', opacity: interpolate(t, [2.1, 2.4], [0, 1], clamp)}}>open2077.net</div>
+    </div>
+  );
+};
+
 // a prop enters with a spring, and leaves quickly just before its beat ends
-const PropSlot: React.FC<{len: number; children: React.ReactNode}> = ({len, children}) => {
+const PropSlot: React.FC<{len: number; top?: number; children: React.ReactNode}> = ({len, top = 540, children}) => {
   const t = useT(), {fps} = useVideoConfig();
   const s = sp(t, 0.15, fps, 'heavy');
   const out = interpolate(t, [len - 0.28, len], [0, 1], clamp);
-  return <AbsoluteFill style={{alignItems: 'center', top: 540, opacity: 1 - out, transform: `translateY(${(1 - s) * 260 + out * -60}px) scale(${0.85 + 0.15 * s})`}}>{children}</AbsoluteFill>;
+  return <AbsoluteFill style={{alignItems: 'center', top, opacity: 1 - out, transform: `translateY(${(1 - s) * 260 + out * -60}px) scale(${0.85 + 0.15 * s})`}}>{children}</AbsoluteFill>;
 };
 
 export const ExplainerReel: React.FC = () => {
@@ -100,10 +118,10 @@ export const ExplainerReel: React.FC = () => {
   const talking = TALK.some(([a, b]) => t >= a && t <= b);
   const mouth = talking ? 0.25 + 0.75 * Math.abs(Math.sin(t * 13.5)) * (0.6 + 0.4 * Math.abs(Math.sin(t * 5.1))) : 0;
   const bt = t % 3.2, blink = bt > 3.05 ? Math.sin(((bt - 3.05) / 0.15) * Math.PI) : 0;
-  const ARM: [number, number][] = [[1.3, 14], [3.6, 172], [7.0, 26], [8.5, 172], [9.4, 6]];
+  const ARM: [number, number][] = [[1.3, 14], [3.6, 172], [7.0, 26], [8.5, 172], [9.4, 6], [12.6, 172], [14.6, 18]];
   let arm = 172, prev = 172;
   for (const [at, to] of ARM) { arm += (to - prev) * sp(t, at, fps, 'bouncy'); prev = to; }
-  const brow = 0.9 * sp(t, 6.75, fps, 'bouncy') * (1 - sp(t, 8.2, fps, 'smooth')) + 0.5 * sp(t, 9.3, fps, 'bouncy');
+  const brow = 0.9 * sp(t, 6.75, fps, 'bouncy') * (1 - sp(t, 8.2, fps, 'smooth')) + 0.5 * sp(t, 9.3, fps, 'bouncy') * (1 - sp(t, 12.4, fps, 'smooth')) + 0.8 * sp(t, 16.2, fps, 'bouncy');
   const tilt = Math.sin(t * 1.7) * 2.5 + (talking ? Math.sin(t * 4.2) * 1.5 : 0);
   const bob = Math.sin(t * 2.2) * 6;
   const enter = sp(t, 0, fps, 'heavy');
@@ -117,20 +135,21 @@ export const ExplainerReel: React.FC = () => {
       </AbsoluteFill>
       {/* header */}
       <div style={{position: 'absolute', top: 92, left: 84, right: 84, display: 'flex', justifyContent: 'space-between', ...MONO, fontSize: 22, color: MUTED, letterSpacing: '0.08em', textTransform: 'none', fontWeight: 500}}>
-        <span style={{opacity: tagOp}}>// {beat.tag}</span><span>OPEN//77 · {BEATS.indexOf(beat) + 1}/3</span>
+        <span style={{opacity: tagOp}}>// {beat.tag}</span><span>OPEN//77 · {BEATS.indexOf(beat) + 1}/4</span>
       </div>
       {/* caption */}
       <div style={{position: 'absolute', top: 190, left: 84}}><Caption words={beat.words} /></div>
       {/* props */}
       <Sequence from={0} durationInFrames={Math.round(4.3 * fps)}><PropSlot len={4.3}><ServerCard /></PropSlot></Sequence>
       <Sequence from={Math.round(4.3 * fps)} durationInFrames={Math.round(4.7 * fps)}><PropSlot len={4.7}><Terminal /></PropSlot></Sequence>
-      <Sequence from={Math.round(9.0 * fps)} durationInFrames={Math.round(5.0 * fps)}><AbsoluteFill style={{left: 84}}><PropSlot len={5.2}><div style={{alignSelf: 'flex-start'}}><Checklist /></div></PropSlot></AbsoluteFill></Sequence>
+      <Sequence from={Math.round(9.0 * fps)} durationInFrames={Math.round(5.2 * fps)}><AbsoluteFill style={{left: 84}}><PropSlot len={5.2} top={700}><div style={{alignSelf: 'flex-start'}}><Checklist /></div></PropSlot></AbsoluteFill></Sequence>
+      <Sequence from={Math.round(14.2 * fps)} durationInFrames={Math.round(4.5 * fps)}><PropSlot len={4.8} top={440}><ConnectClick /></PropSlot></Sequence>
       {/* host, peeking up from the bottom right */}
       <div style={{position: 'absolute', right: -10, bottom: -40, transform: `translateY(${(1 - enter) * 500 + bob}px)`}}>
         <KalAvatar width={760} pose={{mouth, blink, brow, arm, tilt}} />
       </div>
       {/* end tag */}
-      <div style={{position: 'absolute', left: 84, bottom: 130, ...MONO, fontSize: 26, color: INK, letterSpacing: '0.06em', textTransform: 'none', opacity: interpolate(t, [12.2, 12.5], [0, 1], clamp)}}>follow for part 2 →</div>
+      <div style={{position: 'absolute', left: 84, bottom: 130, ...MONO, fontSize: 26, color: INK, letterSpacing: '0.06em', textTransform: 'none', opacity: interpolate(t, [16.6, 16.9], [0, 1], clamp)}}>follow for part 2 →</div>
     </AbsoluteFill>
   );
 };
