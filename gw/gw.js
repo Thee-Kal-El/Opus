@@ -203,7 +203,6 @@
     const press = pulse(t, 7.05, 10) * (t >= 7.05 ? 1 : 0); rr(c, 40, 2005 + press * 6, 1000, 140, 70); c.fillStyle = press > 0.05 ? '#0C7F57' : GRN; c.fill(); txt(c, 'I can do this', 540, 2077 + press * 6, G(700, 54), '#fff', 'center');
     ripple(c, 600, 2075, t, 7.05);
   }
-  const KB = ['1234567890', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
   function scrSubmit(c, t) {
     c.fillStyle = '#fff'; c.fillRect(0, 0, 1080, 2340); statusBar(c);
     roundBtn(c, 75, 160, 52); crossIco(c, 75, 160, 18); txt(c, 'Submit Work', 160, 162, G(800, 56), INK);
@@ -215,9 +214,28 @@
     lines.forEach((ln, i) => txt(c, ln, 46, 310 + i * 72, tf, INK)); const cx = 46 + tw(c, lines[lines.length - 1], tf) + 4, cy = 268 + (lines.length - 1) * 72;
     if (Math.floor(t * 4) % 2 === 0 || t < 7.98) { c.fillStyle = '#7FCFC6'; c.fillRect(cx, cy, 5, 82); }
     ['⌀', 'H', 'B', 'I', 'U', '≡', '∞'].forEach((g, i) => txt(c, g, 75 + i * 155, 1172, G(i === 2 ? 800 : i === 3 ? 400 : 600, 58), '#333', 'center'));
-    c.fillStyle = '#1B1B1E'; c.fillRect(0, 1330, 1080, 1010);
-    const key = s[Math.max(0, n - 1)]?.toLowerCase(); KB.forEach((row, r) => { const kw = 88, gap = 6, w0 = (1080 - row.length * (kw + gap)) / 2; [...row].forEach((ch, i) => { const x = w0 + i * (kw + gap), y = 1450 + r * 125, hit = ch === key && t > 7.45 && t < 7.98; rr(c, x, y - 48, kw, 96, 14); c.fillStyle = hit ? '#5A5A66' : '#333338'; c.fill(); txt(c, ch, x + kw / 2, y, G(400, 46), '#fff', 'center'); }); });
-    rr(c, 245, 1878, 590, 96, 14); c.fillStyle = '#333338'; c.fill(); txt(c, 'English (US)', 540, 1926, G(400, 36), '#ddd', 'center');
+    // full-width phone keyboard (dark): suggestion bar, 3 letter rows, shift/delete, 123 · space · return, home bar
+    c.fillStyle = '#2C2C2F'; c.fillRect(0, 1330, 1080, 1010);
+    const key = s[Math.max(0, n - 1)]?.toLowerCase(), typing = t > 7.45 && t < 7.98;
+    ['help', 'grow', 'business'].forEach((w, i) => { txt(c, '“' + w + '”', 180 + i * 360, 1400, G(400, 40), '#E6E6EA', 'center'); if (i) { c.fillStyle = '#48484D'; c.fillRect(i * 360, 1372, 3, 56); } });
+    const KW = 93, KG = 14, KH = 128, KR = 14, ROW = (r) => 1470 + r * 160;
+    const keyCap = (x, y, w, label, fn, hot, dim) => { rr(c, x, y + 4, w, KH, KR); c.fillStyle = '#18181A'; c.fill(); rr(c, x, y, w, KH, KR); c.fillStyle = hot ? '#9A9AA2' : dim ? '#46464B' : '#6C6C71'; c.fill(); if (label) txt(c, label, x + w / 2, y + KH / 2 + 2, fn, '#fff', 'center', 'middle'); };
+    ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'].forEach((row, r) => {
+      const x0 = r === 0 ? 12 : r === 1 ? 12 + (KW + KG) / 2 : 12 + 1.5 * (KW + KG);
+      [...row].forEach((ch, i) => keyCap(x0 + i * (KW + KG), ROW(r), KW, ch, G(400, 60), typing && ch === key));
+    });
+    // shift + delete on the third row
+    const sw = 1.5 * (KW + KG) - KG - 10; keyCap(12, ROW(2), sw, '', null, false, true); c.strokeStyle = '#fff'; c.lineWidth = 6; c.lineJoin = 'round';
+    c.beginPath(); { const cx = 12 + sw / 2, cy = ROW(2) + KH / 2; c.moveTo(cx, cy - 30); c.lineTo(cx + 30, cy + 2); c.lineTo(cx + 14, cy + 2); c.lineTo(cx + 14, cy + 28); c.lineTo(cx - 14, cy + 28); c.lineTo(cx - 14, cy + 2); c.lineTo(cx - 30, cy + 2); c.closePath(); } c.stroke();
+    const dx = 1080 - 12 - sw; keyCap(dx, ROW(2), sw, '', null, false, true);
+    c.beginPath(); { const cx = dx + sw / 2, cy = ROW(2) + KH / 2; c.moveTo(cx - 40, cy); c.lineTo(cx - 20, cy - 26); c.lineTo(cx + 36, cy - 26); c.lineTo(cx + 36, cy + 26); c.lineTo(cx - 20, cy + 26); c.closePath(); c.moveTo(cx - 4, cy - 12); c.lineTo(cx + 20, cy + 12); c.moveTo(cx + 20, cy - 12); c.lineTo(cx - 4, cy + 12); } c.stroke();
+    // bottom row: 123 · space · return
+    keyCap(12, ROW(3), 214, '123', G(400, 44), false, true);
+    keyCap(12 + 214 + KG, ROW(3), 1080 - 24 - 2 * 214 - 2 * KG, 'space', G(400, 44), typing && key === ' ');
+    keyCap(1080 - 12 - 214, ROW(3), 214, 'return', G(400, 44), false, true);
+    // globe, mic, home bar
+    txt(c, '🌐', 90, 2190, G(400, 54), '#C8C8CC', 'center', 'middle'); rr(c, 976, 2160, 22, 46, 11); c.strokeStyle = '#C8C8CC'; c.lineWidth = 5; c.stroke(); c.beginPath(); c.arc(987, 2196, 22, 0, Math.PI); c.stroke(); c.beginPath(); c.moveTo(987, 2218); c.lineTo(987, 2232); c.stroke();
+    rr(c, 380, 2290, 320, 14, 7); c.fillStyle = '#E6E6EA'; c.fill();
     ripple(c, 1010, 160, t, 8.05, rgba(GRN2, 0.6));
   }
   function scrWallet(c, t) {
