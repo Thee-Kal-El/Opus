@@ -43,6 +43,14 @@ export const DreamBG: React.FC = () => {
       <div style={{position: 'absolute', left: 40, top: 150, width: cardW, height: cardH, borderRadius: 44, overflow: 'hidden', boxShadow: '0 30px 60px rgba(120,60,20,0.25)', background: '#F8B98A'}}>
         <Img src={staticFile('dl_sunset_wide.png')} style={{position: 'absolute', left: panX, top: 0, width: artW, height: cardH, imageRendering: 'auto'}} />
         <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(255,230,190,0) 55%, rgba(255,214,150,0.5) 100%)'}} />
+        {/* the Dream Labs logo + tagline, floating gently (2 bobs per loop → seamless) */}
+        <div style={{position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 22, transform: `translateY(${Math.sin(p * 2) * 6}px)`, filter: 'drop-shadow(0 6px 14px rgba(110,40,20,0.5))'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: 26}}>
+            <svg width={150} height={80} viewBox="-40 -28 80 46"><g fill="#fff"><circle cx={-22} cy={2} r={14} /><circle cx={2} cy={-6} r={20} /><circle cx={25} cy={2} r={13} /><rect x={-36} y={2} width={74} height={14} rx={7} /></g></svg>
+            <div style={{fontFamily: 'Geist', fontWeight: 600, fontSize: 118, letterSpacing: '-0.02em', color: '#fff', lineHeight: 1}}>Dream Labs</div>
+          </div>
+          <div style={{fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: 30, letterSpacing: '0.1em', color: 'rgba(255,248,232,0.95)'}}>ROBOTICS WITHIN REACH</div>
+        </div>
       </div>
       {/* blob mascots at the edges */}
       <Blob x={130} y={760} s={54} color="#7ED9A0" kind={1} phase={0} />

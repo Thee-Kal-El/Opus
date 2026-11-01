@@ -29,22 +29,17 @@
   const bg = c.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#FFF3D4'); bg.addColorStop(0.55, CREAM); bg.addColorStop(1, '#FDE7A0'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
   c.fillStyle = 'rgba(150,110,30,0.10)'; for (let y = 14; y < H; y += 34) for (let x = 14; x < W; x += 34) { c.beginPath(); c.arc(x, y, 2.2, 0, TAU); c.fill(); }
   // ---- pixel-art sunset band (from DreamLabs' homepage), rounded like the site's hero card
-  const bx = 36, by = 150, bw = W - 72, bh = 430; c.save(); c.shadowColor = 'rgba(120,60,20,0.3)'; c.shadowBlur = 40; c.shadowOffsetY = 16; rr(bx, by, bw, bh, 40); c.fillStyle = '#F8B98A'; c.fill(); c.restore();
+  const bx = 36, by = 40, bw = W - 72, bh = 540; c.save(); c.shadowColor = 'rgba(120,60,20,0.3)'; c.shadowBlur = 40; c.shadowOffsetY = 16; rr(bx, by, bw, bh, 40); c.fillStyle = '#F8B98A'; c.fill(); c.restore();
   c.save(); rr(bx, by, bw, bh, 40); c.clip(); const sc = Math.max(bw / sun.width, bh / sun.height); c.imageSmoothingQuality = 'high'; c.drawImage(sun, bx + (bw - sun.width * sc) / 2, by + (bh - sun.height * sc) / 2, sun.width * sc, sun.height * sc);
   const fade = c.createLinearGradient(0, by + bh * 0.5, 0, by + bh); fade.addColorStop(0, 'rgba(255,230,190,0)'); fade.addColorStop(1, 'rgba(255,214,150,0.55)'); c.fillStyle = fade; c.fillRect(bx, by, bw, bh); c.restore();
-  // ---- pixel-art "DREAMLABS" in the sunset card: 5×7 bitmap letters drawn as blocks, with a pixel drop shadow
-  const PX = { D: ['11110','10001','10001','10001','10001','10001','11110'], R: ['11110','10001','10001','11110','10100','10010','10001'],
-    E: ['11111','10000','10000','11110','10000','10000','11111'], A: ['01110','10001','10001','11111','10001','10001','10001'],
-    M: ['10001','11011','10101','10101','10001','10001','10001'], L: ['10000','10000','10000','10000','10000','10000','11111'],
-    B: ['11110','10001','10001','11110','10001','10001','11110'], S: ['01111','10000','10000','01110','00001','00001','11110'] };
-  const pixWord = (s, cx, cy, u) => { const adv = 6 * u, w = s.length * adv - u, x0 = Math.round(cx - w / 2), y0 = Math.round(cy - 3.5 * u);
-    const pass = (dx, dy, col) => { c.fillStyle = col; [...s].forEach((ch, i) => PX[ch].forEach((row, r) => [...row].forEach((b, k) => { if (b === '1') c.fillRect(x0 + i * adv + k * u + dx, y0 + r * u + dy, u + 0.5, u + 0.5); }))); };
-    pass(u * 0.5, u * 0.5, '#8A3B2A'); pass(0, 0, '#FFF6E2'); };
-  c.save(); rr(bx, by, bw, bh, 40); c.clip(); pixWord('DREAMLABS', W / 2, by + 150, 17); c.restore();
-  // ---- Dream Labs pill (cloud mark + wordmark)
-  c.save(); const pw = 470; rr(W / 2 - pw / 2, 48, pw, 92, 46); c.fillStyle = '#fff'; c.shadowColor = 'rgba(80,50,0,0.18)'; c.shadowBlur = 24; c.shadowOffsetY = 8; c.fill(); c.restore();
-  c.save(); c.translate(W / 2 - 150, 98); c.fillStyle = INK; c.beginPath(); c.moveTo(-38, 14); c.lineTo(38, 14); c.arc(26, 2, 13, Math.PI / 2, -Math.PI / 2, true); c.arc(4, -6, 20, 0.2, Math.PI + 0.4, true); c.arc(-24, 2, 14, -Math.PI / 2, Math.PI / 2, true); c.closePath(); c.fill(); c.restore();
-  c.font = G(600, 52); c.fillStyle = INK; c.textBaseline = 'middle'; c.textAlign = 'left'; c.letterSpacing = '-1px'; c.fillText('Dream Labs', W / 2 - 92, 96); c.letterSpacing = '0px';
+  // ---- the Dream Labs logo (cloud mark + wordmark) + tagline, big in the sunset card
+  const logo = (cx, cy, k, col) => { c.save(); c.translate(cx, cy); c.scale(k, k); c.fillStyle = col;
+    c.beginPath(); c.arc(-252, 2, 14, 0, TAU); c.arc(-228, -6, 20, 0, TAU); c.arc(-205, 2, 13, 0, TAU); c.fill(); rr(-266, 2, 74, 14, 7); c.fill();
+    c.font = G(600, 64); c.textAlign = 'left'; c.textBaseline = 'middle'; c.letterSpacing = '-1px'; c.fillText('Dream Labs', -175, 4); c.letterSpacing = '0px'; c.restore(); };
+  c.save(); rr(bx, by, bw, bh, 40); c.clip();
+  c.save(); c.shadowColor = 'rgba(110,40,20,0.55)'; c.shadowBlur = 30; c.shadowOffsetY = 6; logo(W / 2 + 105, by + 205, 1.9, '#FFFFFF'); c.restore();
+  c.font = M(700, 30); c.fillStyle = 'rgba(255,248,232,0.95)'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = 'rgba(110,40,20,0.5)'; c.shadowBlur = 14; c.fillText('ROBOTICS WITHIN REACH', W / 2, by + 305); c.shadowBlur = 0;
+  c.restore();
   // ---- headline (crosses the bottom edge of the sunset card)
   word('I PROMPTED A', W / 2, 560, 120, '#FFFFFF', -0.03);
   word('REAL ROBOT!', W / 2, 735, 180, [YEL, '#FFAA1E'], -0.03, 0.84);
