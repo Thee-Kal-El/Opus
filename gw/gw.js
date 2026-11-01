@@ -129,7 +129,7 @@
     ['Gibwork Developer Hackathon Bounty', 'logo', '@gibwork', 'Development', '$1000.00', 'Ends in 23 days', 'usd'],
     ['Create an X Thread About the Gibwork Mobile App', 'logo', '@gibwork', 'Social Media', '1980 XP', 'Ends in 2 months', 'xp'],
     ['Refer. Share. Win upto $300 USDC', 'b_defi', '@teamdefidotcom', 'Social Media', '530 XP', 'Ends in 5 days', 'xp'],
-    ['Try Out the Gibwork Mobile App & Give Feedback', 'logo', '@gibwork', 'Testing', '$300.00', 'Open', 'usd'],
+    ['Try Out the Gibwork Mobile App & Give Feedback', 'logo', '@gibwork', 'Testing', '$20.00', 'Open', 'usd'],
     ['How Often Do You Ad…', 'b_e', '', 'Research', '$150.00', 'Open', 'usd'],
     ['Invite Users, Earn Poi…', 'b_man', '', 'Community', '$125.00', 'Open', 'usd'],
     ['Create an X thread an…', 'b_target', '', 'Social Media', '$100.00', 'Open', 'usd'],
@@ -148,7 +148,7 @@
     (kind === 'xp' ? coinXP : coinUSD)(c, x + CW - 38, y + 34, 15);
     txt(c, price, x + CW - 26, y + 84, G(800, 44), INK, 'right'); txt(c, ends, x + CW - 26, y + 122, G(500, 20), MUTE, 'right');
   }
-  const ISO = [0.92, -0.28, 0.46, 0.78]; // a, b, c, d of the board's affine (isometric-ish tilt)
+  const ISO = V ? [1.1, 0, 0, 1.1] : [0.92, -0.28, 0.46, 0.78]; // landscape: isometric-ish tilt · vertical: flat, straight-on list
   let LAYER = null;
   function board(c, t) {
     if (t < 4.0 || t >= 6.5) return; darkBg(c, t);
@@ -158,8 +158,8 @@
     L.forEach(([s, T0, col], i) => { const k = crit(prog(t, T0, T0 + 0.3)), ex = ease(t, 5.95, 6.3); c.save(); c.globalAlpha = clamp(k * 2) * (1 - ex); c.beginPath(); c.rect(LX - 30, LY - 78 + i * 130, 1000, 150); c.clip(); txt(c, s, LX - ex * 200, LY + i * 130 + (1 - k) * 130, G(800, 112), col, 'left', 'middle', -3); c.restore(); });
     const sub = A(t, 4.75, 0.3) * (1 - ease(t, 5.95, 6.3)); c.save(); c.globalAlpha = sub; if (V) { txt(c, 'Get help with your tasks,', LX + 4, LY + 360, G(500, 40), 'rgba(255,255,255,0.7)'); txt(c, 'or earn by completing others.', LX + 4, LY + 412, G(500, 40), 'rgba(255,255,255,0.7)'); } else txt(c, 'Get help with your tasks, or earn by completing others.', 124, 735, G(500, 34), 'rgba(255,255,255,0.7)'); c.restore();
     // isometric scrolling column
-    const scroll = (t - 4.0) * 260 + 420 * io3(prog(t, 4.0, 4.6)), hiK = ease(t, 5.95, 6.45, io5);
-    const BCX = V ? W / 2 + 40 : 1330, BCY = V ? 1260 : 560;
+    const scroll = V ? (t - 4.0) * 150 + 260 * io3(prog(t, 4.0, 4.6)) : (t - 4.0) * 260 + 420 * io3(prog(t, 4.0, 4.6)), hiK = ease(t, 5.95, 6.45, io5);
+    const BCX = V ? W / 2 : 1330, BCY = V ? 760 : 560;
     // vertical: the column is drawn on its own layer and faded out under the headline
     const main = c; if (V) { if (!LAYER) { LAYER = document.createElement('canvas'); LAYER.width = W; LAYER.height = H; } c = LAYER.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, W, H); }
     c.save(); c.translate(BCX, BCY); c.transform(...ISO, 0, 0);
@@ -168,11 +168,11 @@
       const appear = crit(prog(t, 4.0 + (r + 9) * 0.03, 4.35 + (r + 9) * 0.03)); if (appear <= 0) continue;
       const isHi = idx === 3 && r === 3; if (isHi && hiK > 0) continue;
       const beat = pulse(t, 4.0 + Math.floor((t - 4.0) / 0.5) * 0.5, 6) * (r % 2 === Math.floor((t - 4) / 0.5) % 2 ? 1 : 0);
-      c.save(); c.globalAlpha = clamp(appear * 2) * (1 - hiK * 0.75); c.translate(-CW / 2 + (1 - appear) * 600, y); card(c, BOUNTIES[idx], 0, 0, beat * 0.6); c.restore();
+      c.save(); c.globalAlpha = clamp(appear * 2) * (1 - hiK * 0.75); c.translate(-CW / 2 + (V ? 0 : (1 - appear) * 600), y + (V ? (1 - appear) * 220 : 0)); card(c, BOUNTIES[idx], 0, 0, beat * 0.6); c.restore();
     }
     c.restore();
-    if (V) { const fg = c.createLinearGradient(0, 700, 0, 1000); fg.addColorStop(0, 'rgba(0,0,0,0)'); fg.addColorStop(1, '#000'); c.globalCompositeOperation = 'destination-in'; c.fillStyle = fg; c.fillRect(0, 0, W, H); c.globalCompositeOperation = 'source-over'; c = main; c.drawImage(LAYER, 0, 0); }
-    // the $300 app-testing bounty pulls out of the board toward camera
+    if (V) { const fg = c.createLinearGradient(0, 760, 0, H); fg.addColorStop(0, 'rgba(0,0,0,0)'); fg.addColorStop(0.1, '#000'); fg.addColorStop(0.9, '#000'); fg.addColorStop(1, 'rgba(0,0,0,0)'); c.globalCompositeOperation = 'destination-in'; c.fillStyle = fg; c.fillRect(0, 0, W, H); c.globalCompositeOperation = 'source-over'; c = main; c.drawImage(LAYER, 0, 0); }
+    // the $20 app-testing bounty pulls out of the board toward camera
     if (hiK > 0) { const y = 3 * (CH + 26) - scroll + 700, m = ISO.map((v, i) => lerp(v, i === 0 || i === 3 ? (V ? 1.15 : 1.35) : 0, hiK)), ox = lerp(BCX, W / 2, hiK), oy = lerp(BCY, V ? H / 2 + 200 : H / 2, hiK);
       c.save(); c.translate(ox, oy); c.transform(...m, 0, 0); c.translate(-CW / 2, lerp(y, -CH / 2, hiK)); card(c, BOUNTIES[3], 0, 0, hiK); c.restore(); }
   }
@@ -193,11 +193,11 @@
   function finger(c, x, y, press) { c.save(); c.translate(x, y); const s = 1 - press * 0.12; c.scale(s, s); c.beginPath(); c.arc(0, 0, 46, 0, TAU); c.fillStyle = 'rgba(255,255,255,0.85)'; c.shadowColor = 'rgba(0,0,0,0.35)'; c.shadowBlur = 24; c.fill(); c.shadowBlur = 0; c.strokeStyle = rgba(PUR, 0.9); c.lineWidth = 6; c.stroke(); c.restore(); }
   function scrDetail(c, t) {
     c.fillStyle = '#fff'; c.fillRect(0, 0, 1080, 2340); statusBar(c);
-    roundBtn(c, 75, 160, 52); crossIco(c, 75, 160, 18); rr(c, 418, 108, 244, 104, 52); c.fillStyle = '#F0F0F0'; c.fill(); txt(c, '$300.00', 540, 162, G(700, 46), INK, 'center');
+    roundBtn(c, 75, 160, 52); crossIco(c, 75, 160, 18); rr(c, 418, 108, 244, 104, 52); c.fillStyle = '#F0F0F0'; c.fill(); txt(c, '$20.00', 540, 162, G(700, 46), INK, 'center');
     [[772, '💬'], [890, '≡'], [1008, '⋮']].forEach(([x, g]) => { roundBtn(c, x, 160, 52); txt(c, g === '💬' ? '○' : g, x, 162, G(700, 50), '#222', 'center'); });
     logoDisc(c, 80, 333, 40); txt(c, 'gibwork', 140, 333, G(600, 60), INK); verified(c, 400, 333, 18);
     txt(c, 'Try Out the Gibwork Mobile', 40, 448, G(800, 66), INK); txt(c, 'App & Give Feedback', 40, 536, G(800, 66), INK);
-    const body = ['Gibwork is looking for real users to', 'try out the Gibwork mobile app. Download', 'it, set up your profile, explore bounties', 'and tell us what you love and what to fix.', 'Approved submissions are eligible for a', '$300 reward for detailed, honest feedback', 'with screenshots of your experience.'];
+    const body = ['Gibwork is looking for real users to', 'try out the Gibwork mobile app. Download', 'it, set up your profile, explore bounties', 'and tell us what you love and what to fix.', 'Approved submissions are eligible for a', '$20 reward for detailed, honest feedback', 'with screenshots of your experience.'];
     body.forEach((s, i) => { const k = A(t, 6.6 + i * 0.04, 0.3); c.save(); c.globalAlpha = k; txt(c, s, 40, 705 + i * 71 + (1 - k) * 20, G(i >= 5 ? 700 : 400, 44), '#2A2A30'); c.restore(); });
     txt(c, 'Get the app:', 40, 1290, G(400, 44), '#2A2A30'); txt(c, 'App Store · Google Play · gib.work', 40, 1361, G(400, 44), PUR);
     const press = pulse(t, 7.05, 10) * (t >= 7.05 ? 1 : 0); rr(c, 40, 2005 + press * 6, 1000, 140, 70); c.fillStyle = press > 0.05 ? '#0C7F57' : GRN; c.fill(); txt(c, 'I can do this', 540, 2077 + press * 6, G(700, 54), '#fff', 'center');
@@ -227,11 +227,11 @@
     const paid = ease(t, 8.55, 9.05, (p) => 1 - Math.pow(1 - p, 4)), fl = pulse(t, 9.05, 5) * (t >= 9.05 ? 1 : 0);
     c.save(); c.shadowColor = fl > 0 ? rgba(GRN2, 0.7 * fl + 0.1) : 'rgba(0,0,0,0.12)'; c.shadowBlur = 30 + 60 * fl; const cg = c.createLinearGradient(70, 260, 1010, 850); cg.addColorStop(0, '#FDFDFD'); cg.addColorStop(1, '#ECEFEF'); rr(c, 70, 258, 940, 594, 70); c.fillStyle = cg; c.fill(); c.restore(); rr(c, 70, 258, 940, 594, 70); c.strokeStyle = '#E2E2E6'; c.lineWidth = 3; c.stroke();
     c.fillStyle = '#666'; for (const [qx, qy] of [[146, 338], [178, 338], [146, 370]]) { c.lineWidth = 6; c.strokeStyle = '#666'; c.strokeRect(qx, qy, 24, 24); } c.fillRect(182, 374, 10, 10); c.lineWidth = 5; rr(c, 905, 335, 40, 44, 8); c.stroke(); rr(c, 895, 325, 40, 44, 8); c.stroke();
-    const amt = '$' + (300 * paid).toFixed(2); txt(c, amt, 112, 638, G(800, 140), paid > 0 && paid < 1 ? '#0C7F57' : INK); txt(c, '7WbWF...ymow7Xr', 112, 742, G(600, 44), '#A09C98');
+    const amt = '$' + (20 * paid).toFixed(2); txt(c, amt, 112, 638, G(800, 140), paid > 0 && paid < 1 ? '#0C7F57' : INK); txt(c, '7WbWF...ymow7Xr', 112, 742, G(600, 44), '#A09C98');
     rr(c, 52, 772 + 120, 396, 116, 58); c.fillStyle = '#F4F4F2'; c.fill(); txt(c, 'Withdraw', 250, 950, G(600, 50), '#555', 'center'); rr(c, 474, 892, 398, 116, 58); c.fillStyle = GRN; c.fill(); txt(c, 'Add funds', 673, 950, G(600, 50), '#fff', 'center');
     txt(c, 'History', 52, 1128, G(800, 62), INK);
     const hk = crit(prog(t, 8.75, 9.1)); if (hk < 1) { c.save(); c.globalAlpha = 1 - hk; txt(c, 'Nothing here yet.', 540, 1330, G(500, 46), '#777', 'center'); c.restore(); }
-    if (hk > 0) { c.save(); c.globalAlpha = hk; c.translate((1 - hk) * 400, 0); roundBtn(c, 112, 1290, 56, rgba(GRN, 0.14)); c.strokeStyle = GRN; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.moveTo(90, 1292); c.lineTo(106, 1308); c.lineTo(136, 1276); c.stroke(); txt(c, 'Bounty reward', 196, 1266, G(700, 46), INK); txt(c, 'Try Out the Gibwork Mobile…', 196, 1322, G(500, 36), '#888'); txt(c, '+$300.00', 1030, 1290, G(800, 50), GRN, 'right'); c.restore(); }
+    if (hk > 0) { c.save(); c.globalAlpha = hk; c.translate((1 - hk) * 400, 0); roundBtn(c, 112, 1290, 56, rgba(GRN, 0.14)); c.strokeStyle = GRN; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.moveTo(90, 1292); c.lineTo(106, 1308); c.lineTo(136, 1276); c.stroke(); txt(c, 'Bounty reward', 196, 1266, G(700, 46), INK); txt(c, 'Try Out the Gibwork Mobile…', 196, 1322, G(500, 36), '#888'); txt(c, '+$20.00', 1030, 1290, G(800, 50), GRN, 'right'); c.restore(); }
     // bottom nav
     c.fillStyle = '#fff'; c.fillRect(0, 2000, 1080, 340); c.fillStyle = '#333'; [[144, 'h'], [342, 'p'], [738, 'u'], [936, 'w']].forEach(([x, k]) => { c.strokeStyle = '#444'; c.lineWidth = 7; if (k === 'w') { rr(c, x - 34, 2072, 68, 54, 12); c.fillStyle = '#111'; c.fill(); } else { c.beginPath(); c.arc(x, 2098, 30, 0, TAU); c.stroke(); } });
     roundBtn(c, 540, 2098, 78, GRN); c.strokeStyle = '#fff'; c.lineWidth = 9; c.beginPath(); c.moveTo(540, 2068); c.lineTo(540, 2128); c.moveTo(510, 2098); c.lineTo(570, 2098); c.stroke();
