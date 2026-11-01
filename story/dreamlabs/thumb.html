@@ -32,6 +32,15 @@
   const bx = 36, by = 150, bw = W - 72, bh = 430; c.save(); c.shadowColor = 'rgba(120,60,20,0.3)'; c.shadowBlur = 40; c.shadowOffsetY = 16; rr(bx, by, bw, bh, 40); c.fillStyle = '#F8B98A'; c.fill(); c.restore();
   c.save(); rr(bx, by, bw, bh, 40); c.clip(); const sc = Math.max(bw / sun.width, bh / sun.height); c.imageSmoothingQuality = 'high'; c.drawImage(sun, bx + (bw - sun.width * sc) / 2, by + (bh - sun.height * sc) / 2, sun.width * sc, sun.height * sc);
   const fade = c.createLinearGradient(0, by + bh * 0.5, 0, by + bh); fade.addColorStop(0, 'rgba(255,230,190,0)'); fade.addColorStop(1, 'rgba(255,214,150,0.55)'); c.fillStyle = fade; c.fillRect(bx, by, bw, bh); c.restore();
+  // ---- pixel-art "DREAMLABS" in the sunset card: 5×7 bitmap letters drawn as blocks, with a pixel drop shadow
+  const PX = { D: ['11110','10001','10001','10001','10001','10001','11110'], R: ['11110','10001','10001','11110','10100','10010','10001'],
+    E: ['11111','10000','10000','11110','10000','10000','11111'], A: ['01110','10001','10001','11111','10001','10001','10001'],
+    M: ['10001','11011','10101','10101','10001','10001','10001'], L: ['10000','10000','10000','10000','10000','10000','11111'],
+    B: ['11110','10001','10001','11110','10001','10001','11110'], S: ['01111','10000','10000','01110','00001','00001','11110'] };
+  const pixWord = (s, cx, cy, u) => { const adv = 6 * u, w = s.length * adv - u, x0 = Math.round(cx - w / 2), y0 = Math.round(cy - 3.5 * u);
+    const pass = (dx, dy, col) => { c.fillStyle = col; [...s].forEach((ch, i) => PX[ch].forEach((row, r) => [...row].forEach((b, k) => { if (b === '1') c.fillRect(x0 + i * adv + k * u + dx, y0 + r * u + dy, u + 0.5, u + 0.5); }))); };
+    pass(u * 0.5, u * 0.5, '#8A3B2A'); pass(0, 0, '#FFF6E2'); };
+  c.save(); rr(bx, by, bw, bh, 40); c.clip(); pixWord('DREAMLABS', W / 2, by + 150, 17); c.restore();
   // ---- Dream Labs pill (cloud mark + wordmark)
   c.save(); const pw = 470; rr(W / 2 - pw / 2, 48, pw, 92, 46); c.fillStyle = '#fff'; c.shadowColor = 'rgba(80,50,0,0.18)'; c.shadowBlur = 24; c.shadowOffsetY = 8; c.fill(); c.restore();
   c.save(); c.translate(W / 2 - 150, 98); c.fillStyle = INK; c.beginPath(); c.moveTo(-38, 14); c.lineTo(38, 14); c.arc(26, 2, 13, Math.PI / 2, -Math.PI / 2, true); c.arc(4, -6, 20, 0.2, Math.PI + 0.4, true); c.arc(-24, 2, 14, -Math.PI / 2, Math.PI / 2, true); c.closePath(); c.fill(); c.restore();
