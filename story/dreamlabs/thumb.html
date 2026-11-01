@@ -12,7 +12,7 @@
   const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`, M = (w, s) => `${w} ${s}px "JetBrains Mono", monospace`;
   await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(600, 40)), document.fonts.load(G(800, 40)), document.fonts.load(M(700, 30))]);
   const img = (src) => new Promise((r) => { const i = new Image(); i.onload = () => r(i); i.src = src; });
-  const [sun, arms, me] = await Promise.all([img('sunset.png'), img('robot_arms.png'), img('kal_cut.png')]);
+  const [sun, arms, me, rebot] = await Promise.all([img('sunset.png'), img('robot_arms.png'), img('kal_cut.png'), img('robot_rebot.png')]);
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
   // poster word: thick dark stroke + soft drop + fill
   const word = (s, x, y, size, fill, rot = 0, sx = 0.88) => { c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = D(size); c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '-2px'; c.lineJoin = 'round';
@@ -46,8 +46,14 @@
   c.lineWidth = 6; c.strokeStyle = '#fff'; rr(-cw / 2, -ch / 2, cw, ch, 36); c.stroke();
   rr(-cw / 2 + 26, ch / 2 - 86, 330, 62, 31); c.fillStyle = INK; c.fill(); c.font = M(700, 26); c.fillStyle = '#fff'; c.textAlign = 'left'; c.fillText('ROBOT PLAYGROUND', -cw / 2 + 52, ch / 2 - 54);
   c.restore();
+  // ---- second robot card (the reBot arm from the site), tilted the other way
+  c.save(); c.translate(800, 1575); c.rotate(-0.06); const cw2 = 430, ch2 = 270;
+  c.shadowColor = 'rgba(120,80,10,0.35)'; c.shadowBlur = 44; c.shadowOffsetY = 18; rr(-cw2 / 2, -ch2 / 2, cw2, ch2, 30); c.fillStyle = '#FDEFB4'; c.fill(); c.shadowColor = 'transparent';
+  c.save(); rr(-cw2 / 2, -ch2 / 2, cw2, ch2, 30); c.clip(); const rs = Math.max(cw2 / rebot.width, ch2 / rebot.height); c.drawImage(rebot, -rebot.width * rs / 2, -rebot.height * rs / 2, rebot.width * rs, rebot.height * rs); c.restore();
+  c.lineWidth = 6; c.strokeStyle = '#fff'; rr(-cw2 / 2, -ch2 / 2, cw2, ch2, 30); c.stroke();
+  c.restore();
   // ---- blob mascots
-  blob(900, 1430, 46, ORANGE, -0.12, 0); blob(140, 900, 40, '#7ED9A0', 0.1, 1); blob(985, 880, 34, '#8EC5FF', 0, 2); blob(520, 930, 30, '#FF9AA8', 0.2, 1);
+  blob(585, 1430, 40, ORANGE, -0.12, 0); blob(140, 900, 40, '#7ED9A0', 0.1, 1); blob(985, 880, 34, '#8EC5FF', 0, 2); blob(520, 930, 30, '#FF9AA8', 0.2, 1);
   // ---- Kal cutout with a white sticker outline + warm glow
   const ph = 960, pwid = ph * me.width / me.height, px = -40, py = H - ph;
   const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
