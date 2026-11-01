@@ -11,7 +11,9 @@
   const PUR = '#8151FD', PUR2 = '#A98BFF', DEEP = '#2A0F78', YEL = '#FFE13B', GRN = '#139A6B', GRN2 = '#1FD18E', INK = '#111114', MUTE = '#6E6E78', USDC = '#2775CA';
   const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`;
   await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40)), document.fonts.load(G(500, 40)), document.fonts.load(G(700, 40))]);
-  const me = new Image(); me.src = 'kal_cutout.png'; await me.decode();
+  // ?brand → a version without the creator (for Gibwork to use): a phone with the $20 payout takes his place
+  const BRAND = /[?&]brand\b/.test(location.search);
+  const me = new Image(); if (!BRAND) { me.src = 'kal_cutout.png'; await me.decode(); }
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
   const hash = (a, b = 0) => { let n = Math.imul(a | 0, 73856093) ^ Math.imul(b | 0, 19349663); n = Math.imul(n ^ (n >>> 15), 0x2c1b3c6d); n ^= n >>> 12; return (n >>> 0) / 4294967296; };
   const GLYPH = [[0, 0, 1, 6.5], [5, 0, 1, 6.5], [2.5, 3.3, 1, 2.3], [2, 5.6, 2, 0.9], [1, 6.5, 1, 1], [4, 6.5, 1, 1]];
@@ -50,12 +52,30 @@
   // "+$20" wallet hit badge
   c.save(); c.translate(W - 210, 1110); c.rotate(0.12); c.shadowColor = 'rgba(0,0,0,0.4)'; c.shadowBlur = 30; c.shadowOffsetY = 12; rr(-170, -78, 340, 156, 40); c.fillStyle = GRN; c.fill(); c.shadowColor = 'transparent'; c.lineWidth = 7; c.strokeStyle = '#fff'; c.stroke();
   c.font = D(92); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('+$20', 0, -6); c.font = G(800, 26); c.fillText('PAID IN USDC', 0, 50); c.restore();
+  // ---- brand version: phone showing the wallet payout
+  const drawPhone = () => {
+    c.save(); c.translate(330, 1480); c.rotate(-0.07);
+    const pw = 500, ph = 1000; c.shadowColor = 'rgba(20,0,60,0.75)'; c.shadowBlur = 70; c.shadowOffsetY = 24; rr(-pw / 2, -ph / 2, pw, ph, 70); c.fillStyle = '#111114'; c.fill(); c.shadowColor = 'transparent';
+    rr(-pw / 2 + 16, -ph / 2 + 16, pw - 32, ph - 32, 56); c.fillStyle = '#fff'; c.fill(); rr(-60, -ph / 2 + 34, 120, 32, 16); c.fillStyle = '#111114'; c.fill();
+    const L = -pw / 2 + 50; c.textBaseline = 'middle'; c.textAlign = 'left';
+    c.font = G(700, 30); c.fillStyle = INK; c.fillText('Wallet', L, -ph / 2 + 120);
+    rr(L - 6, -ph / 2 + 170, pw - 88, 250, 30); c.fillStyle = '#F2FBF7'; c.fill(); c.lineWidth = 4; c.strokeStyle = GRN2; c.stroke();
+    c.font = G(600, 26); c.fillStyle = MUTE; c.fillText('Balance', L + 22, -ph / 2 + 220); c.font = D(104); c.fillStyle = GRN; c.fillText('$20.00', L + 18, -ph / 2 + 310); c.font = G(500, 24); c.fillStyle = '#A09C98'; c.fillText('USDC', L + 22, -ph / 2 + 385);
+    c.font = G(700, 30); c.fillStyle = INK; c.fillText('History', L, -ph / 2 + 490);
+    rr(L - 6, -ph / 2 + 530, pw - 88, 120, 24); c.fillStyle = '#F6F6F8'; c.fill();
+    c.beginPath(); c.arc(L + 44, -ph / 2 + 590, 30, 0, TAU); c.fillStyle = 'rgba(19,154,107,0.16)'; c.fill(); c.strokeStyle = GRN; c.lineWidth = 6; c.lineCap = 'round'; c.beginPath(); c.moveTo(L + 30, -ph / 2 + 591); c.lineTo(L + 40, -ph / 2 + 601); c.lineTo(L + 58, -ph / 2 + 580); c.stroke();
+    c.font = G(700, 26); c.fillStyle = INK; c.fillText('Bounty reward', L + 92, -ph / 2 + 575); c.font = G(500, 20); c.fillStyle = MUTE; c.fillText('Try Out the Gibwork App', L + 92, -ph / 2 + 608);
+    c.font = G(800, 28); c.fillStyle = GRN; c.textAlign = 'right'; c.fillText('+$20', pw / 2 - 52, -ph / 2 + 590); c.textAlign = 'left';
+    c.restore();
+  };
+  if (BRAND) drawPhone(); else {
   // ---- creator cutout with a white sticker outline + purple glow
-  const ph = 980, pw = ph * me.width / me.height, px = -10, py = H - ph + 70;
-  const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
-  for (let a = 0; a < 24; a++) o.drawImage(me, px + Math.cos(a / 24 * TAU) * 12, py + Math.sin(a / 24 * TAU) * 12, pw, ph);
-  o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
-  c.save(); c.shadowColor = 'rgba(20,0,60,0.8)'; c.shadowBlur = 60; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
+    const ph = 980, pw = ph * me.width / me.height, px = -10, py = H - ph + 70;
+    const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+    for (let a = 0; a < 24; a++) o.drawImage(me, px + Math.cos(a / 24 * TAU) * 12, py + Math.sin(a / 24 * TAU) * 12, pw, ph);
+    o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
+    c.save(); c.shadowColor = 'rgba(20,0,60,0.8)'; c.shadowBlur = 60; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
+  }
   // ---- big red arrow from the creator to the bounty
   c.save(); c.translate(640, 1420); c.rotate(-0.95); c.shadowColor = 'rgba(0,0,0,0.45)'; c.shadowBlur = 24; c.shadowOffsetY = 10;
   c.beginPath(); c.moveTo(-150, -34); c.lineTo(80, -34); c.lineTo(80, -95); c.lineTo(210, 0); c.lineTo(80, 95); c.lineTo(80, 34); c.lineTo(-150, 34); c.closePath(); c.fillStyle = '#FF2A2A'; c.fill(); c.shadowBlur = 0; c.lineWidth = 10; c.strokeStyle = '#fff'; c.lineJoin = 'round'; c.stroke(); c.restore();

@@ -285,22 +285,22 @@
     c.restore();
   }
 
-  // ---------- S5 category beat-cuts (11.5–12.75) ----------
-  const CUTV = [['DEVELOPMENT'], ['DESIGN'], ['MARKETING'], ['WRITING'], ['CONTENT']]; // one line each, scaled to fit the width
-  const CUTS = [['DEVELOPMENT', PUR, '#fff'], ['DESIGN', INK, GRN2], ['MARKETING', GRN, '#fff'], ['WRITING', PAPER, PUR], ['CONTENT', PUR, '#fff']];
+  // ---------- S5 category beat-cuts (11.5–13.0; the last one is the green gibwork cut) ----------
+  const CUTV = [['DEVELOPMENT'], ['DESIGN'], ['MARKETING'], ['WRITING'], ['CONTENT'], ['gibwork']]; // one line each, scaled to fit the width
+  const CUTS = [['DEVELOPMENT', PUR, '#fff'], ['DESIGN', INK, GRN2], ['MARKETING', GRN, '#fff'], ['WRITING', PAPER, PUR], ['CONTENT', PUR, '#fff'], ['gibwork', PAPER, GRN]]; // 6th: the brand cut, fills the gap before the end card
   function cuts(c, t) {
-    if (t < 11.5 || t >= 12.75) return; const i = Math.min(4, Math.floor((t - 11.5) / 0.25)), lt = t - 11.5 - i * 0.25, [s, bg, fg] = CUTS[i];
+    if (t < 11.5 || t >= 13.0) return; const i = Math.min(5, Math.floor((t - 11.5) / 0.25)), lt = t - 11.5 - i * 0.25, [s, bg, fg] = CUTS[i];
     c.fillStyle = bg; c.fillRect(0, 0, W, H);
     const f = D(300), lines = V ? CUTV[i] : [s]; c.font = f; c.letterSpacing = '-8px'; const w = Math.max(...lines.map((l) => c.measureText(l).width)); c.letterSpacing = '0px'; const fit = Math.min(V ? 1.25 : 1, (V ? 960 : 1760) / w), k = crit(prog(lt, 0, 0.12));
     c.save(); c.translate(W / 2, H / 2); c.scale(fit * lerp(1.3, 1, k), fit * lerp(1.3, 1, k)); c.rotate((i % 2 ? 1 : -1) * 0.03 * (1 - k));
-    for (let j = V ? -6 : -3; j <= (V ? 6 : 3); j++) { if (!j || (V && Math.abs(j) < 2 && lines.length > 1)) continue; c.save(); c.globalAlpha = 0.22 / Math.abs(j); c.strokeStyle = fg; c.lineWidth = 3; c.font = f; c.letterSpacing = '-8px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.strokeText(s, (i % 2 ? 1 : -1) * lt * 400 * Math.sign(j), j * 250); c.letterSpacing = '0px'; c.restore(); }
+    for (let j = V ? -6 : -3; j <= (V ? 6 : 3); j++) { if (!j || (V && Math.abs(j) < 2 && lines.length > 1)) continue; c.save(); c.globalAlpha = (i === 5 ? 0.4 : 0.22) / Math.abs(j); c.strokeStyle = fg; c.lineWidth = 3; c.font = f; c.letterSpacing = '-8px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.strokeText(s, (i % 2 ? 1 : -1) * lt * 400 * Math.sign(j), j * 250); c.letterSpacing = '0px'; c.restore(); }
     lines.forEach((l, j) => txt(c, l, 0, (j - (lines.length - 1) / 2) * 270, f, fg, 'center', 'middle', -8)); c.restore();
     appIcon(c, W - 110, H - (V ? 170 : 100), 76);
   }
 
-  // ---------- S6 end card (12.75–15) ----------
+  // ---------- S6 end card (13.0–15; authored from 12.75, played 0.25 later after the gibwork cut) ----------
   function endCard(c, t) {
-    if (t < 12.75) return; paper(c, t, 1.2);
+    if (t < 13.0) return; t -= 0.25; paper(c, t, 1.2);
     const Y = V ? { icon: 560, word: 830, tag: 1000, badge: 1230, url: 1390 } : { icon: 290, word: 505, tag: 640, badge: 780, url: 925 }, IS = V ? 240 : 200;
     const ik = pop(prog(t, 12.75, 13.1)); c.save(); c.translate(W / 2, Y.icon); c.scale(ik, ik); c.save(); c.shadowColor = rgba(PUR, 0.55); c.shadowBlur = 70; c.shadowOffsetY = 20; rr(c, -IS / 2, -IS / 2, IS, IS, IS * 0.23); c.fillStyle = PUR; c.fill(); c.restore(); c.restore();
     glyphBuild(c, W / 2, Y.icon + 4, IS / 11, t, 12.75, 13.15, '#fff', 9, 500);
@@ -315,7 +315,7 @@
   }
 
   // ---------- finishing ----------
-  const HITS = [0.75, 1.5, 4.0, 4.5, 5.0, 6.0, 6.5, 7.05, 7.35, 8.05, 8.35, 9.05, 9.5, 11.5, 11.75, 12.0, 12.25, 12.5, 12.75];
+  const HITS = [0.75, 1.5, 4.0, 4.5, 5.0, 6.0, 6.5, 7.05, 7.35, 8.05, 8.35, 9.05, 9.5, 11.5, 11.75, 12.0, 12.25, 12.5, 12.75, 13.0];
   let BUF = null, GRAIN = null, TREAL = 0;
   function finish(c, t) {
     let h = 0; for (const T0 of HITS) h = Math.max(h, pulse(t, T0, 15));
