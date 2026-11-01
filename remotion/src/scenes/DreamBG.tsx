@@ -74,10 +74,17 @@ export const DreamCloudWipe: React.FC = () => {
             {puffs.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} fill={i % 2 ? '#FFF3D4' : '#FFE9B0'} />)}
             <rect x={-1.1} y={0.05} width={2.2} height={0.7} rx={0.35} fill="#FFF3D4" />
           </g>
-          {/* the Dream Labs mark in the middle while covered */}
-          <g opacity={interpolate(t, [0.3, 0.45, 0.65, 0.8], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} transform="translate(540 960) scale(3.2)">
-            <path d="M -38 14 L 38 14 A 13 13 0 0 0 26 -11 A 20 20 0 0 0 -16 -14 A 14 14 0 0 0 -24 16 Z" fill="#151515" />
-          </g>
+          {/* the Dream Labs logo (cloud mark + wordmark) in the middle while covered */}
+          {(() => {
+            const o = interpolate(t, [0.28, 0.42, 0.66, 0.8], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+            const pop = spring({frame: f - Math.round(0.28 * fps), fps, config: {damping: 11, stiffness: 180, mass: 0.6}});
+            return (
+              <g opacity={o} transform={`translate(560 960) scale(${0.8 + 0.2 * pop})`}>
+                <g transform="translate(-330 2) scale(2.2)" fill="#151515"><circle cx={-22} cy={2} r={14} /><circle cx={2} cy={-6} r={20} /><circle cx={25} cy={2} r={13} /><rect x={-36} y={2} width={74} height={14} rx={7} /></g>
+                <text x={-228} y={34} fontFamily="Geist, 'Inter Tight', sans-serif" fontWeight={600} fontSize={104} letterSpacing={-2} fill="#151515">Dream Labs</text>
+              </g>
+            );
+          })()}
         </g>
       </svg>
     </AbsoluteFill>
