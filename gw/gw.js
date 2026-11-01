@@ -295,7 +295,6 @@
     c.save(); c.translate(W / 2, H / 2); c.scale(fit * lerp(1.3, 1, k), fit * lerp(1.3, 1, k)); c.rotate((i % 2 ? 1 : -1) * 0.03 * (1 - k));
     for (let j = V ? -6 : -3; j <= (V ? 6 : 3); j++) { if (!j || (V && Math.abs(j) < 2 && lines.length > 1)) continue; c.save(); c.globalAlpha = 0.22 / Math.abs(j); c.strokeStyle = fg; c.lineWidth = 3; c.font = f; c.letterSpacing = '-8px'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.strokeText(s, (i % 2 ? 1 : -1) * lt * 400 * Math.sign(j), j * 250); c.letterSpacing = '0px'; c.restore(); }
     lines.forEach((l, j) => txt(c, l, 0, (j - (lines.length - 1) / 2) * 270, f, fg, 'center', 'middle', -8)); c.restore();
-    txt(c, 'BOUNTIES IN', 70, V ? 130 : 80, M(800, 30), fg, 'left', 'middle', 6); txt(c, `0${i + 1} / 05`, W - 70, V ? 130 : 80, M(800, 30), fg, 'right', 'middle', 4);
     appIcon(c, W - 110, H - (V ? 170 : 100), 76);
   }
 
