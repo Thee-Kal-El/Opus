@@ -5,7 +5,7 @@ import {random, spring, useVideoConfig} from 'remotion';
 
 export const PUR = '#8151FD', PUR2 = '#A98BFF', DEEP = '#1E0B5C', GRN = '#139A6B', GRN2 = '#1FD18E', USDC = '#2775CA';
 // Gibwork's pixel "W" glyph as rects [x, y, w, h] on a 6 × 7.5 grid (y down)
-export const GLYPH: [number, number, number, number][] = [[0, 0, 1, 6.5], [5, 0, 1, 6.5], [2.5, 3.3, 1, 2.3], [2, 5.6, 2, 0.9], [1, 6.5, 1, 1], [4, 6.5, 1, 1]];
+export const GLYPH: [number, number, number, number][] = [[0, 0, 1, 7.5], [5, 0, 1, 7.5], [2.5, 3.0, 1, 3.5], [1, 6.5, 4, 1]]; // one connected W: two side bars + middle stem, joined by a bottom bar
 
 // voxelise the glyph into unit-ish cubes
 const VOXELS = (() => {
@@ -29,7 +29,7 @@ export const VoxelLogo: React.FC<{t: number; start?: number; color?: string; sca
         if (k <= 0.001) return null;
         const s = Math.min(1, k * 1.4);
         return (
-          <mesh key={i} position={[v.x, v.y + (1 - k) * 4.5, 0]} scale={[v.w * 0.96 * s, v.h * 0.96 * s, 0.96 * s]}>
+          <mesh key={i} position={[v.x, v.y + (1 - k) * 4.5, 0]} scale={[v.w * 1.002 * s, v.h * 1.002 * s, s]}>
             <boxGeometry args={[1, 1, 1]} />
             <meshStandardMaterial color={color} roughness={0.35} metalness={0.1} emissive={PUR} emissiveIntensity={0.08} />
           </mesh>
