@@ -16,7 +16,7 @@
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
   // poster word: thick dark stroke + soft drop + fill
   const word = (s, x, y, size, fill, rot = 0, sx = 0.88, white = false) => { c.save(); c.translate(x, y); c.rotate(rot); c.scale(sx, 1); c.font = D(size); c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '-2px'; c.lineJoin = 'round';
-    c.fillStyle = 'rgba(60,30,0,0.35)'; c.fillText(s, 8, 14); if (white) { c.lineWidth = size * 0.30; c.strokeStyle = '#FFFFFF'; c.strokeText(s, 0, 0); } c.lineWidth = size * 0.16; c.strokeStyle = INK; c.strokeText(s, 0, 0);
+    if (white) { c.save(); c.shadowColor = 'rgba(60,30,0,0.35)'; c.shadowBlur = 24; c.shadowOffsetY = 10; c.lineWidth = size * 0.48; c.strokeStyle = '#FFFFFF'; c.strokeText(s, 0, 0); c.restore(); c.lineWidth = size * 0.48; c.strokeStyle = '#FFFFFF'; c.strokeText(s, 0, 0); c.lineWidth = size * 0.12; c.strokeStyle = INK; c.strokeText(s, 0, 0); } else { c.fillStyle = 'rgba(60,30,0,0.35)'; c.fillText(s, 8, 14); c.lineWidth = size * 0.16; c.strokeStyle = INK; c.strokeText(s, 0, 0); }
     if (Array.isArray(fill)) { const g = c.createLinearGradient(0, -size / 2, 0, size / 2); g.addColorStop(0, fill[0]); g.addColorStop(1, fill[1]); c.fillStyle = g; } else c.fillStyle = fill; c.fillText(s, 0, 0); c.restore(); };
   // the site's blob mascots: soft rounded bodies with two dot eyes
   const blob = (x, y, s, col, rot = 0, kind = 0) => { c.save(); c.translate(x, y); c.rotate(rot); c.shadowColor = 'rgba(80,50,0,0.18)'; c.shadowBlur = 20; c.shadowOffsetY = 8; c.fillStyle = col; c.beginPath();
@@ -38,8 +38,8 @@
   c.font = M(700, 30); c.fillStyle = '#111111'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowColor = 'rgba(255,240,215,0.8)'; c.shadowBlur = 14; c.fillText('ROBOTICS WITHIN REACH', W / 2, by + 305); c.shadowBlur = 0;
   c.restore();
   // ---- headline (crosses the bottom edge of the sunset card)
-  word('I PROMPTED A', W / 2, 560, 120, ['#4D8BFF', '#2457E6'], -0.03, 0.88, true);
-  word('REAL ROBOT!', W / 2, 735, 180, ['#FF6A3D', '#E5341B'], -0.03, 0.84, true);
+  word('I PROMPTED A', W / 2, 555, 120, ['#FF6A3D', '#E5341B'], -0.03, 0.88, true);
+  word('REAL ROBOT!', W / 2, 745, 172, ['#FF6A3D', '#E5341B'], -0.03, 0.84, true);
   // ---- robot card (the arms from the site) with the site's playground chip
   c.save(); c.translate(780, 1150); c.rotate(0.05); const cw = 540, ch = 440;
   c.shadowColor = 'rgba(120,80,10,0.35)'; c.shadowBlur = 50; c.shadowOffsetY = 20; rr(-cw / 2, -ch / 2, cw, ch, 36); c.fillStyle = '#FDEFB4'; c.fill(); c.shadowColor = 'transparent';
