@@ -104,7 +104,7 @@ const BOUNTIES: [string, string, string, string][] = [
   ['Design 3 social posts', 'Design', '$75', PUR], ['Find 15 sales leads', 'Research', '$60', '#2A9D8F'], ['Build a landing page', 'Development', '$300', INK],
 ];
 const BountyCard: React.FC<{b: [string, string, string, string]; hi?: number}> = ({b: [title, tag, price, col], hi = 0}) => (
-  <div style={{width: 860, height: 168, borderRadius: 28, background: '#fff', display: 'flex', alignItems: 'center', gap: 28, padding: '0 34px', boxSizing: 'border-box',
+  <div style={{width: '100%', height: 168, borderRadius: 28, background: '#fff', display: 'flex', alignItems: 'center', gap: 28, padding: '0 34px', boxSizing: 'border-box',
     border: `${3 + hi * 3}px solid ${hi > 0.05 ? GRN2 : '#E4E2EE'}`, boxShadow: hi > 0.05 ? `0 0 ${60 * hi}px rgba(31,209,142,${0.6 * hi})` : '0 18px 36px rgba(40,20,90,0.12)'}}>
     <div style={{width: 92, height: 92, borderRadius: 46, background: col, flexShrink: 0}} />
     <div style={{flex: 1}}>
@@ -116,24 +116,36 @@ const BountyCard: React.FC<{b: [string, string, string, string]; hi?: number}> =
 );
 const EarnFind: React.FC = () => {
   const t = useT(), sp = useSp();
-  const scroll = interpolate(t, [0, 1.5], [0, 8 * 198 - 420], {...clamp, easing: (x) => 1 - Math.pow(1 - x, 3)}), pick = sp(1.55, 'soft');
+  const panel = sp(0.0, 'soft'), pick = sp(1.65, 'soft');
+  const ROW = 186, scroll = interpolate(t, [0.3, 1.55], [0, 2 * ROW], {...clamp, easing: (x) => 1 - Math.pow(1 - x, 3)});
+  const list = [...BOUNTIES, ...BOUNTIES.slice(0, 2)], HI = 2;           // HI = 'Edit a UGC video' lands in view
   return (
     <AbsoluteFill style={{background: PAPER}}>
       <DotGrid /><StepHead mode="EARN" n={1} title="Find a bounty" />
-      <div style={{position: 'absolute', left: 0, right: 0, top: 560, height: 1360, perspective: 1600, overflow: 'hidden'}}>
-        <div style={{position: 'absolute', left: 110, top: 0, transform: `rotateX(${24 * (1 - pick)}deg) rotateZ(${-8 * (1 - pick)}deg) translateY(${-scroll}px)`, transformOrigin: '50% 30%'}}>
-          {[...BOUNTIES, ...BOUNTIES].map((b, i) => {
-            const isHi = i === 8, k = sp(0.05 + i * 0.05, 'snap');
-            return (
-              <div key={i} style={{marginBottom: 30, transform: `translateX(${(1 - k) * 500}px) scale(${isHi ? 1 + 0.1 * pick : 1}) translateZ(${isHi ? pick * 120 : 0}px)`, opacity: (isHi ? 1 : 1 - 0.65 * pick) * Math.min(1, k * 2)}}>
-                <BountyCard b={b} hi={isHi ? pick : 0} />
-              </div>
-            );
-          })}
+      {/* the bounty board panel */}
+      <div style={{position: 'absolute', left: 60, right: 60, top: 470, height: 1290, borderRadius: 44, background: '#fff', boxShadow: '0 40px 90px rgba(40,20,90,0.20)', border: '3px solid #E7E4F2', overflow: 'hidden',
+        transform: `translateY(${(1 - panel) * 300}px) scale(${0.94 + 0.06 * panel})`, opacity: panel}}>
+        <div style={{padding: '34px 40px 22px', borderBottom: '3px solid #EFEDF6'}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: 18}}><LogoDisc size={58} /><span style={{...G(700), fontSize: 46, color: INK}}>Bounties</span>
+            <span style={{marginLeft: 'auto', ...MONO, fontSize: 24, color: GRN, background: 'rgba(31,209,142,0.14)', padding: '8px 16px', borderRadius: 999}}>● 128 OPEN</span></div>
+          <div style={{marginTop: 22, background: '#F3F2F8', borderRadius: 18, padding: '18px 22px', ...G(500), fontSize: 32, color: MUTE}}>🔍  Search bounties</div>
+          <div style={{display: 'flex', gap: 12, marginTop: 20}}>
+            {['All', 'Video', 'Design', 'Writing', 'Dev'].map((c, i) => <div key={c} style={{...G(600), fontSize: 28, padding: '10px 22px', borderRadius: 999, background: i === 0 ? INK : '#F1F0F6', color: i === 0 ? '#fff' : INK}}>{c}</div>)}
+          </div>
+        </div>
+        <div style={{position: 'relative', height: 1000, overflow: 'hidden'}}>
+          <div style={{position: 'absolute', left: 30, right: 30, top: 24, transform: `translateY(${-scroll}px)`}}>
+            {list.map((b, i) => { const k = sp(0.15 + i * 0.06), hi = i === HI;
+              return (
+                <div key={i} style={{marginBottom: 18, transform: `translateX(${(1 - k) * 300}px) scale(${hi ? 1 + 0.03 * pick : 1})`, opacity: (hi ? 1 : 1 - 0.55 * pick) * Math.min(1, k * 2)}}>
+                  <BountyCard b={b} hi={hi ? pick : 0} />
+                </div>
+              ); })}
+          </div>
+          <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 120, background: 'linear-gradient(transparent, #fff)'}} />
         </div>
       </div>
-      {/* tap */}
-      {t > 1.45 && <div style={{position: 'absolute', left: 820 - 40, top: 560 + 420 + 44, width: 80, height: 80, borderRadius: 40, border: `6px solid ${GRN2}`, opacity: interpolate(t, [1.45, 2.0], [1, 0], clamp), transform: `scale(${interpolate(t, [1.45, 2.0], [0.4, 1.8], clamp)})`}} />}
+      {t > 1.55 && <div style={{position: 'absolute', left: 900, top: 470 + 300 + 24 + HI * ROW - 2 * ROW + 50, width: 80, height: 80, borderRadius: 40, border: `6px solid ${GRN2}`, opacity: interpolate(t, [1.55, 2.1], [1, 0], clamp), transform: `scale(${interpolate(t, [1.55, 2.1], [0.4, 1.8], clamp)})`}} />}
     </AbsoluteFill>
   );
 };

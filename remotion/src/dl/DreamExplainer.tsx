@@ -170,22 +170,22 @@ const RealOrSim: React.FC = () => {
   );
 };
 
-// ---------- S5 any body (17.4–21.0) ----------
+// ---------- S5 pick your arm (17.4–21.0): the arm types listed on the site, all in the same tabletop setup ----------
+const ARMS = ['arm_yam.png', 'arm_rebot.png', 'arm_so101.png', 'arm_widowx.png'];
 const AnyBody: React.FC = () => {
   const t = useT(), sp = useSp();
-  const looks: [string, string, string][] = [['#F4EFE3', '#2A2A2E', YEL], [YEL, '#3A3A3A', '#fff'], ['#2E2E33', '#121214', '#B6F23A']];
   return (
     <Paper>
-      <div style={{position: 'absolute', left: 80, right: 80, top: 150}}><Label text="BUILT-IN AND CUSTOM BODIES" /><div style={{marginTop: 14}}><Head words="One model. Many robots." mark={['Many']} size={104} /></div></div>
-      <AbsoluteFill style={{top: 520}}>
-        <ThreeCanvas width={W} height={980} camera={{position: [0, 3.0, 12.0], fov: 36}}>
-          <LookAt target={[0, 1.7, 0]} /><DLights />
-          {looks.map(([b, j, a], i) => { const k = sp(0.15 + i * 0.18, 'pop'), ph = i * 1.3;
-            const p: Pose = {yaw: 0.8 + Math.sin(t * 1.6 + ph) * 0.5, a1: 0.35 + Math.sin(t * 2.1 + ph) * 0.25, a2: 0.7 + Math.sin(t * 2.6 + ph) * 0.35, a3: 0.6 + Math.sin(t * 3 + ph) * 0.3, grip: 0.5 + 0.5 * Math.sin(t * 4 + ph)};
-            return <group key={i} position={[(i - 1) * 2.75 - 0.35, -3 * (1 - k), 0]} scale={0.8}><RobotArm pose={p} body={b} joint={j} accent={a} /></group>; })}
-        </ThreeCanvas>
-      </AbsoluteFill>
-      <div style={{position: 'absolute', left: 80, right: 80, bottom: 170}}><Head words="A few hundred demonstrations adapt it to yours." mark={['yours']} delay={0.9} size={64} /></div>
+      <div style={{position: 'absolute', left: 80, right: 80, top: 150}}><Label text="BUILT-IN AND CUSTOM BODIES" /><div style={{marginTop: 14}}><Head words="Pick your arm. Same tasks." mark={['arm']} size={100} /></div></div>
+      <div style={{position: 'absolute', left: 40, right: 40, top: 470, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24}}>
+        {ARMS.map((src, i) => { const k = sp(0.2 + i * 0.14, 'pop'), bob = Math.sin(t * 2 + i) * 5;
+          return (
+            <div key={src} style={{transform: `translateY(${(1 - k) * 160 + bob}px) scale(${0.85 + 0.15 * k})`, opacity: Math.min(1, k * 1.5), borderRadius: 30, overflow: 'hidden', background: '#FCEEB2', boxShadow: '0 18px 40px rgba(120,80,10,0.2)', border: '5px solid #fff'}}>
+              <Img src={staticFile(src)} style={{width: '100%', height: 470, objectFit: 'cover', objectPosition: '50% 60%', display: 'block'}} />
+            </div>
+          ); })}
+      </div>
+      <div style={{position: 'absolute', left: 80, right: 80, bottom: 170}}><Head words="Built-in robots, or bring your own." mark={['own']} delay={1.0} size={66} /></div>
     </Paper>
   );
 };
