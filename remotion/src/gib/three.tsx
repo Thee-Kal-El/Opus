@@ -1,7 +1,7 @@
 // 3D pieces for the Gibwork explainer (three.js via @remotion/three): voxel logo, USDC-style coin, coin burst, reward vault.
 import React, {useMemo} from 'react';
 import * as THREE from 'three';
-import {random, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {random, spring, useVideoConfig} from 'remotion';
 
 export const PUR = '#8151FD', PUR2 = '#A98BFF', DEEP = '#1E0B5C', GRN = '#139A6B', GRN2 = '#1FD18E', USDC = '#2775CA';
 // Gibwork's pixel "W" glyph as rects [x, y, w, h] on a 6 × 7.5 grid (y down)
@@ -17,19 +17,19 @@ const VOXELS = (() => {
   return v;
 })();
 
-/** Voxel logo: cubes fly in from random directions (staggered springs) and lock together. `t` = local seconds. */
+/** Voxel logo: cubes drop in one after another (bottom row first), land with a small bounce and lock together. `t` = local seconds. */
+const ORDER = VOXELS.map((v, i) => ({v, i})).sort((a, b) => a.v.y - b.v.y || a.v.x - b.v.x);
 export const VoxelLogo: React.FC<{t: number; start?: number; color?: string; scale?: number}> = ({t, start = 0, color = '#FFFFFF', scale = 1}) => {
   const {fps} = useVideoConfig();
   return (
     <group scale={scale}>
-      {VOXELS.map((v, i) => {
-        const at = start + i * 0.035 + random(`vd${i}`) * 0.25;
-        const k = spring({frame: Math.round((t - at) * fps), fps, config: {damping: 13, stiffness: 120, mass: 0.8}});
-        const a = random(`va${i}`) * Math.PI * 2, d = 9 + random(`vr${i}`) * 6;
-        const from = [Math.cos(a) * d, Math.sin(a) * d, 6 + random(`vz${i}`) * 8];
-        const p = [v.x + (from[0] - v.x) * (1 - k), v.y + (from[1] - v.y) * (1 - k), from[2] * (1 - k)];
+      {ORDER.map(({v, i}, n) => {
+        const at = start + n * 0.045;
+        const k = spring({frame: Math.round((t - at) * fps), fps, config: {damping: 14, stiffness: 170, mass: 0.7}});
+        if (k <= 0.001) return null;
+        const s = Math.min(1, k * 1.4);
         return (
-          <mesh key={i} position={p as [number, number, number]} rotation={[(1 - k) * 4 * random(`rx${i}`), (1 - k) * 5 * random(`ry${i}`), 0]} scale={[v.w * 0.96, v.h * 0.96, 0.96]}>
+          <mesh key={i} position={[v.x, v.y + (1 - k) * 4.5, 0]} scale={[v.w * 0.96 * s, v.h * 0.96 * s, 0.96 * s]}>
             <boxGeometry args={[1, 1, 1]} />
             <meshStandardMaterial color={color} roughness={0.35} metalness={0.1} emissive={PUR} emissiveIntensity={0.08} />
           </mesh>

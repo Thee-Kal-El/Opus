@@ -54,7 +54,7 @@ const Swoosh: React.FC<{at: number; color?: string}> = ({at, color = PUR}) => {
 // ---------- S1 intro (0–3.2): 3D voxel logo assembles, camera swings, wordmark + promise ----------
 const Intro: React.FC = () => {
   const t = useT(), sp = useSp();
-  const cam = interpolate(t, [0, 2.2], [0.9, 0], {...clamp, easing: (x) => 1 - Math.pow(1 - x, 3)});
+  const cam = interpolate(t, [0, 2.4], [0.35, 0], {...clamp, easing: (x) => 1 - Math.pow(1 - x, 3)});
   const word = sp(1.35), line = sp(1.75, 'pop');
   return (
     <AbsoluteFill style={{background: `radial-gradient(80% 60% at 50% 40%, #9B73FF 0%, ${PUR} 40%, ${DEEP} 100%)`}}>
@@ -62,7 +62,7 @@ const Intro: React.FC = () => {
       <AbsoluteFill style={{top: 150}}>
         <ThreeCanvas width={W} height={1000} camera={{position: [Math.sin(cam) * 16, 1.2, Math.cos(cam) * 16], fov: 34}}>
           <Lights />
-          <group rotation={[0, Math.sin(t * 1.2) * 0.25 - cam * 0.6, 0]} position={[0, 0.5, 0]}><VoxelLogo t={t} start={0.05} /></group>
+          <group rotation={[0, Math.sin(t * 1.1) * 0.18 - cam * 0.5, 0]} position={[0, 0.5, 0]}><VoxelLogo t={t} start={0.05} /></group>
         </ThreeCanvas>
       </AbsoluteFill>
       <div style={{position: 'absolute', top: 1180, width: '100%', textAlign: 'center'}}>
@@ -250,33 +250,40 @@ const PostFund: React.FC = () => {
   );
 };
 
-// ---------- POST 3: pick the best work → paid ----------
+// ---------- POST 3: pick winners → pay them all (split the reward) ----------
 const PostPick: React.FC = () => {
   const t = useT(), sp = useSp();
-  const subs: [string, string, string][] = [['Maya', 'Bold monogram', '#FF7A1A'], ['Leo', 'Pixel mascot', '#2A9D8F'], ['Ana', 'Minimal wordmark', '#E84393']];
-  const pick = sp(1.0, 'soft'), paid = t > 1.7, pk = sp(1.7, 'pop');
+  const subs: [string, string, string, number][] = [['Maya', 'Bold monogram', '#FF7A1A', 0], ['Leo', 'Pixel mascot', '#2A9D8F', 100], ['Ana', 'Minimal wordmark', '#E84393', 50]];
+  const pick1 = sp(0.75, 'soft'), pick2 = sp(1.05, 'soft'), pk1 = sp(1.55, 'pop'), pk2 = sp(1.7, 'pop');
   return (
     <AbsoluteFill style={{background: PAPER}}>
-      <DotGrid /><StepHead mode="POST" n={3} title="Pick the best" />
-      <div style={{position: 'absolute', left: 80, top: 405, ...D, fontSize: 112, color: PUR}}>Pay out.</div>
+      <DotGrid />
       <AbsoluteFill style={{pointerEvents: 'none'}}>
         <ThreeCanvas width={W} height={H} camera={{position: [0, 0, 14], fov: 40}}>
-          <Lights />{paid && <CoinBurst t={t} at={1.7} count={16} origin={[2.0, -0.6, -2]} seed="pick" power={0.9} />}
+          <Lights />
+          <CoinBurst t={t} at={1.55} count={12} origin={[2.2, -1.2, -3]} seed="pick1" power={0.7} />
+          <CoinBurst t={t} at={1.7} count={10} origin={[2.2, -3.6, -3]} seed="pick2" power={0.7} />
         </ThreeCanvas>
       </AbsoluteFill>
+      <StepHead mode="POST" n={3} title="Pick winners." />
+      <div style={{position: 'absolute', left: 80, top: 405, ...D, fontSize: 112, color: PUR}}>Pay them all.</div>
       <div style={{position: 'absolute', left: 90, top: 640, width: 900, display: 'flex', flexDirection: 'column', gap: 30}}>
-        {subs.map(([who, what, col], i) => {
-          const k = sp(0.1 + i * 0.12), hi = i === 1;
+        {subs.map(([who, what, col, amt], i) => {
+          const k = sp(0.1 + i * 0.12), win = amt > 0, p = i === 1 ? pick1 : i === 2 ? pick2 : 0, pk = i === 1 ? pk1 : pk2;
+          const dim = win ? 0 : Math.max(pick1, pick2);
           return (
-            <div key={who} style={{transform: `translateX(${(1 - k) * 700}px) scale(${hi ? 1 + 0.06 * pick : 1 - 0.04 * pick})`, opacity: hi ? 1 : 1 - 0.5 * pick}}>
-              <div style={{background: '#fff', borderRadius: 32, padding: '30px 34px', display: 'flex', alignItems: 'center', gap: 26, border: `${hi ? 3 + 4 * pick : 3}px solid ${hi && pick > 0.05 ? GRN2 : '#E4E2EE'}`, boxShadow: hi ? `0 0 ${70 * pick}px rgba(31,209,142,${0.5 * pick})` : '0 18px 36px rgba(40,20,90,0.1)'}}>
+            <div key={who} style={{transform: `translateX(${(1 - k) * 700}px) scale(${win ? 1 + 0.04 * p : 1 - 0.04 * dim})`, opacity: 1 - 0.5 * dim}}>
+              <div style={{background: '#fff', borderRadius: 32, padding: '30px 34px', display: 'flex', alignItems: 'center', gap: 26, border: `${3 + 4 * p}px solid ${p > 0.05 ? GRN2 : '#E4E2EE'}`, boxShadow: win ? `0 0 ${60 * p}px rgba(31,209,142,${0.45 * p})` : '0 18px 36px rgba(40,20,90,0.1)'}}>
                 <div style={{width: 150, height: 150, borderRadius: 24, background: `linear-gradient(135deg, ${col}, #fff)`, display: 'flex', alignItems: 'center', justifyContent: 'center', ...D, fontSize: 70, color: '#fff'}}>{who[0]}</div>
                 <div style={{flex: 1}}><div style={{...G(700), fontSize: 44, color: INK}}>{who}</div><div style={{...G(500), fontSize: 32, color: MUTE, marginTop: 6}}>{what}</div></div>
-                {hi && <div style={{transform: `scale(${pk})`, background: GRN, color: '#fff', ...G(700), fontSize: 34, padding: '16px 26px', borderRadius: 999, whiteSpace: 'nowrap'}}>Paid 150 USDC ✓</div>}
+                {win && <div style={{transform: `scale(${pk})`, background: GRN, color: '#fff', ...G(700), fontSize: 34, padding: '16px 26px', borderRadius: 999, whiteSpace: 'nowrap'}}>+{amt} USDC ✓</div>}
               </div>
             </div>
           );
         })}
+      </div>
+      <div style={{position: 'absolute', bottom: 150, width: '100%', display: 'flex', justifyContent: 'center'}}>
+        <div style={{transform: `scale(${sp(1.9, 'pop')})`, background: INK, color: '#fff', borderRadius: 999, padding: '20px 38px', ...G(700), fontSize: 40}}>Reward one winner — or many</div>
       </div>
     </AbsoluteFill>
   );
