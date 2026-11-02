@@ -106,3 +106,15 @@ export const DreamBG20: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+/** 5 s clip: the DreamLabs poster (slow push-in) with the follow pop-up from 2.5 s, finishing by 5 s. */
+export const PosterFollow: React.FC = () => {
+  const f = useCurrentFrame(), {fps, durationInFrames} = useVideoConfig();
+  const z = interpolate(f, [0, durationInFrames], [1, 1.06]);
+  return (
+    <AbsoluteFill style={{background: '#FFF3D4'}}>
+      <Img src={staticFile('dreamlabs_poster.png')} style={{width: 1080, height: 1920, transform: `scale(${z})`, transformOrigin: '50% 40%'}} />
+      <Sequence from={Math.round(2.5 * fps)} durationInFrames={Math.round(2.5 * fps)}><FollowCard top={250} cursorAt={0.45} click={1.0} exitAt={2.05} /></Sequence>
+    </AbsoluteFill>
+  );
+};

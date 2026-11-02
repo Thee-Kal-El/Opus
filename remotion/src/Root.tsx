@@ -5,7 +5,7 @@ import {KickTwitchCard} from './scenes/KickTwitchCard';
 import {LogoSting} from './scenes/LogoSting';
 import {KitShowcase} from './scenes/KitShowcase';
 import {ExplainerReel, REEL_SECONDS} from './scenes/ExplainerReel';
-import {DreamBG, DreamBG20, DreamCloudWipe} from './scenes/DreamBG';
+import {DreamBG, DreamBG20, DreamCloudWipe, PosterFollow} from './scenes/DreamBG';
 import {FollowCard} from './scenes/FollowCard';
 
 export const Root: React.FC = () => {
@@ -19,6 +19,7 @@ export const Root: React.FC = () => {
       <Composition id="DreamBG" component={DreamBG} width={1080} height={1920} fps={30} durationInFrames={300} />
       <Composition id="DreamBG20" component={DreamBG20} width={1080} height={1920} fps={30} durationInFrames={600} />
       <Composition id="FollowCard" component={FollowCard} width={1080} height={1920} fps={30} durationInFrames={150} />
+      <Composition id="PosterFollow" component={PosterFollow} width={1080} height={1920} fps={30} durationInFrames={150} />
       <Composition id="DreamCloudWipe" component={DreamCloudWipe} width={1080} height={1920} fps={30} durationInFrames={36} />
     </>
   );

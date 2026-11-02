@@ -4,20 +4,22 @@ import React from 'react';
 import {AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Sparks} from '../kit/motion';
 
-const INK = '#151515', CLICK = 2.2;
+const INK = '#151515';
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
-export const FollowCard: React.FC<{top?: number}> = ({top = 210}) => {
+// timing (seconds): cursor glides in at `cursorAt`, clicks at `click`, card exits over [exitAt, exitAt + 0.4]
+export const FollowCard: React.FC<{top?: number; cursorAt?: number; click?: number; exitAt?: number}> = ({top = 210, cursorAt = 1.15, click = 2.2, exitAt = 4.55}) => {
+  const CLICK = click;
   const f = useCurrentFrame(), {fps} = useVideoConfig(), t = f / fps;
   const sp = (at: number, damping = 14, stiffness = 170) => spring({frame: f - Math.round(at * fps), fps, config: {damping, stiffness, mass: 0.7}});
-  const enter = sp(0, 13, 140), exit = interpolate(t, [4.55, 4.95], [0, 1], clamp);
+  const enter = sp(0, 13, 140), exit = interpolate(t, [exitAt, exitAt + 0.4], [0, 1], clamp);
   const done = t >= CLICK, press = interpolate(t, [CLICK - 0.08, CLICK, CLICK + 0.14], [1, 0.9, 1], clamp), flip = sp(CLICK, 10, 220);
-  const cur = sp(1.15, 20, 110);                                        // cursor glide
+  const cur = sp(cursorAt, 20, 140);                                        // cursor glide
   const cx = interpolate(cur, [0, 1], [1080, 742]), cy = interpolate(cur, [0, 1], [top + 520, top + 268]);
-  const curOp = interpolate(t, [1.1, 1.25, 3.2, 3.5], [0, 1, 1, 0], clamp);
+  const curOp = interpolate(t, [cursorAt - 0.05, cursorAt + 0.1, click + 0.6, click + 0.85], [0, 1, 1, 0], clamp);
   const ring = interpolate(t, [CLICK, CLICK + 0.55], [0, 1], clamp);
   const plat = (label: string, bg: string, fg: string, i: number) => {
-    const k = sp(0.45 + i * 0.1, 11, 200);
+    const k = sp(Math.min(0.45, cursorAt * 0.4) + i * 0.08, 11, 200);
     return <div key={label} style={{transform: `scale(${k})`, background: bg, color: fg, borderRadius: 999, padding: '10px 22px', fontFamily: 'JetBrains Mono', fontWeight: 700, fontSize: 24, letterSpacing: '0.04em'}}>{label}</div>;
   };
   return (
