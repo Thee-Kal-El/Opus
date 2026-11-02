@@ -3,7 +3,8 @@
 //    blob mascots floating at the edges (the centre stays calm for the cut-out presenter)
 //  · DreamCloudWipe: 1.2 s transition: a Dream Labs cloud puffs up to fill the screen, then opens to reveal (rendered with alpha)
 import React from 'react';
-import {AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Img, interpolate, Loop, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {FollowCard} from './FollowCard';
 
 const TAU = Math.PI * 2;
 const useT = () => useCurrentFrame() / useVideoConfig().fps;
@@ -91,6 +92,17 @@ export const DreamCloudWipe: React.FC = () => {
           })()}
         </g>
       </svg>
+    </AbsoluteFill>
+  );
+};
+
+/** 20 s DreamLabs background with the 5 s follow pop-up halfway through (7.5–12.5 s). */
+export const DreamBG20: React.FC = () => {
+  const {fps} = useVideoConfig();
+  return (
+    <AbsoluteFill>
+      <Loop durationInFrames={10 * fps}><DreamBG /></Loop>
+      <Sequence from={Math.round(7.5 * fps)} durationInFrames={5 * fps}><FollowCard /></Sequence>
     </AbsoluteFill>
   );
 };

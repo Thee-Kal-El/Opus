@@ -5,7 +5,8 @@ import {KickTwitchCard} from './scenes/KickTwitchCard';
 import {LogoSting} from './scenes/LogoSting';
 import {KitShowcase} from './scenes/KitShowcase';
 import {ExplainerReel, REEL_SECONDS} from './scenes/ExplainerReel';
-import {DreamBG, DreamCloudWipe} from './scenes/DreamBG';
+import {DreamBG, DreamBG20, DreamCloudWipe} from './scenes/DreamBG';
+import {FollowCard} from './scenes/FollowCard';
 
 export const Root: React.FC = () => {
   loadFonts();
@@ -16,6 +17,8 @@ export const Root: React.FC = () => {
       <Composition id="KitShowcase" component={KitShowcase} width={1920} height={1080} fps={60} durationInFrames={480} />
       <Composition id="ExplainerReel" component={ExplainerReel} width={1080} height={1920} fps={30} durationInFrames={REEL_SECONDS * 30} />
       <Composition id="DreamBG" component={DreamBG} width={1080} height={1920} fps={30} durationInFrames={300} />
+      <Composition id="DreamBG20" component={DreamBG20} width={1080} height={1920} fps={30} durationInFrames={600} />
+      <Composition id="FollowCard" component={FollowCard} width={1080} height={1920} fps={30} durationInFrames={150} />
       <Composition id="DreamCloudWipe" component={DreamCloudWipe} width={1080} height={1920} fps={30} durationInFrames={36} />
     </>
   );
