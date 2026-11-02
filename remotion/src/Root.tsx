@@ -8,6 +8,7 @@ import {ExplainerReel, REEL_SECONDS} from './scenes/ExplainerReel';
 import {DreamBG, DreamBG20, DreamCloudWipe, PosterFollow, DreamBG5Follow, DreamBG5FollowSides} from './scenes/DreamBG';
 import {FollowCard} from './scenes/FollowCard';
 import {GibExplainer} from './gib/GibExplainer';
+import {DreamExplainer} from './dl/DreamExplainer';
 
 export const Root: React.FC = () => {
   loadFonts();
@@ -23,6 +24,7 @@ export const Root: React.FC = () => {
       <Composition id="PosterFollow" component={PosterFollow} width={1080} height={1920} fps={30} durationInFrames={150} />
       <Composition id="DreamBG5Follow" component={DreamBG5Follow} width={1080} height={1920} fps={30} durationInFrames={240} />
       <Composition id="DreamBG5FollowSides" component={DreamBG5FollowSides} width={1080} height={1920} fps={30} durationInFrames={240} />
+      <Composition id="DreamExplainer" component={DreamExplainer} width={1080} height={1920} fps={30} durationInFrames={750} />
       <Composition id="GibExplainer" component={GibExplainer} width={1080} height={1920} fps={30} durationInFrames={750} />
       <Composition id="DreamCloudWipe" component={DreamCloudWipe} width={1080} height={1920} fps={30} durationInFrames={36} />
     </>
