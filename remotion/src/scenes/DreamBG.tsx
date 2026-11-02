@@ -5,6 +5,7 @@
 import React from 'react';
 import {AbsoluteFill, Img, interpolate, Loop, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {FollowCard} from './FollowCard';
+import {FollowSplit} from './FollowSplit';
 
 const TAU = Math.PI * 2;
 const useT = () => useCurrentFrame() / useVideoConfig().fps;
@@ -28,7 +29,7 @@ const Blob: React.FC<{x: number; y: number; s: number; color: string; kind: numb
   );
 };
 
-export const DreamBG: React.FC = () => {
+export const DreamBG: React.FC<{sideBlobsLow?: boolean}> = ({sideBlobsLow = false}) => {
   const t = useT(), L = 10, p = (t / L) * TAU;
   // the sunset art pans across and back once per loop (seamless)
   const SUN_W = 1780, SUN_H = 252, cardW = 1000, cardH = 470, sc = cardH / SUN_H, artW = SUN_W * sc;
@@ -51,8 +52,8 @@ export const DreamBG: React.FC = () => {
         </div>
       </div>
       {/* blob mascots at the edges */}
-      <Blob x={130} y={760} s={54} color="#7ED9A0" kind={1} phase={0} />
-      <Blob x={960} y={720} s={46} color="#8EC5FF" kind={2} phase={1.3} />
+      <Blob x={130} y={sideBlobsLow ? 1560 : 760} s={54} color="#7ED9A0" kind={1} phase={0} />
+      <Blob x={960} y={sideBlobsLow ? 1460 : 720} s={46} color="#8EC5FF" kind={2} phase={1.3} />
       <Blob x={95} y={1330} s={58} color="#FFB070" kind={0} phase={2.4} eyes="#fff" />
       <Blob x={985} y={1240} s={40} color="#FF9AA8" kind={1} phase={3.1} />
       <Blob x={940} y={1700} s={52} color="#FFD43B" kind={2} phase={4.2} />
@@ -126,6 +127,17 @@ export const DreamBG5Follow: React.FC = () => {
     <AbsoluteFill>
       <DreamBG />
       <Sequence from={Math.round(2.5 * fps)} durationInFrames={Math.round(2.5 * fps)}><FollowCard cursorAt={0.45} click={1.0} exitAt={2.05} /></Sequence>
+    </AbsoluteFill>
+  );
+};
+
+/** Version B: 5 s, follow profile on the left of the head and platform icons on the right, from 2.5 s. */
+export const DreamBG5FollowSides: React.FC = () => {
+  const {fps} = useVideoConfig();
+  return (
+    <AbsoluteFill>
+      <DreamBG sideBlobsLow />
+      <Sequence from={Math.round(2.5 * fps)} durationInFrames={Math.round(2.5 * fps)}><FollowSplit /></Sequence>
     </AbsoluteFill>
   );
 };
