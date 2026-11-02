@@ -10,7 +10,7 @@ import {FollowSplit} from './FollowSplit';
 const TAU = Math.PI * 2;
 const useT = () => useCurrentFrame() / useVideoConfig().fps;
 
-const Blob: React.FC<{x: number; y: number; s: number; color: string; kind: number; phase: number; eyes?: string}> = ({x, y, s, color, kind, phase, eyes = '#1a1a1a'}) => {
+export const Blob: React.FC<{x: number; y: number; s: number; color: string; kind: number; phase: number; eyes?: string}> = ({x, y, s, color, kind, phase, eyes = '#1a1a1a'}) => {
   const t = useT(), L = 10; // loop length
   const bob = Math.sin((t / L) * TAU * 2 + phase) * 16, sway = Math.sin((t / L) * TAU + phase) * 10, rot = Math.sin((t / L) * TAU * 2 + phase * 1.7) * 6;
   const blink = ((t + phase) % 3.33) < 0.12 ? 0.15 : 1;
