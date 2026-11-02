@@ -6,6 +6,7 @@ const FACES: [string, string, FontFaceDescriptors][] = [
   ['Archivo Wide', 'ArchivoWdth-normal.woff2', {style: 'normal', weight: '100 900', stretch: '62% 125%'}],
   ['JetBrains Mono', 'JetBrainsMono.woff2', {weight: '100 800'}],
   ['Geist', 'Geist.woff2', {weight: '100 900'}],
+  ['Inter Tight', 'InterTight-normal.woff2', {weight: '300 900'}],
   ['Instrument Serif', 'InstrumentSerif-italic.woff2', {style: 'italic', weight: '400'}],
 ];
 
