@@ -34,7 +34,7 @@ export const FollowCard: React.FC<{top?: number}> = ({top = 210}) => {
             </div>
           </div>
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 30}}>
-            <div style={{display: 'flex', gap: 12}}>{plat('YOUTUBE', '#FF3B30', '#fff', 0)}{plat('KICK', '#111', '#53FC18', 1)}{plat('TWITCH', '#9146FF', '#fff', 2)}</div>
+            <div style={{display: 'flex', gap: 12}}>{plat('YOUTUBE', '#FF3B30', '#fff', 0)}{plat('X', '#111', '#fff', 1)}{plat('INSTAGRAM', 'linear-gradient(90deg,#F58529,#DD2A7B,#8134AF)', '#fff', 2)}</div>
             <div style={{position: 'relative'}}>
               <div style={{position: 'absolute', inset: -8, borderRadius: 999, border: '6px solid #FFB070', opacity: ring > 0 && ring < 1 ? 1 - ring : 0, transform: `scale(${1 + ring * 0.45})`}} />
               <div style={{transform: `scale(${press * (done ? 0.94 + 0.06 * flip : 1)})`, background: done ? '#2FB86B' : INK, color: '#fff', borderRadius: 999, padding: '20px 40px', fontFamily: 'Geist', fontWeight: 700, fontSize: 38, minWidth: 210, textAlign: 'center', whiteSpace: 'nowrap'}}>
