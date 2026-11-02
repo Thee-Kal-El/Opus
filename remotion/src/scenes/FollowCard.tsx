@@ -28,7 +28,7 @@ export const FollowCard: React.FC<{top?: number; cursorAt?: number; click?: numb
         <div style={{background: '#FFFCF4', borderRadius: 44, padding: '38px 42px', boxShadow: '0 30px 70px rgba(120,70,10,0.28)', border: '4px solid #fff'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: 30}}>
             <div style={{width: 168, height: 168, borderRadius: 84, overflow: 'hidden', background: 'linear-gradient(160deg,#FFD9A8,#FFB070)', border: '6px solid #fff', boxShadow: '0 8px 20px rgba(120,70,10,0.25)', flexShrink: 0}}>
-              <Img src={staticFile('kal_head.png')} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%'}} />
+              <Img src={staticFile('kal_head.png')} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center'}} />
             </div>
             <div style={{flex: 1}}>
               <div style={{fontFamily: 'Geist', fontWeight: 700, fontSize: 60, color: INK, letterSpacing: '-0.02em', lineHeight: 1.05}}>Thee_Kal_El</div>

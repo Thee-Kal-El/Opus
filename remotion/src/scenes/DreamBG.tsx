@@ -118,3 +118,14 @@ export const PosterFollow: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+/** 5 s moving DreamLabs background with the follow pop-up from 2.5 s, finishing by 5 s. */
+export const DreamBG5Follow: React.FC = () => {
+  const {fps} = useVideoConfig();
+  return (
+    <AbsoluteFill>
+      <DreamBG />
+      <Sequence from={Math.round(2.5 * fps)} durationInFrames={Math.round(2.5 * fps)}><FollowCard cursorAt={0.45} click={1.0} exitAt={2.05} /></Sequence>
+    </AbsoluteFill>
+  );
+};
