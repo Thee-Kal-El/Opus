@@ -182,7 +182,7 @@ const AnyBody: React.FC = () => {
           <LookAt target={[0, 1.7, 0]} /><DLights />
           {looks.map(([b, j, a], i) => { const k = sp(0.15 + i * 0.18, 'pop'), ph = i * 1.3;
             const p: Pose = {yaw: 0.8 + Math.sin(t * 1.6 + ph) * 0.5, a1: 0.35 + Math.sin(t * 2.1 + ph) * 0.25, a2: 0.7 + Math.sin(t * 2.6 + ph) * 0.35, a3: 0.6 + Math.sin(t * 3 + ph) * 0.3, grip: 0.5 + 0.5 * Math.sin(t * 4 + ph)};
-            return <group key={i} position={[(i - 1) * 3.3, -3 * (1 - k), 0]} scale={0.85}><RobotArm pose={p} body={b} joint={j} accent={a} /></group>; })}
+            return <group key={i} position={[(i - 1) * 2.75 - 0.35, -3 * (1 - k), 0]} scale={0.8}><RobotArm pose={p} body={b} joint={j} accent={a} /></group>; })}
         </ThreeCanvas>
       </AbsoluteFill>
       <div style={{position: 'absolute', left: 80, right: 80, bottom: 170}}><Head words="A few hundred demonstrations adapt it to yours." mark={['yours']} delay={0.9} size={64} /></div>
