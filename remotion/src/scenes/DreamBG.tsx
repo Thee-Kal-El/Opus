@@ -120,24 +120,24 @@ export const PosterFollow: React.FC = () => {
   );
 };
 
-/** 5 s moving DreamLabs background with the follow pop-up from 2.5 s, finishing by 5 s. */
+/** 8 s moving DreamLabs background with the follow pop-up from 4 s (halfway), finishing by 8 s. */
 export const DreamBG5Follow: React.FC = () => {
   const {fps} = useVideoConfig();
   return (
     <AbsoluteFill>
       <DreamBG />
-      <Sequence from={Math.round(2.5 * fps)} durationInFrames={Math.round(2.5 * fps)}><FollowCard cursorAt={0.45} click={1.0} exitAt={2.05} /></Sequence>
+      <Sequence from={Math.round(4 * fps)} durationInFrames={Math.round(4 * fps)}><FollowCard cursorAt={0.8} click={1.6} exitAt={3.55} /></Sequence>
     </AbsoluteFill>
   );
 };
 
-/** Version B: 5 s, follow profile on the left of the head and platform icons on the right, from 2.5 s. */
+/** Version B: 8 s, follow profile on the left of the head and platform icons on the right, from 4 s. */
 export const DreamBG5FollowSides: React.FC = () => {
   const {fps} = useVideoConfig();
   return (
     <AbsoluteFill>
       <DreamBG sideBlobsLow />
-      <Sequence from={Math.round(2.5 * fps)} durationInFrames={Math.round(2.5 * fps)}><FollowSplit /></Sequence>
+      <Sequence from={Math.round(4 * fps)} durationInFrames={Math.round(4 * fps)}><FollowSplit cursorAt={0.8} click={1.6} exitAt={3.55} /></Sequence>
     </AbsoluteFill>
   );
 };
