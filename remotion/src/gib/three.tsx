@@ -111,3 +111,39 @@ export const Lights: React.FC = () => (
     <pointLight position={[0, 0, 6]} intensity={12} distance={20} color="#ffffff" />
   </>
 );
+
+/** 3D wallet: a soft-cornered purple bifold with a flap and a clasp. */
+export const Wallet3D: React.FC<{open?: number}> = ({open = 0}) => (
+  <group>
+    <mesh><boxGeometry args={[2.6, 1.8, 0.7]} /><meshStandardMaterial color={PUR} roughness={0.5} metalness={0.15} /></mesh>
+    <mesh position={[0, 0.98 + open * 0.15, -0.05]} rotation={[-0.25 - open * 0.5, 0, 0]}><boxGeometry args={[2.6, 0.4, 0.62]} /><meshStandardMaterial color={PUR2} roughness={0.5} /></mesh>
+    <mesh position={[1.15, 0.1, 0.36]}><boxGeometry args={[0.7, 0.55, 0.06]} /><meshStandardMaterial color={DEEP} roughness={0.4} /></mesh>
+    <mesh position={[1.15, 0.1, 0.4]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.12, 0.12, 0.05, 24]} /><meshStandardMaterial color="#FFD43B" metalness={0.6} roughness={0.3} /></mesh>
+  </group>
+);
+
+/** 3D smart contract: a tall slab with code lines and a lock badge that turns green once funded. */
+export const Contract3D: React.FC<{funded: number}> = ({funded}) => {
+  const lines = [0.9, 0.62, 0.78, 0.5, 0.7, 0.4];
+  return (
+    <group>
+      <mesh><boxGeometry args={[2.3, 3.0, 0.35]} /><meshStandardMaterial color="#F7F5FF" roughness={0.4} /></mesh>
+      <mesh position={[0, 1.32, 0.18]}><boxGeometry args={[2.3, 0.36, 0.03]} /><meshStandardMaterial color={DEEP} /></mesh>
+      {lines.map((w, i) => <mesh key={i} position={[-0.95 + (w * 1.9) / 2, 0.85 - i * 0.28, 0.18]}><boxGeometry args={[w * 1.9, 0.09, 0.02]} /><meshStandardMaterial color={i % 2 ? PUR2 : '#B9B4CF'} /></mesh>)}
+      <group position={[0, -1.0, 0.22]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.42, 0.42, 0.08, 40]} /><meshStandardMaterial color={funded > 0.5 ? GRN2 : '#CFCBE0'} emissive={funded > 0.5 ? GRN2 : '#000'} emissiveIntensity={0.5 * funded} /></mesh>
+        <mesh position={[0, -0.05, 0.06]}><boxGeometry args={[0.36, 0.28, 0.05]} /><meshStandardMaterial color="#fff" /></mesh>
+        <mesh position={[0, 0.09 - 0.05 * funded, 0.06]}><torusGeometry args={[0.12, 0.035, 10, 24, Math.PI]} /><meshStandardMaterial color="#fff" /></mesh>
+      </group>
+    </group>
+  );
+};
+
+/** coins arc from the wallet into the contract, one after another. */
+export const CoinTransfer: React.FC<{t: number; from: [number, number, number]; to: [number, number, number]; starts: number[]; dur?: number}> = ({t, from, to, starts, dur = 0.6}) => (
+  <group>
+    {starts.map((s, i) => { const k = (t - s) / dur; if (k <= 0 || k >= 1) return null; const e = k * k * (3 - 2 * k);
+      const x = from[0] + (to[0] - from[0]) * e, y = from[1] + (to[1] - from[1]) * e + Math.sin(Math.PI * e) * 1.8, z = from[2] + (to[2] - from[2]) * e + Math.sin(Math.PI * e) * 0.8;
+      return <Coin key={i} position={[x, y, z]} spin={k * 9} scale={0.42 * (1 - 0.3 * Math.max(0, (k - 0.8) / 0.2))} />; })}
+  </group>
+);

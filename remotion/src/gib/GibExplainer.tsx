@@ -3,7 +3,7 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, Sequence, spring, useCurrentFrame, useVideoConfig, random} from 'remotion';
 import {ThreeCanvas} from '@remotion/three';
-import {Coin, CoinBurst, DEEP, GLYPH, GRN, GRN2, Lights, PUR, PUR2, USDC, Vault, VoxelLogo} from './three';
+import {Coin, CoinBurst, CoinTransfer, Contract3D, DEEP, GLYPH, GRN, GRN2, Lights, PUR, PUR2, USDC, VoxelLogo, Wallet3D} from './three';
 
 const INK = '#111114', MUTE = '#6E6E78', PAPER = '#F6F4FF';
 const D: React.CSSProperties = {fontFamily: 'Inter Tight', fontWeight: 900, letterSpacing: '-0.035em'};
@@ -235,12 +235,17 @@ const PostFund: React.FC = () => {
         <div style={{display: 'flex', alignItems: 'center', gap: 18}}><div style={{...MONO, fontSize: 30, color: PUR, background: '#fff', padding: '10px 22px', borderRadius: 999}}>POST</div><div style={{...MONO, fontSize: 30, color: '#fff'}}>STEP 02 / 03</div></div>
         <div style={{...D, fontSize: 112, lineHeight: 1.0, color: '#fff', marginTop: 26}}>Fund the<br />reward</div>
       </div>
-      <AbsoluteFill style={{top: 520}}>
-        <ThreeCanvas width={W} height={1100} camera={{position: [0, 0.6, 11], fov: 38}}>
+      <AbsoluteFill style={{top: 560}}>
+        <ThreeCanvas width={W} height={1000} camera={{position: [0, 0.8, 11.5], fov: 38}}>
           <Lights />
-          <group position={[0, -0.6, 0]} rotation={[0, Math.sin(t * 0.8) * 0.12, 0]}><Vault t={t} /></group>
+          <group rotation={[0.12, Math.sin(t * 0.7) * 0.1, 0]}>
+            <group position={[-2.3, -0.9, 0]} rotation={[0, 0.35, 0]}><Wallet3D open={Math.min(1, t / 0.4)} /></group>
+            <group position={[2.4, 0.1, 0]} rotation={[0, -0.3, 0]}><Contract3D funded={Math.min(1, Math.max(0, (t - 1.45) / 0.2))} /></group>
+            <CoinTransfer t={t} from={[-2.3, -0.1, 0.4]} to={[2.3, 0.4, 0.3]} starts={[0.35, 0.6, 0.85]} />
+          </group>
         </ThreeCanvas>
       </AbsoluteFill>
+      <div style={{position: 'absolute', top: 1390, left: 0, right: 0, display: 'flex', justifyContent: 'space-around', ...MONO, fontSize: 30, color: '#fff', opacity: 0.85}}><span>YOUR WALLET</span><span>BOUNTY CONTRACT</span></div>
       <div style={{position: 'absolute', bottom: 190, width: '100%', display: 'flex', justifyContent: 'center'}}>
         <div style={{transform: `scale(${badge})`, display: 'flex', alignItems: 'center', gap: 18, background: '#fff', padding: '20px 40px', borderRadius: 999}}>
           <div style={{width: 26, height: 26, borderRadius: 13, background: GRN2}} /><span style={{...G(700), fontSize: 48, color: INK}}>150 USDC reward funded</span>
