@@ -11,7 +11,7 @@
   const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, G = (w, s) => `${w} ${s}px Geist, "Inter Tight", sans-serif`, M = (w, s) => `${w} ${s}px "JetBrains Mono", monospace`;
   await Promise.all([document.fonts.load(D(100)), document.fonts.load(G(800, 40)), document.fonts.load(M(700, 30))]);
   const img = (src) => new Promise((r) => { const i = new Image(); i.onload = () => r(i); i.src = src; });
-  const [me, chg, nano] = await Promise.all([img('kal_cut.png'), img('charger_cut.png'), img('avalon_cut.png')]);
+  const [chg, nano] = await Promise.all([img('charger_cut.png'), img('avalon_cut.png')]);
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
   // sticker outline: draw the shape's silhouette offset in a ring, in white, then the image on top
   const sticker = (im, x, y, w, h, ring = 10, glow = 'rgba(0,0,0,0.6)') => {
@@ -26,30 +26,27 @@
     const g = c.createLinearGradient(0, -size / 2, 0, size / 2); g.addColorStop(0, fill[0]); g.addColorStop(1, fill[1]); c.fillStyle = g; c.fillText(s, 0, 0); c.restore(); };
 
   // ---- background: deep navy → electric blue, light rays from the products, circuit grid
-  const bg = c.createRadialGradient(860, 380, 40, 860, 380, 900); bg.addColorStop(0, '#2A5BFF'); bg.addColorStop(0.35, '#13235F'); bg.addColorStop(1, '#05070F'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
-  c.save(); c.translate(860, 400); for (let i = 0; i < 24; i++) { c.rotate(TAU / 24); c.beginPath(); c.moveTo(0, 0); c.lineTo(-70, -1100); c.lineTo(70, -1100); c.closePath(); c.fillStyle = i % 2 ? 'rgba(120,200,255,0.07)' : 'rgba(0,0,0,0)'; c.fill(); } c.restore();
+  const bg = c.createRadialGradient(W / 2, 400, 40, W / 2, 400, 900); bg.addColorStop(0, '#2A5BFF'); bg.addColorStop(0.35, '#13235F'); bg.addColorStop(1, '#05070F'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+  c.save(); c.translate(W / 2, 420); for (let i = 0; i < 24; i++) { c.rotate(TAU / 24); c.beginPath(); c.moveTo(0, 0); c.lineTo(-70, -1100); c.lineTo(70, -1100); c.closePath(); c.fillStyle = i % 2 ? 'rgba(120,200,255,0.07)' : 'rgba(0,0,0,0)'; c.fill(); } c.restore();
   c.strokeStyle = 'rgba(41,224,255,0.10)'; c.lineWidth = 1.5; for (let x = 0; x < W; x += 48) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); } for (let y = 0; y < H; y += 48) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
   const vg = c.createRadialGradient(W / 2, H / 2, 300, W / 2, H / 2, 820); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.6)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
 
-  // ---- products: charger big, Avalon Nano 3 beside it, lightning between
-  const cw = 560, ch = cw * chg.height / chg.width; sticker(chg, 560, 250, cw, ch, 8, 'rgba(41,224,255,0.55)');
-  const nw = 330, nh = nw * nano.height / nano.width; sticker(nano, 925, 190, nw, nh, 9, 'rgba(255,225,59,0.6)');
-  // bolt
-  c.save(); c.translate(905, 420); c.rotate(0.15); c.shadowColor = YEL; c.shadowBlur = 30; c.beginPath(); c.moveTo(-10, -70); c.lineTo(32, -70); c.lineTo(10, -14); c.lineTo(40, -14); c.lineTo(-22, 74); c.lineTo(-4, 8); c.lineTo(-34, 8); c.closePath(); c.fillStyle = YEL; c.fill(); c.lineWidth = 6; c.strokeStyle = INK; c.stroke(); c.restore();
+  // ---- products: charger on the LEFT, Avalon Nano 3 on the RIGHT, lightning between
+  const cw = 600, ch = cw * chg.height / chg.width; sticker(chg, 40, 190, cw, ch, 8, 'rgba(41,224,255,0.55)');
+  const nw = 430, nh = nw * nano.height / nano.width; sticker(nano, 800, 235, nw, nh, 10, 'rgba(255,225,59,0.6)');
+  c.save(); c.translate(705, 420); c.rotate(0.15); c.shadowColor = YEL; c.shadowBlur = 30; c.scale(1.3, 1.3); c.beginPath(); c.moveTo(-10, -70); c.lineTo(32, -70); c.lineTo(10, -14); c.lineTo(40, -14); c.lineTo(-22, 74); c.lineTo(-4, 8); c.lineTo(-34, 8); c.closePath(); c.fillStyle = YEL; c.fill(); c.lineWidth = 6; c.strokeStyle = INK; c.stroke(); c.restore();
 
   // ---- headline
-  word('WILL IT POWER', 470, 78, 82, ['#FFFFFF', '#CFE6FF'], 'left');
-  word('MY MINER?', 470, 172, 106, [YEL, '#FFB400'], 'left');
+  word('WILL IT POWER', W / 2, 78, 88, ['#FFFFFF', '#CFE6FF'], 'center');
+  word('MY MINER?', W / 2, 178, 112, [YEL, '#FFB400'], 'center');
   // ---- spec chips
-  const chips = [['140W GaN', CY], ['PD 3.1', '#FFFFFF'], ['28V · 5A', YEL]]; let cx = 620;
+  const chips = [['140W GaN', CY], ['PD 3.1', '#FFFFFF'], ['28V · 5A', YEL]]; let cx = 60;
   chips.forEach(([t, col]) => { c.font = M(800, 30); const w = c.measureText(t).width + 44; rr(cx, 640, w, 56, 28); c.fillStyle = INK; c.fill(); c.lineWidth = 4; c.strokeStyle = col; c.stroke(); c.fillStyle = col; c.textBaseline = 'middle'; c.textAlign = 'left'; c.fillText(t, cx + 22, 669); cx += w + 14; });
   // ---- "AVALON NANO 3" tag under the miner
-  c.save(); c.translate(1095, 430); c.rotate(0.04); c.font = M(800, 24); const tw = c.measureText('AVALON NANO 3').width + 36; rr(-tw / 2, -22, tw, 44, 22); c.fillStyle = YEL; c.fill(); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('AVALON NANO 3', 0, 1); c.restore();
+  c.save(); c.translate(1015, 235 + nh + 40); c.rotate(0.04); c.font = M(800, 24); const tw = c.measureText('AVALON NANO 3').width + 36; rr(-tw / 2, -22, tw, 44, 22); c.fillStyle = YEL; c.fill(); c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('AVALON NANO 3', 0, 1); c.restore();
 
-  // ---- Kal (left), white sticker outline
-  const ph = 700, pw = ph * me.width / me.height; sticker(me, -20, H - ph + 40, pw, ph, 12, 'rgba(0,0,0,0.7)');
   // ---- review badge
-  c.save(); c.translate(150, 66); c.rotate(-0.06); rr(-125, -32, 250, 64, 14); c.fillStyle = '#FF3B30'; c.fill(); c.font = D(34); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('REVIEW', 0, 2); c.restore();
+  c.save(); c.translate(140, 62); c.rotate(-0.06); rr(-115, -32, 230, 64, 14); c.fillStyle = '#FF3B30'; c.fill(); c.font = D(34); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('REVIEW', 0, 2); c.restore();
   document.body.dataset.ready = '1';
 })();
 </script></body></html>
