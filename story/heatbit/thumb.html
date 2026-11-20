@@ -11,7 +11,7 @@
   const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, M = (w, s) => `${w} ${s}px "JetBrains Mono", monospace`;
   await Promise.all([document.fonts.load(D(100)), document.fonts.load(M(800, 30))]);
   const img = (src) => new Promise((r) => { const i = new Image(); i.onload = () => r(i); i.src = src; });
-  const [site, me, logo] = await Promise.all([img('site.png'), img('kal_cut.png'), img('logo.png')]);
+  const [site, me, logo] = await Promise.all([img('site.png'), img('kal_face.png'), img('logo.png')]);
   const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
   const sticker = (im, x, y, w, h, ring, glow) => { const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
     for (let a = 0; a < 28; a++) o.drawImage(im, x + Math.cos(a / 28 * TAU) * ring, y + Math.sin(a / 28 * TAU) * ring, w, h);
@@ -29,7 +29,7 @@
   const node = (x, y, r) => { c.save(); c.shadowColor = 'rgba(255,120,0,0.9)'; c.shadowBlur = 30; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = '#FF5A1F'; c.fill(); c.shadowBlur = 0; c.lineWidth = r * 0.12; c.strokeStyle = '#fff'; c.stroke(); c.font = D(r * 1.25); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('₿', x + 1, y + r * 0.08); c.restore(); };
   node(520, 560, 26); node(900, 580, 22);
   // ---- the real heatbit.com homepage as a tilted screenshot card
-  c.save(); c.translate(860, 330); c.rotate(0.05); const cw = 620, ch = cw * site.height / site.width;
+  c.save(); c.translate(870, 250); c.rotate(0.05); const cw = 560, ch = cw * site.height / site.width;
   c.shadowColor = 'rgba(0,0,0,0.6)'; c.shadowBlur = 50; c.shadowOffsetY = 20; rr(-cw / 2 - 8, -ch / 2 - 8, cw + 16, ch + 16, 22); c.fillStyle = '#fff'; c.fill(); c.shadowColor = 'transparent';
   c.save(); rr(-cw / 2, -ch / 2, cw, ch, 16); c.clip(); c.drawImage(site, -cw / 2, -ch / 2, cw, ch); c.restore(); c.restore();
 
@@ -37,20 +37,19 @@
   c.save(); rr(48, 40, 300, 84, 42); c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,0,0,0.35)'; c.shadowBlur = 20; c.shadowOffsetY = 6; c.fill(); c.restore();
   { const lw = 252, lh = lw * logo.height / logo.width; c.drawImage(logo, 72, 82 - lh / 2, lw, lh); }
 
-  // ---- headline
-  word('MY HEATER', 52, 220, 100, ['#FFFFFF', '#FFE2CC']);
-  word('MINES', 52, 335, 116, ['#FFFFFF', '#FFE2CC']);
-  word('BITCOIN!', 52, 460, 124, [OR2, OR]);
-  // bitcoin coin
-  c.save(); c.translate(500, 330); c.rotate(0.25); c.shadowColor = 'rgba(255,120,0,0.8)'; c.shadowBlur = 40; c.beginPath(); c.arc(0, 0, 62, 0, TAU); c.fillStyle = OR; c.fill(); c.shadowBlur = 0;
-  c.lineWidth = 8; c.strokeStyle = '#fff'; c.stroke(); c.font = D(80); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('₿', 2, 6); c.restore();
+  // ---- headline: about the company
+  word('THIS COMPANY', 52, 215, 76, ['#FFFFFF', '#FFE2CC']);
+  word('HEATS HOMES', 52, 320, 104, ['#FFFFFF', '#FFE2CC']);
+  word('WITH BITCOIN!', 52, 440, 108, [OR2, OR]);
 
   // ---- url chip
   c.save(); rr(52, 610, 330, 70, 35); c.fillStyle = INK; c.fill(); c.lineWidth = 4; c.strokeStyle = OR2; c.stroke(); c.beginPath(); c.arc(88, 645, 10, 0, TAU); c.fillStyle = OR; c.fill();
   c.font = M(800, 34); c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText('heatbit.com', 110, 647); c.restore();
 
-  // ---- Kal (right), white sticker outline
-  const ph = 660, pw = ph * me.width / me.height; sticker(me, W - pw + 60, H - ph + 30, pw, ph, 12, 'rgba(60,20,0,0.75)');
+  // ---- Kal (facecam photo) in a round badge, white ring + orange glow
+  { const R = 205, x = 1040, y = 470; c.save(); c.shadowColor = 'rgba(255,110,20,0.8)'; c.shadowBlur = 50; c.beginPath(); c.arc(x, y, R + 14, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.restore();
+    c.save(); c.beginPath(); c.arc(x, y, R, 0, TAU); c.clip(); c.drawImage(me, x - R, y - R, 2 * R, 2 * R); c.restore();
+    c.beginPath(); c.arc(x, y, R + 14, 0, TAU); c.lineWidth = 6; c.strokeStyle = OR; c.stroke(); }
   document.body.dataset.ready = '1';
 })();
 </script></body></html>
