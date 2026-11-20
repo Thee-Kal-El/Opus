@@ -32,11 +32,11 @@
   const product = (im, x, y, h, label) => { const w = h * im.width / im.height;
     const fl = c.createRadialGradient(x + w / 2, y + h, 10, x + w / 2, y + h, w * 0.9); fl.addColorStop(0, 'rgba(255,170,80,0.75)'); fl.addColorStop(1, 'rgba(255,120,40,0)'); c.fillStyle = fl; c.beginPath(); c.ellipse(x + w / 2, y + h, w * 0.9, w * 0.28, 0, 0, TAU); c.fill();
     c.save(); c.shadowColor = 'rgba(255,150,60,0.7)'; c.shadowBlur = 45; c.drawImage(im, x, y, w, h); c.restore(); c.drawImage(im, x, y, w, h);
-    c.font = '800 26px Geist, "Inter Tight", sans-serif'; const lw = c.measureText(label + '  ›').width + 36; rr(x + w / 2 - lw / 2, y - 22, lw, 46, 23); c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,0,0,0.35)'; c.shadowBlur = 14; c.fill(); c.shadowBlur = 0;
-    c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(label + '  ›', x + w / 2, y + 2); c.textAlign = 'left'; };
-  { const st = c.createRadialGradient(830, 230, 20, 830, 230, 330); st.addColorStop(0, 'rgba(255,236,210,0.55)'); st.addColorStop(1, 'rgba(255,200,150,0)'); c.fillStyle = st; c.fillRect(0, 0, W, H); }
-  product(bair, 630, 90, 290, 'Bitair');
-  product(bwater, 860, 50, 360, 'Bitwater');
+    c.font = '800 26px Geist, "Inter Tight", sans-serif'; const lw = c.measureText(label + '  ›').width + 36; rr(x + w / 2 - lw / 2, y - 62, lw, 46, 23); c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,0,0,0.35)'; c.shadowBlur = 14; c.fill(); c.shadowBlur = 0;
+    c.fillStyle = INK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(label + '  ›', x + w / 2, y - 38); c.textAlign = 'left'; };
+  { const st = c.createRadialGradient(990, 240, 20, 990, 240, 330); st.addColorStop(0, 'rgba(255,236,210,0.55)'); st.addColorStop(1, 'rgba(255,200,150,0)'); c.fillStyle = st; c.fillRect(0, 0, W, H); }
+  product(bair, 790, 120, 270, 'Bitair');
+  product(bwater, 1030, 80, 290, 'Bitwater');
 
   // ---- Heatbit logo pill
   c.save(); rr(48, 40, 300, 84, 42); c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,0,0,0.35)'; c.shadowBlur = 20; c.shadowOffsetY = 6; c.fill(); c.restore();
@@ -52,7 +52,7 @@
   c.font = M(800, 34); c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText('heatbit.com', 110, 647); c.restore();
 
   // ---- Kal (facecam photo) in a round badge, white ring + orange glow
-  { const R = 178, x = 1088, y = 520; c.save(); c.shadowColor = 'rgba(255,110,20,0.8)'; c.shadowBlur = 50; c.beginPath(); c.arc(x, y, R + 14, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.restore();
+  { const R = 165, x = 1090, y = 532; c.save(); c.shadowColor = 'rgba(255,110,20,0.8)'; c.shadowBlur = 50; c.beginPath(); c.arc(x, y, R + 14, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.restore();
     c.save(); c.beginPath(); c.arc(x, y, R, 0, TAU); c.clip(); c.drawImage(me, x - R, y - R, 2 * R, 2 * R); c.restore();
     c.beginPath(); c.arc(x, y, R + 14, 0, TAU); c.lineWidth = 6; c.strokeStyle = OR; c.stroke(); }
   document.body.dataset.ready = '1';
