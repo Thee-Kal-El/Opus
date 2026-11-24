@@ -5,7 +5,7 @@
 <body><canvas id="s" width="1080" height="1920"></canvas>
 <script>
 // YouTube thumbnail (1280×720): Kal vending 3D prints, trading cards and comics at the Anaheim Card Show holiday shows.
-// Christmas look: garland + lights, candy-cane border, tree, snow; Kal's real products as cutouts.
+// Thanksgiving look: leaf garland + warm lights, plaid border, pumpkins, falling leaves; Kal's real products as cutouts.
 let DATES;
 (async () => {
   const c = document.getElementById('s').getContext('2d'), W = 1080, H = 1920, TAU = Math.PI * 2;
@@ -21,43 +21,42 @@ let DATES;
     c.save(); c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 20; c.shadowOffsetY = 8; c.lineWidth = size * 0.22; c.strokeStyle = INK; c.strokeText(s, 0, 0); c.restore();
     c.lineWidth = size * 0.22; c.strokeStyle = INK; c.strokeText(s, 0, 0); c.fillStyle = typeof fill === 'string' ? fill : gold(-size / 2, size / 2); c.fillText(s, 0, 0); c.restore(); };
 
-  // ---- background: deep red glow, green edges, multicolour bokeh
-  const bg = c.createRadialGradient(540, 900, 40, 540, 900, 1300); bg.addColorStop(0, '#4A0D0D'); bg.addColorStop(0.45, '#1C0707'); bg.addColorStop(1, '#03100A'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
-  const BOK = ['255,70,70', '80,220,120', '255,200,90', '255,255,255', '110,170,255'];
-  for (let i = 0; i < 40; i++) { const x = rnd() * W, y = 300 + rnd() * 1600, r = 12 + rnd() * 46, col = BOK[i % 5], g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(${col},${0.22 + rnd() * 0.25})`); g.addColorStop(1, `rgba(${col},0)`); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
-  // snow drifts along the bottom
-  const drift = (y0, amp, col) => { c.beginPath(); c.moveTo(0, H); for (let x = 0; x <= W; x += 20) c.lineTo(x, y0 + Math.sin(x / 140) * amp + Math.sin(x / 57) * amp * 0.4); c.lineTo(W, H); c.closePath(); c.fillStyle = col; c.fill(); };
+  // ---- background: warm amber glow fading to deep brown, autumn bokeh
+  const bg = c.createRadialGradient(540, 900, 40, 540, 900, 1300); bg.addColorStop(0, '#5E2A0C'); bg.addColorStop(0.45, '#2A1208'); bg.addColorStop(1, '#0E0604'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+  const BOK = ['255,140,40', '255,200,90', '220,70,30', '255,230,170'];
+  for (let i = 0; i < 40; i++) { const x = rnd() * W, y = 300 + rnd() * 1600, r = 12 + rnd() * 46, col = BOK[i % 4], g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(${col},${0.2 + rnd() * 0.25})`); g.addColorStop(1, `rgba(${col},0)`); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
+  // maple leaf
+  const FALL = ['#D9480F', '#F2A300', '#A61E1E', '#E8751A', '#C9A227', '#8C3B0F'];
+  const MP = [[0,-1],[0.18,-0.62],[0.42,-0.78],[0.36,-0.4],[0.82,-0.48],[0.62,-0.2],[0.74,0.02],[0.34,0.06],[0.4,0.32],[0.05,0.2],[0.04,0.62],[-0.04,0.62],[-0.05,0.2],[-0.4,0.32],[-0.34,0.06],[-0.74,0.02],[-0.62,-0.2],[-0.82,-0.48],[-0.36,-0.4],[-0.42,-0.78],[-0.18,-0.62]];
+  const leaf = (x, y, s, rot, col, a = 1) => { c.save(); c.translate(x, y); c.rotate(rot); c.globalAlpha = a; c.beginPath(); MP.forEach(([px, py], i) => i ? c.lineTo(px * s, py * s) : c.moveTo(px * s, py * s)); c.closePath(); c.fillStyle = col; c.shadowColor = 'rgba(0,0,0,0.45)'; c.shadowBlur = 8; c.fill(); c.shadowBlur = 0; c.strokeStyle = 'rgba(60,20,0,0.5)'; c.lineWidth = Math.max(1, s / 30); c.beginPath(); c.moveTo(0, 0.6 * s); c.lineTo(0, -0.8 * s); c.moveTo(0, 0); c.lineTo(0.6 * s, -0.35 * s); c.moveTo(0, 0); c.lineTo(-0.6 * s, -0.35 * s); c.stroke(); c.restore(); };
+  // ---- falling leaves + warm sparkles (behind the products)
+  for (let i = 0; i < 34; i++) { const x = rnd() * W, y = 260 + rnd() * (H - 400); leaf(x, y, 16 + rnd() * 20, rnd() * TAU, FALL[i % FALL.length], 0.85); }
+  for (let i = 0; i < 120; i++) { const x = rnd() * W, y = rnd() * H, r = 0.8 + rnd() * 2.2; c.fillStyle = `rgba(255,215,140,${0.3 + rnd() * 0.5})`; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
   // ---- products: background-removed cutouts with a warm glow
   const P = {}; for (const n of ['gameboy','alien','barbatos','cardinal','psa','steelers']) P[n] = await img('c_' + n + '.png');
   const item = (im, x, y, w, rot) => { const h = w * im.height / im.width; c.save(); c.translate(x, y); c.rotate(rot);
     c.shadowColor = 'rgba(255,220,150,0.55)'; c.shadowBlur = 40; c.drawImage(im, -w / 2, -h / 2, w, h);
     c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 26; c.shadowOffsetY = 16; c.drawImage(im, -w / 2, -h / 2, w, h); c.restore(); };
-  // Christmas tree (left)
-  const tree = (x, y, s) => { c.save(); c.translate(x, y); c.scale(s, s);
-    c.fillStyle = '#5A3418'; c.fillRect(-18, 150, 36, 46);
-    [[-30, 130, 70], [-100, 75, 105], [-170, 15, 135]].forEach(([t, bw]) => {});
-    const tiers = [[-190, -40, 80], [-120, 40, 115], [-50, 150, 150]];
-    tiers.forEach(([t, bt, hw]) => { c.beginPath(); c.moveTo(0, t); c.lineTo(hw, bt); c.quadraticCurveTo(0, bt + 22, -hw, bt); c.closePath(); const g = c.createLinearGradient(-hw, 0, hw, 0); g.addColorStop(0, '#0D5A2A'); g.addColorStop(0.5, '#1E8C43'); g.addColorStop(1, '#0A4520'); c.fillStyle = g; c.shadowColor = 'rgba(0,0,0,0.6)'; c.shadowBlur = 20; c.fill(); c.shadowBlur = 0; });
-    // tinsel + lights
-    c.strokeStyle = '#F5D36B'; c.lineWidth = 4; [[-130, -60, 50, -10], [-95, 25, 80, 70], [-125, 95, 120, 140]].forEach(([x0, y0, x1, y1]) => { c.beginPath(); c.moveTo(x0 * 0.6, y0); c.quadraticCurveTo(0, (y0 + y1) / 2 + 26, x1 * 0.85, y1); c.stroke(); });
-    const LC = ['#FF3B3B', '#FFD34D', '#4DA3FF', '#FFFFFF', '#FF7AD9'];
-    for (let i = 0; i < 22; i++) { const t = rnd(), yy = -170 + t * 300, hw = 20 + t * 120, xx = (rnd() * 2 - 1) * hw * 0.8; c.fillStyle = LC[i % 5]; c.shadowColor = LC[i % 5]; c.shadowBlur = 16; c.beginPath(); c.arc(xx, yy, 7, 0, TAU); c.fill(); }
-    c.shadowBlur = 0;
-    // star
-    c.save(); c.translate(0, -195); c.shadowColor = '#FFD34D'; c.shadowBlur = 30; c.beginPath(); for (let i = 0; i < 10; i++) { const r = i % 2 ? 16 : 38, a = -Math.PI / 2 + i * Math.PI / 5; c.lineTo(Math.cos(a) * r, Math.sin(a) * r); } c.closePath(); c.fillStyle = gold(-38, 38); c.fill(); c.restore();
-    c.restore(); };
-  tree(165, 1265, 1.0);
-  item(P.alien, 205, 810, 400, -0.06);
+  // pumpkin patch (left)
+  const pumpkin = (x, y, rx, ry, col1, col2) => { c.save(); c.translate(x, y); c.shadowColor = 'rgba(0,0,0,0.6)'; c.shadowBlur = 24; c.shadowOffsetY = 10;
+    for (const k of [-0.62, 0.62, -0.32, 0.32, 0]) { const g = c.createRadialGradient(k * rx - rx * 0.2, -ry * 0.3, 4, k * rx, 0, rx * 0.7); g.addColorStop(0, col1); g.addColorStop(1, col2); c.fillStyle = g; c.beginPath(); c.ellipse(k * rx, 0, rx * (0.5 - Math.abs(k) * 0.12), ry, 0, 0, TAU); c.fill(); c.shadowColor = 'transparent'; }
+    c.fillStyle = '#4E6B1F'; c.beginPath(); c.moveTo(-8, -ry + 6); c.quadraticCurveTo(-4, -ry - 30, 12, -ry - 36); c.lineTo(16, -ry - 28); c.quadraticCurveTo(6, -ry - 18, 8, -ry + 6); c.closePath(); c.fill();
+    c.strokeStyle = '#5E7F28'; c.lineWidth = 3; c.beginPath(); c.moveTo(6, -ry - 4); for (let t = 0; t < 14; t++) c.lineTo(6 + t * 4, -ry - 4 - Math.sin(t * 0.9) * 10); c.stroke(); c.restore(); };
+  pumpkin(140, 1400, 150, 92, '#FFB04A', '#C24E0A');
+  pumpkin(175, 1255, 100, 66, '#FFD27A', '#D98A12');
+  pumpkin(90, 1155, 62, 44, '#FFF1D6', '#CDB89A');
+  leaf(260, 1330, 46, 0.8, '#A61E1E'); leaf(40, 1300, 40, -0.6, '#F2A300');
+  item(P.alien, 222, 810, 390, -0.06);
   item(P.barbatos, 875, 800, 330, 0.1);
   item(P.gameboy, 545, 820, 330, 0.02);
-  item(P.psa, 935, 1250, 240, 0.07);
+  item(P.psa, 940, 1175, 215, 0.06);
   // ---- headline (top-left)
   c.font = M(800, 30); c.fillStyle = GOLD[0]; c.textBaseline = 'middle'; c.textAlign = 'center'; c.letterSpacing = '6px'; c.fillText('ANAHEIM CARD SHOW', W / 2, 175); c.font = M(800, 24); c.fillText('★ HOLIDAY SHOW ★', W / 2, 217); c.letterSpacing = '0px'; c.textAlign = 'left';
   c.fillStyle = gold(241, 245); c.fillRect(W / 2 - 300, 245, 600, 3);
   word("I'M VENDING!", W / 2, 350, 156, '#FFFFFF', D, -0.02, 'center');
   word('3D Prints · Cards · Comics', W / 2, 475, 84, null, SER, -0.02, 'center');
   // ---- dates pill
-    DATES = () => { c.save(); rr(W / 2 - 400, 1740, 800, 96, 48); c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 24; c.fillStyle = '#B3121B'; c.fill(); c.shadowBlur = 0; c.lineWidth = 6; c.strokeStyle = gold(1740, 1836); c.stroke(); c.font = M(800, 40); c.fillStyle = '#FFF4D6'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillText('NOV 25 · 11AM-6PM · ANAHEIM', W / 2, 1790); c.restore(); };
+    DATES = () => { c.save(); rr(W / 2 - 400, 1740, 800, 96, 48); c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 24; c.fillStyle = '#B4501A'; c.fill(); c.shadowBlur = 0; c.lineWidth = 6; c.strokeStyle = gold(1740, 1836); c.stroke(); c.font = M(800, 40); c.fillStyle = '#FFF4D6'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillText('NOV 25 · 11AM-6PM · ANAHEIM', W / 2, 1790); c.restore(); };
 
   // ---- Kal (right), white sticker outline
   const ph = 900, pw = ph * me.width / me.height, px = (W - pw) / 2 + 30, py = H - ph + 20;
@@ -68,25 +67,20 @@ let DATES;
 
   // items over the elbows
   item(P.steelers, 225, 1610, 400, -0.08);
-  item(P.cardinal, 880, 1560, 240, 0.1);
-  drift(1850, 14, '#E8F1FF'); drift(1880, 10, '#FFFFFF');
+  item(P.cardinal, 900, 1590, 215, 0.08);
+  // leaf pile along the bottom
+  for (let i = 0; i < 140; i++) { const x = rnd() * W, y = 1845 + rnd() * 70; leaf(x, y, 22 + rnd() * 18, rnd() * TAU, FALL[i % FALL.length]); }
   DATES();
-  // ---- pine garland + string lights across the top
+  // ---- autumn leaf garland + warm string lights across the top
   const gy = (x) => 38 + Math.sin(x / W * Math.PI) * 34;
-  for (let i = 0; i < 900; i++) { const x = rnd() * W, y = gy(x) + (rnd() - 0.5) * 38, a = rnd() * TAU, l = 18 + rnd() * 22; c.strokeStyle = ['#0B4A22', '#13662F', '#1F8A3F', '#0E3D1D'][i % 4]; c.lineWidth = 3; c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); c.stroke(); }
-  const LC2 = ['#FF3B3B', '#FFD34D', '#3DFF8A', '#4DA3FF', '#FF7AD9'];
-  for (let i = 0; i < 18; i++) { const x = 30 + i * 60, y = gy(x) + 22; c.save(); c.translate(x, y); c.rotate((i % 2 ? 0.3 : -0.3)); c.fillStyle = '#333'; c.fillRect(-5, -10, 10, 10); c.shadowColor = LC2[i % 5]; c.shadowBlur = 28; c.fillStyle = LC2[i % 5]; c.beginPath(); c.ellipse(0, 10, 9, 15, 0, 0, TAU); c.fill(); c.fill(); c.restore(); }
-  // ornaments hanging off the garland
-  const orn = (x, len, r, c1, c2) => { const y = gy(x) + len; c.strokeStyle = '#E9B949'; c.lineWidth = 2; c.beginPath(); c.moveTo(x, gy(x)); c.lineTo(x, y - r); c.stroke(); c.save(); c.shadowColor = c1; c.shadowBlur = 25; const g = c.createRadialGradient(x - r / 3, y - r / 3, 3, x, y, r); g.addColorStop(0, c1); g.addColorStop(1, c2); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); c.restore(); c.fillStyle = gold(y - r - 12, y - r); c.fillRect(x - 9, y - r - 10, 18, 12); c.fillStyle = 'rgba(255,255,255,0.5)'; c.beginPath(); c.ellipse(x - r / 3, y - r / 2.5, r / 4, r / 7, -0.6, 0, TAU); c.fill(); };
-  orn(70, 120, 32, '#FF6B6B', '#7A0A0A'); orn(1010, 110, 34, '#5BE38A', '#0B4A22'); orn(150, 70, 22, '#FFE38A', '#9A6A10'); orn(930, 64, 24, '#FF6B6B', '#7A0A0A');
-  // holly sprigs by the label
-  const holly = (x, y, fl) => { c.save(); c.translate(x, y); c.scale(fl, 1); [[-0.5], [0.4]].forEach(([a]) => { c.save(); c.rotate(a); c.beginPath(); c.moveTo(0, 0); for (let i = 0; i <= 6; i++) { c.lineTo(i * 9, -((i % 2) ? 12 : 4) - Math.sin(i / 6 * Math.PI) * 6); } for (let i = 6; i >= 0; i--) { c.lineTo(i * 9, ((i % 2) ? 12 : 4) + Math.sin(i / 6 * Math.PI) * 6); } c.closePath(); c.fillStyle = '#1C8A3E'; c.fill(); c.restore(); });
-    ['#E0242A', '#FF3B3B', '#B3121B'].forEach((col, i) => { c.fillStyle = col; c.beginPath(); c.arc(-4 + i * 9, -6 + (i % 2) * 10, 8, 0, TAU); c.fill(); }); c.restore(); };
-  holly(215, 195, -1); holly(865, 195, 1);
-  // candy-cane border
-  c.save(); c.beginPath(); c.rect(0, 0, W, H); c.rect(18, 18, W - 36, H - 36); c.clip('evenodd'); c.fillStyle = '#FFFFFF'; c.fillRect(0, 0, W, H); c.fillStyle = '#D0141E'; for (let t = -H; t < W + H; t += 44) { c.beginPath(); c.moveTo(t, 0); c.lineTo(t + 22, 0); c.lineTo(t + 22 + H, H); c.lineTo(t + H, H); c.closePath(); c.fill(); } c.restore();
-  // ---- snow over everything
-  for (let i = 0; i < 300; i++) { const x = rnd() * W, y = rnd() * H, r = 0.8 + rnd() * 2.6; c.fillStyle = `rgba(255,255,255,${0.35 + rnd() * 0.55})`; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
+  c.strokeStyle = '#4A2A12'; c.lineWidth = 5; c.beginPath(); for (let x = 0; x <= W; x += 10) c.lineTo(x, gy(x)); c.stroke();
+  for (let i = 0; i < 70; i++) { const x = rnd() * W; leaf(x, gy(x) + (rnd() - 0.5) * 30, 22 + rnd() * 16, rnd() * TAU, FALL[i % FALL.length]); }
+  for (let i = 0; i < 18; i++) { const x = 30 + i * 60, y = gy(x) + 22; c.save(); c.translate(x, y); c.fillStyle = '#3A2A1A'; c.fillRect(-5, -10, 10, 10); c.shadowColor = '#FFB347'; c.shadowBlur = 30; c.fillStyle = '#FFE2A0'; c.beginPath(); c.ellipse(0, 10, 9, 15, 0, 0, TAU); c.fill(); c.fill(); c.restore(); }
+  // corner leaf clusters by the label
+  const sprig = (x, y, fl) => { c.save(); c.translate(x, y); c.scale(fl, 1); leaf(-10, 0, 46, -0.5, '#D9480F'); leaf(18, 8, 38, 0.6, '#F2A300'); leaf(2, -14, 30, 0.1, '#A61E1E'); c.fillStyle = '#6B3E1E'; [[-6, 26], [16, 30]].forEach(([ax, ay]) => { c.beginPath(); c.ellipse(ax, ay, 10, 12, 0, 0, TAU); c.fill(); c.fillStyle = '#4A2A12'; c.beginPath(); c.ellipse(ax, ay - 9, 12, 6, 0, 0, TAU); c.fill(); c.fillStyle = '#6B3E1E'; }); c.restore(); };
+  sprig(205, 195, -1); sprig(875, 195, 1);
+  // plaid-stripe border (burgundy / gold)
+  c.save(); c.beginPath(); c.rect(0, 0, W, H); c.rect(18, 18, W - 36, H - 36); c.clip('evenodd'); c.fillStyle = '#E9A23B'; c.fillRect(0, 0, W, H); c.fillStyle = '#7A1E12'; for (let t = -H; t < W + H; t += 44) { c.beginPath(); c.moveTo(t, 0); c.lineTo(t + 22, 0); c.lineTo(t + 22 + H, H); c.lineTo(t + H, H); c.closePath(); c.fill(); } c.restore();
   document.body.dataset.ready = '1';
 })();
 </script></body></html>
