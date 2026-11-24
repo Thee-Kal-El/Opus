@@ -27,37 +27,19 @@ let DATES;
   // gold floor reflection
   const fl = c.createLinearGradient(0, 1500, 0, H); fl.addColorStop(0, 'rgba(233,185,73,0)'); fl.addColorStop(1, 'rgba(233,185,73,0.3)'); c.fillStyle = fl; c.fillRect(0, 1500, W, 420);
 
-  // ---- products (left/middle): fanned trading cards, a comic book, a 3D-printed figure
-  const card = (x, y, rot, top, bot, label) => { c.save(); c.translate(x, y); c.rotate(rot); const w = 150, h = 210;
-    c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 24; c.shadowOffsetY = 10; rr(-w / 2, -h / 2, w, h, 12); c.fillStyle = gold(-h / 2, h / 2); c.fill(); c.shadowColor = 'transparent';
-    rr(-w / 2 + 8, -h / 2 + 8, w - 16, h - 16, 8); const g = c.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2); g.addColorStop(0, top); g.addColorStop(1, bot); c.fillStyle = g; c.fill();
-    // holo sheen
-    const hs = c.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2); hs.addColorStop(0.3, 'rgba(255,255,255,0)'); hs.addColorStop(0.45, 'rgba(255,255,255,0.45)'); hs.addColorStop(0.55, 'rgba(160,220,255,0.25)'); hs.addColorStop(0.7, 'rgba(255,255,255,0)'); c.fillStyle = hs; c.fill();
-    c.fillStyle = 'rgba(255,255,255,0.9)'; c.beginPath(); c.arc(0, -18, 34, 0, TAU); c.fill(); c.fillStyle = top; c.beginPath(); c.arc(0, -18, 24, 0, TAU); c.fill();
-    rr(-w / 2 + 14, h / 2 - 50, w - 28, 34, 6); c.fillStyle = 'rgba(0,0,0,0.55)'; c.fill(); c.font = M(800, 16); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(label, 0, h / 2 - 33); c.restore(); };
-  c.save(); c.translate(0, 0); c.scale(1.25, 1.25); card(150, 560, -0.32, '#2E6BFF', '#0B1E66', 'RC ★'); card(230, 530, -0.08, '#E02424', '#5A0808', 'HOLO'); card(317, 548, 0.2, '#16A34A', '#064020', '1/1'); c.restore();
-  // comic book
-  c.save(); c.translate(590, 690); c.scale(1.25, 1.25); c.rotate(0.08); const cw = 190, ch = 265;
-  c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 26; c.shadowOffsetY = 12; c.fillStyle = '#FFD21F'; c.fillRect(-cw / 2, -ch / 2, cw, ch); c.shadowColor = 'transparent';
-  c.fillStyle = RED; c.fillRect(-cw / 2, -ch / 2, cw, 54); c.font = D(40); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('COMICS', 0, -ch / 2 + 29);
-  c.save(); c.beginPath(); c.rect(-cw / 2 + 10, -ch / 2 + 62, cw - 20, ch - 72); c.clip(); for (let i = 0; i < 16; i++) { c.save(); c.rotate(i / 16 * TAU); c.fillStyle = i % 2 ? '#FF8A00' : '#FFE14A'; c.beginPath(); c.moveTo(0, 30); c.lineTo(-30, 200); c.lineTo(30, 200); c.fill(); c.restore(); } c.restore();
-  c.font = D(58); c.lineWidth = 10; c.strokeStyle = INK; c.lineJoin = 'round'; c.strokeText('POW!', 0, 40); c.fillStyle = '#fff'; c.fillText('POW!', 0, 40);
-  c.fillStyle = '#fff'; c.fillRect(cw / 2 - 46, ch / 2 - 44, 36, 34); c.font = M(800, 14); c.fillStyle = INK; c.fillText('#1', cw / 2 - 28, ch / 2 - 26); c.restore();
-  // 3D printer mid-print: frame, gantry + nozzle, print bed, a figure half-built with glowing layer lines
-  c.save(); c.translate(890, 690); c.scale(1.05, 1.05);
-  c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 24; c.shadowOffsetY = 10;
-  rr(-115, -175, 230, 300, 14); c.fillStyle = '#1C1C1F'; c.fill(); c.shadowColor = 'transparent';
-  c.fillStyle = '#2C2C31'; c.fillRect(-100, -160, 12, 270); c.fillRect(88, -160, 12, 270);           // uprights
-  c.fillStyle = '#3A3A40'; c.fillRect(-100, -95, 200, 14);                                         // gantry
-  rr(-14, -88, 28, 24, 4); c.fillStyle = '#E9B949'; c.fill(); c.beginPath(); c.moveTo(-6, -64); c.lineTo(6, -64); c.lineTo(0, -54); c.closePath(); c.fillStyle = '#FFE7A3'; c.fill();
-  c.fillStyle = '#FFB070'; c.shadowColor = '#FF7A1A'; c.shadowBlur = 16; c.beginPath(); c.arc(0, -52, 4, 0, TAU); c.fill(); c.shadowBlur = 0; c.shadowColor = 'transparent'; c.shadowOffsetY = 0;   // hot nozzle tip
-  rr(-90, 92, 180, 16, 4); c.fillStyle = '#4A4A52'; c.fill();                                      // bed
-  // the part being printed: a little rocket/figure, built from stacked layers
-  const layers = 26; for (let i = 0; i < layers; i++) { const y = 90 - i * 5.4; const half = i < 6 ? 34 : i < 18 ? 24 + Math.sin(i * 0.35) * 4 : 24 - (i - 18) * 2.6;
-    c.fillStyle = i % 2 ? '#E8452C' : '#FF5A3A'; c.fillRect(-half, y - 5.4, half * 2, 5.6); }
-  c.fillStyle = '#FFE14A'; c.fillRect(-34, 74, 68, 5); c.fillStyle = 'rgba(255,255,255,0.35)'; c.fillRect(-20, -48, 6, 120);
-  rr(-80, 132, 160, 28, 7); c.fillStyle = INK; c.fill(); c.lineWidth = 2; c.strokeStyle = '#E9B949'; c.stroke(); c.font = M(800, 16); c.fillStyle = '#FFE7A3'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('3D PRINTS', 0, 147);
-  c.restore();
+  // ---- products: Kal's real items as tilted white-framed photo cards
+  const P = {}; for (const n of ['gameboy','alien','barbatos','cardinal','psa','steelers']) P[n] = await img('p_' + n + '.jpg');
+  const photo = (im, x, y, w, rot, tag) => { const h = w * im.height / im.width, f = 14; c.save(); c.translate(x, y); c.rotate(rot);
+    c.shadowColor = 'rgba(0,0,0,0.75)'; c.shadowBlur = 34; c.shadowOffsetY = 14; rr(-w / 2 - f, -h / 2 - f, w + 2 * f, h + 2 * f + (tag ? 40 : 0), 10); c.fillStyle = '#FBF7EE'; c.fill(); c.shadowColor = 'transparent'; c.shadowBlur = 0; c.shadowOffsetY = 0;
+    c.drawImage(im, -w / 2, -h / 2, w, h);
+    if (tag) { c.font = M(800, 24); c.fillStyle = '#1A1206'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(tag, 0, h / 2 + f + 8); }
+    c.restore(); };
+  photo(P.alien, 215, 760, 330, -0.11, '3D PRINTS');
+  photo(P.barbatos, 870, 740, 320, 0.09, 'CUSTOM PLAQUES');
+  photo(P.cardinal, 150, 1250, 250, -0.07, null);
+  photo(P.psa, 935, 1260, 200, 0.08, null);
+  photo(P.steelers, 200, 1590, 320, 0.05, null);
+  photo(P.gameboy, 545, 770, 330, 0.03, null);
 
   // ---- headline (top-left)
   c.font = M(800, 30); c.fillStyle = GOLD[0]; c.textBaseline = 'middle'; c.textAlign = 'center'; c.letterSpacing = '6px'; c.fillText('ANAHEIM CARD SHOW', W / 2, 120); c.font = M(800, 24); c.fillText('HOLIDAY SHOWS', W / 2, 162); c.letterSpacing = '0px'; c.textAlign = 'left';
@@ -70,7 +52,7 @@ let DATES;
   c.save(); c.translate(960, 110); c.shadowColor = 'rgba(224,36,36,0.7)'; c.shadowBlur = 30; const og = c.createRadialGradient(-12, -12, 4, 0, 0, 46); og.addColorStop(0, '#FF8080'); og.addColorStop(1, '#8E0E0E'); c.beginPath(); c.arc(0, 20, 46, 0, TAU); c.fillStyle = og; c.fill(); c.shadowBlur = 0; c.fillStyle = gold(-40, -20); c.fillRect(-12, -36, 24, 16); c.strokeStyle = '#E9B949'; c.lineWidth = 3; c.beginPath(); c.moveTo(0, -36); c.lineTo(0, -70); c.stroke(); c.restore();
 
   // ---- Kal (right), white sticker outline
-  const ph = 1060, pw = ph * me.width / me.height, px = (W - pw) / 2 + 30, py = H - ph + 20;
+  const ph = 900, pw = ph * me.width / me.height, px = (W - pw) / 2 + 30, py = H - ph + 20;
   const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
   for (let a = 0; a < 28; a++) o.drawImage(me, px + Math.cos(a / 28 * TAU) * 12, py + Math.sin(a / 28 * TAU) * 12, pw, ph);
   o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
