@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Anaheim Card Show Thumbnail</title>
+<link rel="stylesheet" href="../../fonts/fonts.css">
+<style>html,body{margin:0;background:#000}canvas{display:block}</style></head>
+<body><canvas id="s" width="1280" height="720"></canvas>
+<script>
+// YouTube thumbnail (1280×720): Kal vending 3D prints, trading cards and comics at the Anaheim Card Show holiday shows.
+// Black + gold holiday look to match the show's flyer; products are drawn stand-ins.
+(async () => {
+  const c = document.getElementById('s').getContext('2d'), W = 1280, H = 720, TAU = Math.PI * 2;
+  const GOLD = ['#FFE7A3', '#E9B949', '#A8761C'], RED = '#E02424', INK = '#0A0A0A';
+  const D = (s) => `900 ${s}px "Inter Tight", sans-serif`, SER = (s) => `italic 400 ${s}px "Instrument Serif", serif`, M = (w, s) => `${w} ${s}px "JetBrains Mono", monospace`;
+  await Promise.all([document.fonts.load(D(100)), document.fonts.load(SER(80)), document.fonts.load(M(800, 30))]);
+  const img = (src) => new Promise((r) => { const i = new Image(); i.onload = () => r(i); i.src = src; });
+  const me = await img('kal_cut.png');
+  let seed = 7; const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const rr = (x, y, w, h, r) => { c.beginPath(); c.roundRect(x, y, w, h, r); };
+  const gold = (y0, y1) => { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, GOLD[0]); g.addColorStop(0.5, GOLD[1]); g.addColorStop(1, GOLD[2]); return g; };
+  const word = (s, x, y, size, fill, font = D, rot = -0.02, align = 'left') => { c.save(); c.translate(x, y); c.rotate(rot); c.font = font(size); c.textAlign = align; c.textBaseline = 'middle'; c.lineJoin = 'round';
+    c.save(); c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 20; c.shadowOffsetY = 8; c.lineWidth = size * 0.22; c.strokeStyle = INK; c.strokeText(s, 0, 0); c.restore();
+    c.lineWidth = size * 0.22; c.strokeStyle = INK; c.strokeText(s, 0, 0); c.fillStyle = typeof fill === 'string' ? fill : gold(-size / 2, size / 2); c.fillText(s, 0, 0); c.restore(); };
+
+  // ---- background: black with warm bokeh lights + falling snow
+  const bg = c.createRadialGradient(420, 420, 40, 420, 420, 900); bg.addColorStop(0, '#2A1A08'); bg.addColorStop(0.5, '#0E0A06'); bg.addColorStop(1, '#000'); c.fillStyle = bg; c.fillRect(0, 0, W, H);
+  for (let i = 0; i < 26; i++) { const x = rnd() * W, y = 420 + rnd() * 300, r = 10 + rnd() * 34, g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(255,${170 + rnd() * 60 | 0},80,${0.25 + rnd() * 0.3})`); g.addColorStop(1, 'rgba(255,160,60,0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
+  // gold floor reflection
+  const fl = c.createLinearGradient(0, 560, 0, H); fl.addColorStop(0, 'rgba(233,185,73,0)'); fl.addColorStop(1, 'rgba(233,185,73,0.25)'); c.fillStyle = fl; c.fillRect(0, 560, W, 160);
+
+  // ---- products (left/middle): fanned trading cards, a comic book, a 3D-printed figure
+  const card = (x, y, rot, top, bot, label) => { c.save(); c.translate(x, y); c.rotate(rot); const w = 150, h = 210;
+    c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 24; c.shadowOffsetY = 10; rr(-w / 2, -h / 2, w, h, 12); c.fillStyle = gold(-h / 2, h / 2); c.fill(); c.shadowColor = 'transparent';
+    rr(-w / 2 + 8, -h / 2 + 8, w - 16, h - 16, 8); const g = c.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2); g.addColorStop(0, top); g.addColorStop(1, bot); c.fillStyle = g; c.fill();
+    // holo sheen
+    const hs = c.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2); hs.addColorStop(0.3, 'rgba(255,255,255,0)'); hs.addColorStop(0.45, 'rgba(255,255,255,0.45)'); hs.addColorStop(0.55, 'rgba(160,220,255,0.25)'); hs.addColorStop(0.7, 'rgba(255,255,255,0)'); c.fillStyle = hs; c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.9)'; c.beginPath(); c.arc(0, -18, 34, 0, TAU); c.fill(); c.fillStyle = top; c.beginPath(); c.arc(0, -18, 24, 0, TAU); c.fill();
+    rr(-w / 2 + 14, h / 2 - 50, w - 28, 34, 6); c.fillStyle = 'rgba(0,0,0,0.55)'; c.fill(); c.font = M(800, 16); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(label, 0, h / 2 - 33); c.restore(); };
+  card(190, 470, -0.32, '#2E6BFF', '#0B1E66', 'RC ★'); card(270, 440, -0.08, '#E02424', '#5A0808', 'HOLO'); card(357, 458, 0.2, '#16A34A', '#064020', '1/1');
+  // comic book
+  c.save(); c.translate(560, 450); c.rotate(0.08); const cw = 190, ch = 265;
+  c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 26; c.shadowOffsetY = 12; c.fillStyle = '#FFD21F'; c.fillRect(-cw / 2, -ch / 2, cw, ch); c.shadowColor = 'transparent';
+  c.fillStyle = RED; c.fillRect(-cw / 2, -ch / 2, cw, 54); c.font = D(40); c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('COMICS', 0, -ch / 2 + 29);
+  c.save(); c.beginPath(); c.rect(-cw / 2 + 10, -ch / 2 + 62, cw - 20, ch - 72); c.clip(); for (let i = 0; i < 16; i++) { c.save(); c.rotate(i / 16 * TAU); c.fillStyle = i % 2 ? '#FF8A00' : '#FFE14A'; c.beginPath(); c.moveTo(0, 30); c.lineTo(-30, 200); c.lineTo(30, 200); c.fill(); c.restore(); } c.restore();
+  c.font = D(58); c.lineWidth = 10; c.strokeStyle = INK; c.lineJoin = 'round'; c.strokeText('POW!', 0, 40); c.fillStyle = '#fff'; c.fillText('POW!', 0, 40);
+  c.fillStyle = '#fff'; c.fillRect(cw / 2 - 46, ch / 2 - 44, 36, 34); c.font = M(800, 14); c.fillStyle = INK; c.fillText('#1', cw / 2 - 28, ch / 2 - 26); c.restore();
+  // 3D printer mid-print: frame, gantry + nozzle, print bed, a figure half-built with glowing layer lines
+  c.save(); c.translate(790, 470);
+  c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 24; c.shadowOffsetY = 10;
+  rr(-115, -175, 230, 300, 14); c.fillStyle = '#1C1C1F'; c.fill(); c.shadowColor = 'transparent';
+  c.fillStyle = '#2C2C31'; c.fillRect(-100, -160, 12, 270); c.fillRect(88, -160, 12, 270);           // uprights
+  c.fillStyle = '#3A3A40'; c.fillRect(-100, -95, 200, 14);                                         // gantry
+  rr(-14, -88, 28, 24, 4); c.fillStyle = '#E9B949'; c.fill(); c.beginPath(); c.moveTo(-6, -64); c.lineTo(6, -64); c.lineTo(0, -54); c.closePath(); c.fillStyle = '#FFE7A3'; c.fill();
+  c.fillStyle = '#FFB070'; c.shadowColor = '#FF7A1A'; c.shadowBlur = 16; c.beginPath(); c.arc(0, -52, 4, 0, TAU); c.fill(); c.shadowBlur = 0; c.shadowColor = 'transparent'; c.shadowOffsetY = 0;   // hot nozzle tip
+  rr(-90, 92, 180, 16, 4); c.fillStyle = '#4A4A52'; c.fill();                                      // bed
+  // the part being printed: a little rocket/figure, built from stacked layers
+  const layers = 26; for (let i = 0; i < layers; i++) { const y = 90 - i * 5.4; const half = i < 6 ? 34 : i < 18 ? 24 + Math.sin(i * 0.35) * 4 : 24 - (i - 18) * 2.6;
+    c.fillStyle = i % 2 ? '#E8452C' : '#FF5A3A'; c.fillRect(-half, y - 5.4, half * 2, 5.6); }
+  c.fillStyle = '#FFE14A'; c.fillRect(-34, 74, 68, 5); c.fillStyle = 'rgba(255,255,255,0.35)'; c.fillRect(-20, -48, 6, 120);
+  rr(-80, 132, 160, 28, 7); c.fillStyle = INK; c.fill(); c.lineWidth = 2; c.strokeStyle = '#E9B949'; c.stroke(); c.font = M(800, 16); c.fillStyle = '#FFE7A3'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('3D PRINTS', 0, 147);
+  c.restore();
+
+  // ---- headline (top-left)
+  c.font = M(800, 22); c.fillStyle = GOLD[0]; c.textBaseline = 'middle'; c.letterSpacing = '6px'; c.fillText('ANAHEIM CARD SHOW · HOLIDAY SHOWS', 58, 46); c.letterSpacing = '0px';
+  c.fillStyle = gold(56, 60); c.fillRect(58, 66, 560, 3);
+  word("I'M VENDING!", 52, 140, 116, '#FFFFFF');
+  word('3D Prints · Cards · Comics', 60, 238, 62, null, SER, -0.02);
+  // ---- dates pill
+  c.save(); rr(60, 640, 560, 56, 28); c.fillStyle = INK; c.fill(); c.lineWidth = 3; c.strokeStyle = gold(640, 696); c.stroke(); c.font = M(800, 24); c.fillStyle = '#FFE7A3'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillText('NOV 25 & NOV 27 · ANAHEIM, CA', 340, 669); c.restore();
+  // ---- ornament
+  c.save(); c.translate(890, 90); c.shadowColor = 'rgba(224,36,36,0.7)'; c.shadowBlur = 30; const og = c.createRadialGradient(-12, -12, 4, 0, 0, 46); og.addColorStop(0, '#FF8080'); og.addColorStop(1, '#8E0E0E'); c.beginPath(); c.arc(0, 20, 46, 0, TAU); c.fillStyle = og; c.fill(); c.shadowBlur = 0; c.fillStyle = gold(-40, -20); c.fillRect(-12, -36, 24, 16); c.strokeStyle = '#E9B949'; c.lineWidth = 3; c.beginPath(); c.moveTo(0, -36); c.lineTo(0, -70); c.stroke(); c.restore();
+
+  // ---- Kal (right), white sticker outline
+  const ph = 690, pw = ph * me.width / me.height, px = W - pw + 70, py = H - ph + 30;
+  const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
+  for (let a = 0; a < 28; a++) o.drawImage(me, px + Math.cos(a / 28 * TAU) * 12, py + Math.sin(a / 28 * TAU) * 12, pw, ph);
+  o.globalCompositeOperation = 'source-in'; o.fillStyle = '#fff'; o.fillRect(0, 0, W, H);
+  c.save(); c.shadowColor = 'rgba(233,185,73,0.6)'; c.shadowBlur = 50; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
+
+  // ---- snow over everything
+  for (let i = 0; i < 160; i++) { const x = rnd() * W, y = rnd() * H, r = 0.8 + rnd() * 2.6; c.fillStyle = `rgba(255,255,255,${0.35 + rnd() * 0.55})`; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
+  document.body.dataset.ready = '1';
+})();
+</script></body></html>
