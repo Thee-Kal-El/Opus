@@ -42,14 +42,10 @@ let DATES;
     for (const k of [-0.62, 0.62, -0.32, 0.32, 0]) { const g = c.createRadialGradient(k * rx - rx * 0.2, -ry * 0.3, 4, k * rx, 0, rx * 0.7); g.addColorStop(0, col1); g.addColorStop(1, col2); c.fillStyle = g; c.beginPath(); c.ellipse(k * rx, 0, rx * (0.5 - Math.abs(k) * 0.12), ry, 0, 0, TAU); c.fill(); c.shadowColor = 'transparent'; }
     c.fillStyle = '#4E6B1F'; c.beginPath(); c.moveTo(-8, -ry + 6); c.quadraticCurveTo(-4, -ry - 30, 12, -ry - 36); c.lineTo(16, -ry - 28); c.quadraticCurveTo(6, -ry - 18, 8, -ry + 6); c.closePath(); c.fill();
     c.strokeStyle = '#5E7F28'; c.lineWidth = 3; c.beginPath(); c.moveTo(6, -ry - 4); for (let t = 0; t < 14; t++) c.lineTo(6 + t * 4, -ry - 4 - Math.sin(t * 0.9) * 10); c.stroke(); c.restore(); };
-  pumpkin(140, 1400, 150, 92, '#FFB04A', '#C24E0A');
-  pumpkin(175, 1255, 100, 66, '#FFD27A', '#D98A12');
-  pumpkin(90, 1155, 62, 44, '#FFF1D6', '#CDB89A');
-  leaf(260, 1330, 46, 0.8, '#A61E1E'); leaf(40, 1300, 40, -0.6, '#F2A300');
   item(P.alien, 222, 810, 390, -0.06);
   item(P.barbatos, 875, 800, 330, 0.1);
   item(P.gameboy, 545, 820, 330, 0.02);
-  item(P.psa, 940, 1175, 215, 0.06);
+  item(P.cardinal, 175, 1265, 300, -0.08);
   // ---- headline (top-left)
   c.font = M(800, 30); c.fillStyle = GOLD[0]; c.textBaseline = 'middle'; c.textAlign = 'center'; c.letterSpacing = '6px'; c.fillText('ANAHEIM CARD SHOW', W / 2, 175); c.font = M(800, 24); c.fillText('★ HOLIDAY SHOW ★', W / 2, 217); c.letterSpacing = '0px'; c.textAlign = 'left';
   c.fillStyle = gold(241, 245); c.fillRect(W / 2 - 300, 245, 600, 3);
@@ -66,8 +62,8 @@ let DATES;
   c.save(); c.shadowColor = 'rgba(233,185,73,0.6)'; c.shadowBlur = 50; c.drawImage(off, 0, 0); c.restore(); c.drawImage(me, px, py, pw, ph);
 
   // items over the elbows
+  item(P.psa, 925, 1320, 270, 0.05);
   item(P.steelers, 225, 1610, 400, -0.08);
-  item(P.cardinal, 900, 1590, 215, 0.08);
   // leaf pile along the bottom
   for (let i = 0; i < 140; i++) { const x = rnd() * W, y = 1845 + rnd() * 70; leaf(x, y, 22 + rnd() * 18, rnd() * TAU, FALL[i % FALL.length]); }
   DATES();
