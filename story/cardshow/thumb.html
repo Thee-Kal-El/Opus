@@ -59,12 +59,12 @@
   c.restore();
 
   // ---- headline (top-left)
-  c.font = M(800, 22); c.fillStyle = GOLD[0]; c.textBaseline = 'middle'; c.letterSpacing = '6px'; c.fillText('ANAHEIM CARD SHOW · HOLIDAY SHOWS', 58, 46); c.letterSpacing = '0px';
+  c.font = M(800, 22); c.fillStyle = GOLD[0]; c.textBaseline = 'middle'; c.letterSpacing = '6px'; c.fillText('ANAHEIM CARD SHOW · HOLIDAY SHOW', 58, 46); c.letterSpacing = '0px';
   c.fillStyle = gold(56, 60); c.fillRect(58, 66, 560, 3);
   word("I'M VENDING!", 52, 140, 116, '#FFFFFF');
   word('3D Prints · Cards · Comics', 60, 238, 62, null, SER, -0.02);
   // ---- dates pill
-  c.save(); rr(60, 640, 560, 56, 28); c.fillStyle = INK; c.fill(); c.lineWidth = 3; c.strokeStyle = gold(640, 696); c.stroke(); c.font = M(800, 24); c.fillStyle = '#FFE7A3'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillText('NOV 25 & NOV 27 · ANAHEIM, CA', 340, 669); c.restore();
+  c.save(); rr(60, 640, 400, 56, 28); c.fillStyle = INK; c.fill(); c.lineWidth = 3; c.strokeStyle = gold(640, 696); c.stroke(); c.font = M(800, 24); c.fillStyle = '#FFE7A3'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillText('NOV 25 · ANAHEIM, CA', 260, 669); c.restore();
   // ---- ornament
   c.save(); c.translate(890, 90); c.shadowColor = 'rgba(224,36,36,0.7)'; c.shadowBlur = 30; const og = c.createRadialGradient(-12, -12, 4, 0, 0, 46); og.addColorStop(0, '#FF8080'); og.addColorStop(1, '#8E0E0E'); c.beginPath(); c.arc(0, 20, 46, 0, TAU); c.fillStyle = og; c.fill(); c.shadowBlur = 0; c.fillStyle = gold(-40, -20); c.fillRect(-12, -36, 24, 16); c.strokeStyle = '#E9B949'; c.lineWidth = 3; c.beginPath(); c.moveTo(0, -36); c.lineTo(0, -70); c.stroke(); c.restore();
 

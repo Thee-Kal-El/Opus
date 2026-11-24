@@ -42,12 +42,12 @@ let DATES;
   photo(P.gameboy, 545, 770, 330, 0.03, null);
 
   // ---- headline (top-left)
-  c.font = M(800, 30); c.fillStyle = GOLD[0]; c.textBaseline = 'middle'; c.textAlign = 'center'; c.letterSpacing = '6px'; c.fillText('ANAHEIM CARD SHOW', W / 2, 120); c.font = M(800, 24); c.fillText('HOLIDAY SHOWS', W / 2, 162); c.letterSpacing = '0px'; c.textAlign = 'left';
+  c.font = M(800, 30); c.fillStyle = GOLD[0]; c.textBaseline = 'middle'; c.textAlign = 'center'; c.letterSpacing = '6px'; c.fillText('ANAHEIM CARD SHOW', W / 2, 120); c.font = M(800, 24); c.fillText('HOLIDAY SHOW', W / 2, 162); c.letterSpacing = '0px'; c.textAlign = 'left';
   c.fillStyle = gold(186, 190); c.fillRect(W / 2 - 300, 190, 600, 3);
   word("I'M VENDING!", W / 2, 300, 156, '#FFFFFF', D, -0.02, 'center');
   word('3D Prints · Cards · Comics', W / 2, 430, 84, null, SER, -0.02, 'center');
   // ---- dates pill
-    DATES = () => { c.save(); rr(W / 2 - 330, 1770, 660, 80, 40); c.fillStyle = INK; c.fill(); c.lineWidth = 4; c.strokeStyle = gold(1770, 1850); c.stroke(); c.font = M(800, 34); c.fillStyle = '#FFE7A3'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillText('NOV 25 & NOV 27 · ANAHEIM, CA', W / 2, 1811); c.restore(); };
+    DATES = () => { c.save(); rr(W / 2 - 260, 1770, 520, 80, 40); c.fillStyle = INK; c.fill(); c.lineWidth = 4; c.strokeStyle = gold(1770, 1850); c.stroke(); c.font = M(800, 34); c.fillStyle = '#FFE7A3'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillText('NOV 25 · ANAHEIM, CA', W / 2, 1811); c.restore(); };
   // ---- ornament
   c.save(); c.translate(960, 110); c.shadowColor = 'rgba(224,36,36,0.7)'; c.shadowBlur = 30; const og = c.createRadialGradient(-12, -12, 4, 0, 0, 46); og.addColorStop(0, '#FF8080'); og.addColorStop(1, '#8E0E0E'); c.beginPath(); c.arc(0, 20, 46, 0, TAU); c.fillStyle = og; c.fill(); c.shadowBlur = 0; c.fillStyle = gold(-40, -20); c.fillRect(-12, -36, 24, 16); c.strokeStyle = '#E9B949'; c.lineWidth = 3; c.beginPath(); c.moveTo(0, -36); c.lineTo(0, -70); c.stroke(); c.restore();
 
